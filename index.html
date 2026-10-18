@@ -147,6 +147,10 @@
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   main.foodpage, main.sospage { padding-top: calc(12px + env(safe-area-inset-top)); }
+  /* FIX 1: spazio di scorrimento sotto la card — così "Apri guida completa",
+     i bottoni mappa e il tip non restano mai coperti dal pad fisso
+     (PREC / FATTO / NEXT / TAXI) e dalla barra di navigazione. */
+  main#nowPage { padding-bottom: 124px; }
   main[hidden] { display: none !important; }
 
   .kicker {
@@ -173,6 +177,14 @@
     filter: drop-shadow(0 6px 18px #0006);
     animation: float 3.6s ease-in-out infinite;
   }
+  /* FIX 2: emoji in linea con il titolo (a sinistra della scritta),
+     card più compatta: più contenuti visibili senza scorrere. */
+  .cardhead {
+    display: flex; align-items: center; justify-content: center;
+    gap: 10px; margin-bottom: 10px;
+  }
+  .cardhead .emoji { font-size: 40px; margin-bottom: 0; flex: none; }
+  .cardhead .title { margin-bottom: 0; }
   @keyframes float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-7px); }
@@ -1054,7 +1066,7 @@ function render() {
         <button class="tbtn on" style="min-height:48px;padding:12px 22px" onclick="openSheet()">⚙️ Apri servizio</button>
       </div>`;
     const pad = document.getElementById('pad-fixed');
-    if (pad) pad.innerHTML = '';
+    if (pad) { pad.innerHTML = ''; pad.style.display = 'none'; }
     return;
   }
   const isDone = !!state[dayIdx + ':' + idx];
@@ -1068,8 +1080,10 @@ function render() {
     <div class="kicker">Adesso · ${DAYS[dayIdx].name}<span class="phase" id="phase"></span></div>
     <div class="stepno">tappa ${idx + 1} di ${steps.length} · prevista ${s.time}${isDone ? ' · <span class="badge-done">✓ completata</span>' : ''}</div>
     <div class="bigcard">
-      <div class="emoji" aria-hidden="true">${s.emoji}</div>
-      <div class="title">${s.title}</div>
+      <div class="cardhead">
+        <div class="emoji" aria-hidden="true">${s.emoji}</div>
+        <div class="title">${s.title}</div>
+      </div>
       <div class="meta">${s.meta}</div>
       <div class="countdown" id="cd"></div>
       ${guideData && guideData.wiki ? `
