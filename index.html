@@ -3,22 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#0b1020">
+<meta name="theme-color" content="#e8f2ef">
 <title>Lyon Ibrida · 29–31 Ott</title>
 
 <!-- ⬇️ INIZIO MODIFICHE PER L'ICONA E L'APP ⬇️ -->
 <!-- Icona personalizzata (SVG incorporato, funziona in locale senza file esterni) -->
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%230b1020'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
 <!-- Permette l'aggiunta alla schermata Home su iOS e Android nascondendo la barra del browser -->
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%230b1020'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <!-- ⬆️ FINE MODIFICHE ⬆️ -->
 
 <style>
-  :root{--bg:#0b1020;--card:#151d33;--line:#2a3552;--txt:#eef2ff;--mut:#8b9bc4;
-        --amber:#ffc93c;--green:#2ee6a8;--blue:#5b8cff;--red:#ff6b6b}
+  :root{--bg:#e8f2ef;--card:#ffffff;--line:#c3dcd5;--txt:#17323b;--mut:#5b7a80;
+        --amber:#e0940f;--green:#0e9f6e;--blue:#2563eb;--red:#dc4c4c}
   *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   html,body{height:100%}
   body{background:var(--bg);color:var(--txt);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;
@@ -26,22 +26,22 @@
        padding-bottom:calc(72px + env(safe-area-inset-bottom))}
 
   .sky{position:fixed;inset:0;transition:background 1.2s;z-index:0}
-  .sky.morning{background:radial-gradient(120% 90% at 50% -10%,#2b3a67,#0b1020 70%)}
-  .sky.day{background:radial-gradient(120% 90% at 50% -10%,#1c4d7a,#0b1020 70%)}
-  .sky.evening{background:radial-gradient(120% 90% at 50% -10%,#6b3a1c,#0b1020 70%)}
-  .sky.night{background:radial-gradient(120% 90% at 50% -10%,#3a2b6b,#0b1020 70%)}
+  .sky.morning{background:radial-gradient(120% 90% at 50% -10%,#fdf3dd,#e8f2ef 70%)}
+  .sky.day{background:radial-gradient(120% 90% at 50% -10%,#d8edfb,#e8f2ef 70%)}
+  .sky.evening{background:radial-gradient(120% 90% at 50% -10%,#fdeadb,#e8f2ef 70%)}
+  .sky.night{background:radial-gradient(120% 90% at 50% -10%,#e3e0f7,#e8f2ef 70%)}
 
   .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;justify-content:space-between;align-items:center;
           padding:calc(10px + env(safe-area-inset-top)) 12px 8px}
-  .tbtn{background:#151d3ccc;border:1.5px solid var(--line);color:var(--mut);font-weight:800;font-size:11px;
+  .tbtn{background:#ffffffdd;border:1.5px solid var(--line);color:var(--mut);font-weight:800;font-size:11px;
         padding:9px 12px;border-radius:12px;min-height:40px}
   .tbtn.on{color:var(--amber);border-color:var(--amber)}
   .clock{font-size:11px;font-weight:800;color:var(--mut);font-variant-numeric:tabular-nums;
-         background:#0b102099;padding:6px 10px;border-radius:10px;border:1px solid var(--line)}
+         background:#ffffffcc;padding:6px 10px;border-radius:10px;border:1px solid var(--line)}
 
   .daystrip{position:fixed;top:calc(58px + env(safe-area-inset-top));left:0;right:0;
             display:flex;justify-content:center;gap:8px;z-index:20;padding:0 12px}
-  .daystrip button{background:#151d33cc;border:1.5px solid var(--line);color:var(--mut);
+  .daystrip button{background:#ffffffdd;border:1.5px solid var(--line);color:var(--mut);
                    font-weight:800;font-size:11.5px;padding:8px 16px;border-radius:99px;
                    min-height:36px;letter-spacing:.3px;cursor:pointer;
                    transition:background .2s,border-color .2s,color .2s,box-shadow .2s,transform .12s}
@@ -76,22 +76,22 @@
                 display:flex;align-items:center;justify-content:center;gap:6px}
   .photo-status.ok{display:none}
 
-  .guide-box{margin:0 auto 14px;max-width:460px;background:rgba(255,255,255,.04);border-left:3px solid var(--amber);
+  .guide-box{margin:0 auto 14px;max-width:460px;background:rgba(15,90,80,.05);border-left:3px solid var(--amber);
              padding:12px 14px;border-radius:0 14px 14px 0;text-align:left;box-shadow:0 4px 15px rgba(0,0,0,.15);width:100%}
   .guide-title{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:1.5px;color:var(--amber);
                margin-bottom:6px;display:flex;align-items:center;gap:4px}
-  .guide-text{font-size:13px;line-height:1.5;color:#cbd5e1;display:-webkit-box;-webkit-line-clamp:2;
+  .guide-text{font-size:13px;line-height:1.5;#3d5a5e;display:-webkit-box;-webkit-line-clamp:2;
               -webkit-box-orient:vertical;overflow:hidden}
-  .guide-text b{color:#fff;font-weight:700}
+  .guide-text b{color:#122e36;font-weight:700}
   .guide-open-btn{display:block;width:100%;margin-top:10px;padding:11px 14px;
                   background:linear-gradient(135deg,#ffc93c26,#ffc93c0d);border:1.5px solid #ffc93c55;
                   color:var(--amber);font-size:12.5px;font-weight:900;letter-spacing:.3px;border-radius:12px;
                   cursor:pointer;text-align:center;transition:transform .12s,background .15s}
   .guide-open-btn:active{transform:scale(.97);background:#ffc93c33}
 
-  .tip{margin:12px auto 0;max-width:420px;background:#ffc93c14;border:1px solid #ffc93c33;color:#ffe08a;
+  .tip{margin:12px auto 0;max-width:420px;background:#ffc93c14;border:1px solid #ffc93c33;color:#8a5b00;
        font-size:12px;padding:10px 12px;border-radius:14px;line-height:1.4;text-align:center}
-  .warn{background:#ff6b6b14;border-color:#ff6b6b44;color:#ffb3b3}
+  .warn{background:#ff6b6b14;border-color:#ff6b6b44;color:#c06a6a}
 
   .map-actions{display:flex;justify-content:center;gap:8px;margin-top:10px;flex-wrap:wrap}
   .map-btn{display:flex;align-items:center;gap:6px;text-decoration:none;font-size:11.5px;font-weight:800;
@@ -105,20 +105,24 @@
        background:linear-gradient(to top,var(--bg) 70%,transparent);
        display:flex;align-items:center;justify-content:center;gap:10px;padding:12px 20px}
   .pad-inner{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;max-width:520px}
+  .pad-center{flex:1;display:flex;align-items:center;justify-content:center;gap:10px;min-width:0}
+  .pad-spacer{width:72px}
+  .pad-inner .pbtn.tel{margin-left:14px}
+  @media(max-width:459px){.pad-spacer{display:none}.pad-inner .pbtn.tel{margin-left:6px}}
   .pbtn{border:none;border-radius:20px;font-weight:900;display:flex;flex-direction:column;align-items:center;
         justify-content:center;gap:1px;text-decoration:none}
   .pbtn small{font-size:9px;font-weight:800;opacity:.85;letter-spacing:.3px}
   .pbtn:active{transform:scale(.92)}
-  .pbtn.nav{width:52px;height:60px;background:#151d3ccc;border:1.5px solid var(--line);color:var(--mut);font-size:17px}
+  .pbtn.nav{width:52px;height:60px;background:#ffffffdd;border:1.5px solid var(--line);color:var(--mut);font-size:17px}
   .pbtn.nav.off{opacity:.25;pointer-events:none}
-  .pbtn.tel{width:58px;height:60px;background:#1d2b4d;color:var(--green);font-size:20px;border:1.5px solid var(--line)}
+  .pbtn.tel{width:58px;height:60px;background:#cfe6df;color:var(--green);font-size:20px;border:1.5px solid var(--line)}
   .pbtn.done{flex:1;background:var(--green);color:#06281c;font-size:14px;height:60px;
              box-shadow:0 8px 28px #2ee6a855;animation:pulse 2s infinite}
   .pbtn.done small{font-size:10px}
   @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.02)}}
   .pbtn.done:active{animation:none}
-  .pbtn.undo{flex:1;background:#2a1420;color:#ff9a9a;font-size:14px;height:60px;border:1.5px solid #6b1818;box-shadow:none;animation:none}
-  .pbtn.undo small{font-size:10px;color:#ffb3b3}
+  .pbtn.undo{flex:1;background:#f9e0e0;color:#b03030;font-size:14px;height:60px;border:1.5px solid #d98080;box-shadow:none;animation:none}
+  .pbtn.undo small{font-size:10px;color:#c06a6a}
 
   .alldone{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:14px}
   .alldone .emoji{animation:none;font-size:70px}
@@ -149,17 +153,17 @@
                       inset:0;display:flex;align-items:center;justify-content:center}
   .st-body{flex:1;min-width:0}
   .badges{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:6px}
-  .bdg{font-size:10px;font-weight:800;background:#1d2b4d;color:var(--mut);padding:4px 8px;border-radius:7px;font-variant-numeric:tabular-nums}
+  .bdg{font-size:10px;font-weight:800;background:#cfe6df;color:var(--mut);padding:4px 8px;border-radius:7px;font-variant-numeric:tabular-nums}
   .st-tit{font-size:15px;font-weight:800}
   .st-sub{font-size:12px;color:var(--mut);margin:3px 0 8px}
-  .st-hint{font-size:11px;color:#8b9bc4;font-weight:700}
+  .st-hint{font-size:11px;color:#5b7a80;font-weight:700}
   .step.flash{animation:flashy 1.6s ease}
   @keyframes flashy{0%,100%{box-shadow:0 0 0 0 #ffc93c00}15%,55%{box-shadow:0 0 0 4px var(--amber);border-color:var(--amber)}}
 
   /* ═══ LISTE (Mangiare / SOS, da Lyon Field) ═══ */
   .list{margin:14px auto;background:var(--card);border:1px solid var(--line);border-radius:14px;
         overflow:hidden;width:100%;max-width:520px}
-  .list-h{background:#1d2b4d;padding:13px 14px;font-size:13px;font-weight:900;color:var(--amber);border-bottom:1px solid var(--line)}
+  .list-h{background:#cfe6df;padding:13px 14px;font-size:13px;font-weight:900;color:var(--amber);border-bottom:1px solid var(--line)}
   .ritem{padding:14px;border-bottom:1px solid var(--line)}
   .ritem:last-child{border-bottom:none}
   .r-top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
@@ -169,40 +173,40 @@
   .r-btns{display:flex;gap:8px;flex-wrap:wrap}
   .r-btns a{display:flex;align-items:center;justify-content:center;gap:5px;font-size:12px;font-weight:800;
             padding:11px 13px;border-radius:10px;text-decoration:none;min-height:44px}
-  .b-tel{background:#065f46;color:#a7f3d0}
+  .b-tel{background:#065f46;color:#ffffff}
   .b-map{background:#1d4ed8;color:#fff}
-  .b-web{background:#1d2b4d;color:var(--mut)}
+  .b-web{background:#cfe6df;color:var(--mut)}
 
-  .tips{margin:14px auto;padding:14px;background:#292524;border:1px solid #78350f;border-radius:14px;
-        font-size:12px;color:#d6d3d1;display:flex;flex-direction:column;gap:7px;width:100%;max-width:520px}
-  .tips b{color:#fcd34d}
+  .tips{margin:14px auto;padding:14px;background:#fff7e8;border:1px solid #e0c48a;border-radius:14px;
+        font-size:12px;color:#4a4643;display:flex;flex-direction:column;gap:7px;width:100%;max-width:520px}
+  .tips b{color:#92600a}
 
   /* ═══ SERVICE SHEET ═══ */
   .toast{position:fixed;top:calc(108px + env(safe-area-inset-top));left:50%;transform:translateX(-50%) translateY(-16px);
-         background:#1d2b4d;border:1px solid var(--line);color:var(--txt);font-size:12px;font-weight:700;
+         background:#cfe6df;border:1px solid var(--line);color:var(--txt);font-size:12px;font-weight:700;
          padding:10px 16px;border-radius:99px;opacity:0;transition:all .3s;z-index:90;pointer-events:none;
          white-space:nowrap;max-width:92vw;overflow:hidden;text-overflow:ellipsis}
   .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-  .overlay{position:fixed;inset:0;background:#050810cc;backdrop-filter:blur(4px);z-index:70;display:flex;align-items:flex-end}
+  .overlay{position:fixed;inset:0;background:#0a1f1dcc;backdrop-filter:blur(4px);z-index:70;display:flex;align-items:flex-end}
   .overlay[hidden]{display:none!important}
-  .sheet{width:100%;max-width:560px;margin:0 auto;background:#111a30;border:1px solid var(--line);border-bottom:none;
+  .sheet{width:100%;max-width:560px;margin:0 auto;background:#f7fbfa;border:1px solid var(--line);border-bottom:none;
          border-radius:22px 22px 0 0;padding:16px 16px calc(16px + env(safe-area-inset-bottom));
          max-height:82vh;display:flex;flex-direction:column}
   .sh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
   .sh-top b{font-size:15px;font-weight:900;color:var(--amber)}
-  .sh-close{background:#1d2b4d;border:1.5px solid var(--line);color:var(--mut);font-weight:900;font-size:13px;
+  .sh-close{background:#cfe6df;border:1.5px solid var(--line);color:var(--mut);font-weight:900;font-size:13px;
             width:38px;height:38px;border-radius:12px}
   .dayswitch{display:flex;gap:8px;justify-content:center;margin-bottom:12px;flex-wrap:wrap}
-  .dayswitch button{background:#151d33cc;border:1.5px solid var(--line);color:var(--mut);font-weight:800;
+  .dayswitch button{background:#ffffffdd;border:1.5px solid var(--line);color:var(--mut);font-weight:800;
                     font-size:12px;padding:9px 14px;border-radius:99px;min-height:40px}
   .dayswitch button.on{background:var(--amber);border-color:var(--amber);color:#1a1400}
   .slist{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;margin-bottom:12px;padding-right:2px}
-  .sitem{display:flex;gap:12px;align-items:center;background:#151d33cc;border:1.5px solid var(--line);
+  .sitem{display:flex;gap:12px;align-items:center;background:#ffffffdd;border:1.5px solid var(--line);
          border-radius:14px;padding:12px;text-align:left;color:var(--txt);width:100%}
   .sitem.cur{border-color:var(--amber);background:#ffc93c14}
   .sitem.done{opacity:.5}
-  .sitem .si-st{width:30px;height:30px;min-width:30px;border-radius:9px;background:#1d2b4d;display:flex;
+  .sitem .si-st{width:30px;height:30px;min-width:30px;border-radius:9px;background:#cfe6df;display:flex;
                 align-items:center;justify-content:center;font-size:13px;font-weight:900}
   .sitem.done .si-st{background:var(--green);color:#06281c}
   .sitem.cur .si-st{background:var(--amber);color:#1a1400}
@@ -210,39 +214,64 @@
   .sitem .si-mm{font-size:10.5px;color:var(--mut);font-weight:700}
   .sbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .sbtns button{border-radius:12px;font-weight:800;font-size:11px;padding:12px 6px;min-height:46px}
-  .sb-undo{background:#1d2b4d;border:1.5px solid var(--line);color:var(--mut)}
-  .sb-day{background:#2b1d0d;border:1.5px solid #6b5518;color:#ffd97a}
-  .sb-all{background:#2b0d0d;border:1.5px solid #6b1818;color:#ff9a9a}
+  .sb-undo{background:#cfe6df;border:1.5px solid var(--line);color:var(--mut)}
+  .sb-day{background:#f6ecd4;border:1.5px solid #d9b96a;color:#7a5c00}
+  .sb-all{background:#f9e0e0;border:1.5px solid #d98080;color:#b03030}
   .shint{font-size:10.5px;color:var(--mut);text-align:center;margin-top:10px;line-height:1.5}
 
   /* ═══ GUIDE SHEET ═══ */
-  .guide-sheet{width:100%;max-width:560px;margin:0 auto;background:#111a30;border:1px solid var(--line);
+  .guide-sheet{width:100%;max-width:560px;margin:0 auto;background:#f7fbfa;border:1px solid var(--line);
                border-bottom:none;border-radius:22px 22px 0 0;max-height:90vh;display:flex;
                flex-direction:column;overflow:hidden}
-  .guide-hero{position:relative;height:170px;background:linear-gradient(135deg,#2b3a67 0%,#1c4d7a 55%,#0b1020 100%);
+  .guide-hero{position:relative;height:170px;background:linear-gradient(135deg,#bfe3dc 0%,#d3efe9 55%,#e8f2ef 100%);
               display:flex;align-items:center;justify-content:center;overflow:hidden;flex-shrink:0}
   .gh-emoji{font-size:82px;filter:drop-shadow(0 8px 24px #000a);animation:float 3.5s ease-in-out infinite}
   .guide-hero img.gh-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1;
                         opacity:0;transition:opacity .4s}
   .guide-hero img.gh-img.loaded{opacity:1}
   .guide-hero::after{content:'';position:absolute;inset:0;z-index:2;
-                     background:linear-gradient(to bottom,transparent 45%,#111a30 100%);pointer-events:none}
-  .gh-close{position:absolute;top:12px;right:12px;z-index:3;background:#0b1020cc;border:1.5px solid var(--line);
-            color:#fff;font-weight:900;font-size:14px;width:38px;height:38px;border-radius:12px;backdrop-filter:blur(4px)}
+                     background:linear-gradient(to bottom,transparent 45%,#f7fbfa 100%);pointer-events:none}
+  .gh-close{position:absolute;top:12px;right:12px;z-index:3;background:#ffffffee;border:1.5px solid var(--line);
+            color:#17323b;font-weight:900;font-size:14px;width:38px;height:38px;border-radius:12px;backdrop-filter:blur(4px)}
   .guide-body{flex:1;overflow-y:auto;padding:6px 18px calc(18px + env(safe-area-inset-bottom))}
   .g-sub{font-size:10.5px;color:var(--amber);font-weight:900;text-transform:uppercase;letter-spacing:1.8px;margin-bottom:6px}
   .g-title{font-size:20px;font-weight:900;line-height:1.2;margin-bottom:14px}
-  .g-intro{font-size:14px;line-height:1.55;color:#cbd5e1;padding:12px 14px;background:#ffffff08;
+  .g-intro{font-size:14px;line-height:1.55;#3d5a5e;padding:12px 14px;background:rgba(15,90,80,.06);
            border-radius:12px;border-left:3px solid var(--amber);margin-bottom:16px}
   .g-sec{margin-bottom:16px}
   .g-sec-t{font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:1.2px;color:var(--amber);
            margin-bottom:6px;display:flex;align-items:center;gap:6px}
   .g-sec-x{font-size:13.5px;line-height:1.6;color:#dde4f5}
-  .g-sec-x b{color:#fff;font-weight:800}
-  .g-sec-x i{color:#cbd5e1}
+  .g-sec-x b{color:#122e36;font-weight:800}
+  .g-sec-x i{#3d5a5e}
+
+  /* ═══ PAGINA VIAGGIO (auto) ═══ */
+  .trip-hero{margin:14px auto 8px;background:linear-gradient(135deg,#0f766e,#14b8a6);border-radius:14px;padding:14px;width:100%;max-width:520px}
+  .trip-hero h2{font-size:16px;font-weight:900;color:#fff}
+  .trip-hero .th-sub{font-size:11px;color:#eafff7;font-weight:700;text-transform:uppercase;letter-spacing:.5px}
+  .th-tag{display:inline-block;font-size:10px;font-weight:900;background:rgba(0,0,0,.35);color:#eafff7;padding:5px 9px;border-radius:99px;margin-top:8px}
+
+  table.ttable{width:100%;max-width:520px;margin:0 auto 4px;border-collapse:collapse;font-size:11.5px;table-layout:fixed}
+  .ttable th{background:#cfe6df;color:var(--amber);font-size:9.5px;text-transform:uppercase;letter-spacing:.5px;
+             padding:8px 6px;text-align:left;border-bottom:1px solid var(--line);white-space:nowrap}
+  .ttable td{padding:10px 6px;border-bottom:1px solid var(--line);color:#dde4f5;vertical-align:middle;
+             white-space:nowrap;font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis}
+  .ttable tr:last-child td{border-bottom:none}
+  .ttable th:first-child,.ttable td:first-child{width:44%;padding-left:10px}
+  .ttable .t-chip{display:inline-block;font-size:9.5px;font-weight:900;padding:4px 9px;border-radius:99px;margin:1px 0 5px}
+  .ttable .t-chip.t-tun{background:#d7f2e8;color:#0b6b4f}
+  .ttable .t-chip.t-val{background:#fbe9cf;color:#8a5b00}
+  .ttable .t-name{font-weight:800;color:var(--txt);font-size:12.5px;white-space:normal;line-height:1.3}
+  .ttable .t-det{font-size:10px;color:var(--mut);white-space:normal;line-height:1.4;margin-top:3px}
+  .ttable .t-det b{#3d5a5e}
+  .ttable .t-tot{font-weight:900;color:var(--amber)}
+  .ttable .t-btn{display:flex;align-items:center;justify-content:center;gap:4px;background:#1d4ed8;color:#fff;font-size:10.5px;
+                 font-weight:800;padding:9px 6px;border-radius:10px;text-decoration:none;min-height:38px}
+
+  .trip-note{font-size:11.5px;color:var(--mut);line-height:1.5;margin:0 auto 14px;max-width:520px;width:100%;padding:0 2px}
 
   /* ═══ BOTTOM NAV ═══ */
-  nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(11,16,32,.97);backdrop-filter:blur(10px);
+  nav{position:fixed;left:0;right:0;bottom:0;z-index:50;background:rgba(244,250,248,.97);backdrop-filter:blur(10px);
       border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
   nav a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 2px 8px;
         font-size:10px;font-weight:800;color:var(--mut);text-decoration:none;min-height:56px}
@@ -268,6 +297,9 @@
 
 <!-- VISTA MANGIARE -->
 <main id="foodPage" hidden><div id="food"></div></main>
+
+<!-- VISTA VIAGGIO (auto) -->
+<main id="tripPage" hidden><div id="trip"></div></main>
 
 <!-- VISTA SOS -->
 <main id="sosPage" hidden>
@@ -314,6 +346,7 @@
 <div class="overlay" id="guideOverlay" hidden></div>
 
 <nav>
+  <a href="#" data-nav="tripPage"><span class="ni">🚗</span>Viaggio</a>
   <a href="#" class="on" data-nav="nowPage"><span class="ni">📍</span>Adesso</a>
   <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Giorno</a>
   <a href="#" data-nav="foodPage"><span class="ni">🍽️</span>Mangiare</a>
@@ -466,6 +499,54 @@ const GUIDES = {
     {icon:"🎒",title:"In valigia",text:"Salumi, formaggi, una quenelle (da cuocere a casa) e il ricordo di una città che merita di essere scoperta."}]}
 };
 
+/* ════════════════ TRASFERIMENTO IN AUTO (andata/ritorno, 4 opzioni) ════════════════ */
+const GMD="https://www.google.com/maps/dir/?api=1&travelmode=driving";
+const TRIP=[
+ {label:"Andata · Mercoledì 29 Ott",route:"Magenta → Lione",rows:[
+  {dir:"tunnel",name:"Traforo del Fréjus",via:"🚇 Tunnel · sempre aperto",km:"438 km",dur:"4h 38m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~58 €</b>",tot:"~159,80 €",
+   map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Traforo del Fréjus")}`,
+   note:"itinerario più rapido, il traforo è aperto tutto l'anno, nessuna variabile meteo."},
+  {dir:"valico",name:"Passo del Moncenisio",via:"⛰️ Valico · gratuito",km:"444 km",dur:"5h 17m",det:"Traforo <b>0,00 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~59 €</b>",tot:"~104,20 €",
+   map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Passo del Moncenisio")}`,
+   note:"~55 € in meno, ma 40 min in più e il valico dipende dal meteo: a fine ottobre controlla condizioni e aperture."}]},
+ {label:"Ritorno · Venerdì 31 Ott",route:"Lione → Magenta",rows:[
+  {dir:"tunnel",name:"Traforo del Monte Bianco",via:"🚇 Tunnel · sempre aperto",km:"445 km",dur:"4h 51m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~35 €</b> · Carburante <b>~59 €</b>",tot:"~150,70 €",
+   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, VA")}&waypoints=${encodeURIComponent("Tunnel du Mont-Blanc")}`,
+   note:"passaggio sotto il Monte Bianco (A40). Il ritorno più veloce e affidabile."},
+  {dir:"valico",name:"Passo del Monginevro",via:"⛰️ Valico · gratuito",km:"461 km",dur:"6h 09m",det:"Traforo <b>0,00 €</b> · Pedaggi <b>~25 €</b> · Carburante <b>~61 €</b>",tot:"~86,50 €",
+   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, VA")}&waypoints=${encodeURIComponent("Briançon|Col de Montgenèvre")}`,
+   note:"l'opzione più economica (~86 €), ma quasi 6h 30: partite presto e tenete d'occhio il meteo sul valico."}]}
+];
+
+document.getElementById('trip').innerHTML = TRIP.map(g=>`
+  <div class="trip-hero">
+    <div class="th-sub">${g.label}</div>
+    <h2>${g.route}</h2>
+    <span class="th-tag">🚗 2 opzioni · tunnel o valico</span>
+  </div>
+  <table class="ttable">
+    <tr><th>Itinerario</th><th>km</th><th>Durata</th><th>Totale</th><th></th></tr>
+    ${g.rows.map(r=>`<tr>
+      <td>
+        <div class="t-chip ${r.dir==='tunnel'?'t-tun':'t-val'}">${r.via}</div>
+        <div class="t-name">${r.name}</div>
+        <div class="t-det">${r.det}</div>
+      </td>
+      <td>${r.km}</td>
+      <td>${r.dur}</td>
+      <td class="t-tot">${r.tot}</td>
+      <td><a class="t-btn" href="${r.map}" target="_blank">🗺️<br>Maps</a></td>
+    </tr>`).join('')}
+  </table>
+  ${g.rows.map(r=>`<p class="trip-note">💡 <b>${r.name}</b>: ${r.note}</p>`).join('')}
+`).join('') +
+`<div class="tips">
+  <div>🚦 <b>Trafori (Fréjus / Monte Bianco)</b>: sempre aperti, costo ~56,40 €, si paga alla barriera anche con carta.</div>
+  <div>🌨️ <b>Valichi (Moncenisio / Monginevro)</b>: a fine ottobre può già nevicare — <b>gomme invernali o catene a bordo</b> e controllo meteo/aperture la sera prima.</div>
+  <div>⛽ <b>Partenza consigliata</b>: andata entro le 12:00 del 29 (arrivo con margine sull'inizio del tour alle 18:30); ritorno presto il 31.</div>
+  <div>💶 <b>Combinazioni andata+ritorno</b>: valico+valico <b>~190,70 €</b> (più lenta) · miste <b>~246–255 €</b> · tunnel+tunnel <b>~310,50 €</b> (la più rapida).</div>
+</div>`;
+
 /* ════════════════ STATO CONDIVISO ════════════════ */
 let memFB={}; let storeOK=true;
 try{localStorage.setItem('__t','1');localStorage.removeItem('__t')}catch(e){storeOK=false}
@@ -589,10 +670,13 @@ function render(){
   if(!padHTML){padHTML=document.createElement('div');padHTML.id='pad-fixed';padHTML.className='pad';document.body.appendChild(padHTML);}
   padHTML.innerHTML=`
     <div class="pad-inner">
-      <button class="pbtn nav ${idx===0?'off':''}" onclick="prevS()">◀<small>PREC</small></button>
+      <span class="pad-spacer"></span>
+      <div class="pad-center">
+        <button class="pbtn nav ${idx===0?'off':''}" onclick="prevS()">◀<small>PREC</small></button>
+        ${doneBtn}
+        <button class="pbtn nav ${idx>=steps.length-1?'off':''}" onclick="nextS()">▶<small>NEXT</small></button>
+      </div>
       <a class="pbtn tel" href="${s.tel?'tel:'+s.tel:'tel:+33478268181'}">📞<small>${s.tel?'CHIAMA':'TAXI'}</small></a>
-      ${doneBtn}
-      <button class="pbtn nav ${idx>=steps.length-1?'off':''}" onclick="nextS()">▶<small>NEXT</small></button>
     </div>`;
   tick();
 }
@@ -752,7 +836,7 @@ document.getElementById('food').innerHTML = FOOD.map(g=>`<div class="list"><div 
    <div>⏰ Ristoranti chiusi tra 14:00 e 19:00. Halles Bocuse chiuse domenica sera e lunedì.</div></div>`;
 
 /* ════════════════ NAVIGAZIONE TAB ════════════════ */
-const PAGES={nowPage, dayPage, foodPage:document.getElementById('foodPage'), sosPage:document.getElementById('sosPage')};
+const PAGES={nowPage, dayPage, foodPage:document.getElementById('foodPage'), sosPage:document.getElementById('sosPage'), tripPage:document.getElementById('tripPage')};
 function showPage(id){
   Object.entries(PAGES).forEach(([k,el])=>el.hidden=k!==id);
   document.querySelectorAll('nav a').forEach(x=>x.classList.toggle('on',x.dataset.nav===id));
@@ -760,6 +844,8 @@ function showPage(id){
   const useDay=(id==='nowPage'||id==='dayPage');
   strip.style.display=useDay?'flex':'none';
   sky.style.opacity=useDay?'1':'0.5';
+  const pad=document.getElementById('pad-fixed');
+  if(pad) pad.style.display=(id==='nowPage')?'flex':'none';
   if(id==='dayPage')renderDayPage();
   if(id==='nowPage')render();
   window.scrollTo({top:0});
