@@ -286,7 +286,7 @@
     padding: 14px 16px; transition: background 1.4s ease;
   }
   .pad-inner {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
     width: 100%; max-width: 480px;
   }
   .pbtn {
@@ -298,16 +298,20 @@
   .pbtn:active { transform: scale(.93); }
   .pbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   .pbtn.nav {
-    width: 52px; height: 58px; background: #ffffffdd;
-    border: 1.5px solid var(--line); color: var(--mut); font-size: 18px;
+    width: 46px; height: 58px; background: #ffffffdd;
+    border: 1.5px solid var(--line); color: var(--mut); font-size: 16px;
   }
   .pbtn.nav.off { opacity: .28; pointer-events: none; }
+  .pbtn.metro {
+    width: 50px; height: 58px; background: #cfe6df; color: #1d4ed8;
+    font-size: 18px; border: 1.5px solid var(--line);
+  }
   .pbtn.tel {
-    width: 56px; height: 58px; background: #cfe6df; color: var(--green);
-    font-size: 20px; border: 1.5px solid var(--line);
+    width: 50px; height: 58px; background: #cfe6df; color: var(--green);
+    font-size: 18px; border: 1.5px solid var(--line);
   }
   .pbtn.done {
-    flex: 1; background: var(--green); color: #06281c; font-size: 15px; height: 58px;
+    flex: 1; background: var(--green); color: #06281c; font-size: 13.5px; height: 58px;
     box-shadow: 0 8px 24px #2ee6a855; animation: pulse 2.2s infinite;
   }
   .pbtn.done small { font-size: 10.5px; }
@@ -317,7 +321,7 @@
   }
   .pbtn.done:active { animation: none; }
   .pbtn.undo {
-    flex: 1; background: #f9e0e0; color: #b03030; font-size: 14px; height: 58px;
+    flex: 1; background: #f9e0e0; color: #b03030; font-size: 12.5px; height: 58px;
     border: 1.5px solid #d98080; box-shadow: none; animation: none;
   }
   .pbtn.undo small { font-size: 10.5px; color: #c06a6a; }
@@ -487,6 +491,14 @@
   .sb-day { background: #f6ecd4; border: 1.5px solid #d9b96a; color: #7a5c00; }
   .sb-all { background: #f9e0e0; border: 1.5px solid #d98080; color: #b03030; }
   .shint { font-size: 11px; color: var(--mut); text-align: center; margin-top: 12px; line-height: 1.5; }
+
+  /* Pianta mezzi: immagine grande scrollabile, con fallback offline */
+  .tmap-wrap {
+    flex: 1; overflow: auto; -webkit-overflow-scrolling: touch;
+    min-height: 0; text-align: center; border-radius: 12px;
+  }
+  .tmap-img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 12px; background: #fff; }
+  #tmap-fallback svg { width: 100%; height: auto; display: block; }
 
   /* Guide sheet impostata a 94vh per il massimo spazio verticale */
   .guide-sheet {
@@ -668,20 +680,24 @@
   <div class="list">
     <div class="list-h">🚇 TCL · mezzi che userete</div>
     <div class="ritem">
-      <div class="r-top"><span class="r-name">Metro D / A</span><span class="r-price">~2 €</span></div>
-      <div class="r-addr">Vieux Lyon · Bellecour · Hôtel de Ville</div>
+      <div class="r-top"><span class="r-name">Metro D / A</span><span class="r-price">2,10 €</span></div>
+      <div class="r-addr">Vieux Lyon · Bellecour · Hôtel de Ville · ticket valido 1h</div>
     </div>
     <div class="ritem">
       <div class="r-top"><span class="r-name">Funicolare F2</span></div>
-      <div class="r-addr">St-Jean ↔ Fourvière (ogni 10 min)</div>
+      <div class="r-addr">St-Jean ↔ Fourvière (ogni ~10 min) · ⚠️ possibili manutenzioni: verifica tcl.fr</div>
     </div>
     <div class="ritem">
       <div class="r-top"><span class="r-name">Tram T1</span></div>
-      <div class="r-addr">Confluence · Musée des Confluences</div>
+      <div class="r-addr">Part-Dieu · Perrache · Confluence · Musée des Confluences</div>
     </div>
     <div class="ritem">
-      <div class="r-top"><span class="r-name">Lyon City Card 1g</span><span class="r-price">~29 €</span></div>
+      <div class="r-top"><span class="r-name">Lyon City Card 1g</span><span class="r-price">~29–32 €</span></div>
       <div class="r-addr">Trasporti illimitati + musei · <a href="https://www.tcl.fr" style="color:var(--blue)">tcl.fr</a></div>
+    </div>
+    <div class="ritem">
+      <div class="r-top"><span class="r-name">🗺️ Piante della rete</span></div>
+      <div class="r-addr">Pianta dei mezzi col tasto <b>🚇 METRO</b> nella scheda Adesso · dettagliata: <a href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" style="color:var(--blue)">mapa-metro</a> · <a href="https://www.tcl.fr/assistance/le-reseau-tcl/plans-du-reseau" style="color:var(--blue)">piani ufficiali</a> · <a href="https://www.tcl.fr/sites/default/files/2024-11/Carte%20r%C3%A9seau%20unifi%C3%A9.pdf" style="color:var(--blue)">carta completa (PDF)</a></div>
     </div>
   </div>
   <div class="list">
@@ -719,25 +735,26 @@
 
 <script>
 const DAYS = [
- { id:1, label:"29 Ott", date:"Mercoledì 29 Ott", name:"Fourvière + Vieux Lyon", time:"18:30 → 23:00", steps:[
+ { id:1, label:"29 Ott", date:"Giovedì 29 Ott", name:"Fourvière + Vieux Lyon", time:"18:30 → 23:00", steps:[
    {time:"18:30",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15 €",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne Lyon",dest:"Place Saint-Jean Lyon"},
-   {time:"18:45",emoji:"⛪",title:"Cattedrale Saint-Jean + Longue Traboule",meta:"Piazza + cattedrale (aperta fino alle 19:45) · poi ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf",desc:"La <b>Cattedrale di Saint-Jean</b> è uno dei migliori esempi europei di transizione dal romanico al gotico. Dentro c'è uno dei più antichi <b>orologi astronomici d'Europa</b>. Subito dopo, il traboule più lungo di Lione: un passaggio coperto del Rinascimento.",tip:"⚠️ La traboule chiude alle 19:00: per questo la facciamo ORA.",warn:true,orig:"Place Saint-Jean Lyon",dest:"27 Rue du Boeuf Lyon"},
-   {time:"19:20",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · aperta fino alle 20:00 · gratis",desc:"Saliamo sulla 'Collina che prega'. La funicolare (dal <b>1878</b>) parte accanto alla Cattedrale.",orig:"27 Rue du Boeuf Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"19:45",emoji:"🌇",title:"Panorama + Basilica",meta:"Golden hour sulla città · poi funicolare giù",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola stili neobizantino, gotico e romanico. La terrazza offre una vista a 360°: se il cielo è limpido, si vedono <b>le Alpi fino al Monte Bianco</b>.",tip:"La terrazza dietro la basilica è il punto foto migliore di Lione.",orig:"Basilique de Fourvière Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"20:15",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~10 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique de Fourvière Lyon",dest:"Place Saint-Jean Lyon"},
+   {time:"18:45",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · chiude alle 19:00",desc:"Il traboule più lungo di Lione: quattro cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean Lyon",dest:"27 Rue du Boeuf Lyon"},
+   {time:"19:05",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Boeuf Lyon",dest:"Cathédrale Saint-Jean Lyon"},
+   {time:"19:35",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL 2,10 €",desc:"Saliamo sulla 'Collina che prega'. La funicolare (dal <b>1878</b>, oggi linea F2) parte accanto alla Cattedrale.",tip:"⚠️ Verifica su tcl.fr che la F2 non sia in manutenzione a fine ottobre.",orig:"Cathédrale Saint-Jean Lyon",dest:"Basilique de Fourvière Lyon"},
+   {time:"19:45",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta verso le 18:25: la terrazza regala il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. La terrazza dietro la basilica resta il punto foto migliore, anche di notte.",orig:"Basilique de Fourvière Lyon",dest:"Basilique de Fourvière Lyon"},
+   {time:"20:15",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique de Fourvière Lyon",dest:"Place Saint-Jean Lyon"},
    {time:"20:30",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean Lyon",dest:"8 Place Saint-Jean Lyon"},
    {time:"22:00",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · 20–27 €",desc:"Rientro comodo verso l'hotel.",tip:"Non rientrate a piedi: 2 km in salita dopo cena.",warn:true,orig:"8 Place Saint-Jean Lyon",dest:"Hôtel Charlemagne Lyon"}]},
- { id:2, label:"30 Ott", date:"Giovedì 30 Ott", name:"Tour città + Cena", time:"09:00 → 23:00", steps:[
+ { id:2, label:"30 Ott", date:"Venerdì 30 Ott", name:"Tour città + Cena", time:"09:00 → 23:00", steps:[
    {time:"09:00",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A/D · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (67.128 m²), la più grande piazza pedonale d'Europa.",tip:"☕ Colazione: se non la fate in hotel, fermatevi in uno dei caffè intorno a Bellecour.",orig:"Hôtel Charlemagne Lyon",dest:"Place Bellecour Lyon"},
-   {time:"09:30",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto è aperto oggi fino alle 18:00.",orig:"Place Bellecour Lyon",dest:"Place des Terreaux Lyon"},
+   {time:"09:30",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",orig:"Place Bellecour Lyon",dest:"Place des Terreaux Lyon"},
    {time:"10:15",emoji:"🎨",title:"Mur des Lyonnais",meta:"Fresco gigante: Claudio, Lumière, Jacquard · 5 min a piedi",desc:"Un affresco monumentale di <b>800 m²</b> con <b>36 personaggi</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux Lyon",dest:"Mur des Lyonnais Lyon"},
-   {time:"11:00",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Tram ~20 min · lago + serra · gratis · fino alle 22:30",desc:"Inaugurato nel <b>1857</b>, è il più grande parco urbano di Lione con <b>117 ettari</b>.",orig:"Mur des Lyonnais Lyon",dest:"Parc de la Tête d'Or Lyon"},
-   {time:"12:30",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · banchi: Sibilia, Giraudet, Antonin · 7:00–22:00",desc:"Il tempio della gastronomia, intitolato a <b>Paul Bocuse</b> nel 2006.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or Lyon",dest:"Les Halles Paul Bocuse Lyon"},
+   {time:"11:00",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Tram ~20 min · lago + serra · gratis · fino alle 20:30 (orario invernale)",desc:"Inaugurato nel <b>1857</b>, è il più grande parco urbano di Lione con <b>117 ettari</b>.",orig:"Mur des Lyonnais Lyon",dest:"Parc de la Tête d'Or Lyon"},
+   {time:"12:30",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · banchi: Sibilia, Giraudet, Antonin · lun–sab 7:30–19:30",desc:"Il tempio della gastronomia, intitolato a <b>Paul Bocuse</b> nel 2006.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or Lyon",dest:"Les Halles Paul Bocuse Lyon"},
    {time:"15:00",emoji:"😴",title:"Riposo in hotel",meta:"Metro/Tram ~20 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Les Halles Paul Bocuse Lyon",dest:"Hôtel Charlemagne Lyon"},
    {time:"19:30",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"A 300 m dall'hotel · dal 1836 · Art Déco · 30–50 €",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Se piena: alternative nella scheda 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne Lyon",dest:"Brasserie Georges Lyon"},
    {time:"22:00",emoji:"🚶",title:"Rientro a piedi",meta:"300 metri · due passi digestivi sul lungo Saona",desc:"Quattro passi digestivi lungo la Saona per tornare in hotel.",orig:"Brasserie Georges Lyon",dest:"Hôtel Charlemagne Lyon"}]},
- { id:3, label:"31 Ott", date:"Venerdì 31 Ott", name:"Tour in auto + partenza", time:"09:00 → 12:00", steps:[
-   {time:"09:00",emoji:"🚗",title:"Musée des Confluences",meta:"~10 min in auto · vista esterna (museo apre alle 10)",desc:"Architettura futuristica progettata da <b>Coop Himmelb(l)au</b>, dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne Lyon",dest:"Musée des Confluences Lyon"},
+ { id:3, label:"31 Ott", date:"Sabato 31 Ott", name:"Tour in auto + partenza", time:"09:00 → 12:00", steps:[
+   {time:"09:00",emoji:"🚗",title:"Musée des Confluences",meta:"~10 min in auto · vista esterna (museo apre alle 10:30 · sabato aperto · 12 €)",desc:"Architettura futuristica progettata da <b>Coop Himmelb(l)au</b>, dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne Lyon",dest:"Musée des Confluences Lyon"},
    {time:"09:40",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"~15 min · salumi e formaggi da portare a casa",desc:"Ultimi acquisti. Portati a casa un pezzo di Lione.",orig:"Musée des Confluences Lyon",dest:"Les Halles Paul Bocuse Lyon"},
    {time:"10:30",emoji:"🚉",title:"Gare Part-Dieu",meta:"~10 min · stazione principale · parcheggio",desc:"Il centro direzionale e la stazione principale di Lione.",orig:"Les Halles Paul Bocuse Lyon",dest:"Gare Part-Dieu Lyon"},
    {time:"10:45",emoji:"🏙️",title:"Tour Incity",meta:"200 m a piedi · grattacielo più alto di Lione",desc:"Il grattacielo più alto di Lione (<b>200 metri</b>). Completato nel <b>2015-2016</b>.",orig:"Gare Part-Dieu Lyon",dest:"Tour Incity Lyon"},
@@ -745,21 +762,21 @@ const DAYS = [
 ];
 
 const FOOD = [
- {h:"🍽 Cena 29 Ott · Vieux Lyon (bouchon, prenotare per 4)",items:[
-  {n:"Le Laurencin",p:"15–25 € ⭐4.3",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/dir/?api=1&destination=24+Rue+Saint-Jean+Lyon",w:"http://www.petitpaume.com"},
-  {n:"Chez Grand-Mère",p:"25–27 € ⭐4.5",a:"11 Rue du Bœuf",tel:"+33951613538",map:"https://www.google.com/maps/dir/?api=1&destination=11+Rue+du+Boeuf+Lyon",w:"http://www.chezgrandmere.fr"},
-  {n:"Daniel & Denise",p:"25–40 € ⭐4.4",a:"36 Rue Tramassac",tel:"+33478422462",map:"https://www.google.com/maps/dir/?api=1&destination=36+Rue+Tramassac+Lyon",w:"https://www.danieletdenise.fr"},
-  {n:"Notre Maison",p:"25–40 € ⭐4.6",a:"2 Rue de Gadagne",tel:"+33472417848",map:"https://www.google.com/maps/dir/?api=1&destination=2+Rue+de+Gadagne+Lyon",w:null},
-  {n:"La Cave des Voyageurs",p:"10–25 € ⭐4.2",a:"7 Place Saint-Paul",tel:"+33478289228",map:"https://www.google.com/maps/dir/?api=1&destination=7+Place+Saint-Paul+Lyon",w:"https://www.lacavedesvoyageurs.fr"}]},
- {h:"🍽 Pranzo 30 Ott · banchi Halles Paul Bocuse",items:[
-  {n:"Chez Antonin",p:"15–30 € ⭐4.5",a:"Écailler: ostriche e pesce",tel:"+33478623910",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:null},
-  {n:"Giraudet",p:"15–25 € ⭐4.4",a:"Quenelle di luccio · zuppa di cipolle",tel:"+33478623405",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:"https://www.giraudet.fr"},
-  {n:"Charcuterie Sibilia",p:"10–20 € ⭐4.7",a:"Dal 1922 · saucisson brioché",tel:"+33478622129",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:"https://www.charcuterie-sibilia.com"},
-  {n:"Chez Léon",p:"15–30 € ⭐4.3",a:"Classico bouchon",tel:"+33478623028",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:null}]},
- {h:"🍽 Cena 30 Ott · vicino hotel (Perrache/Confluence)",items:[
-  {n:"Brasserie Georges ★",p:"30–50 € ⭐4.5",a:"30 Cours de Verdun · a 300 m dall'hotel",tel:"+33472565454",map:"https://www.google.com/maps/dir/?api=1&destination=30+Cours+de+Verdun+Lyon",w:"https://www.brasseriegeorges.com"},
-  {n:"Les Petites Cantines",p:"10–18 € ⭐4.4",a:"74 Rue de la Charité",tel:"+33478383638",map:"https://www.google.com/maps/dir/?api=1&destination=74+Rue+de+la+Charite+Lyon",w:"https://www.lespetitescantines.org"},
-  {n:"HEAT Food Court",p:"10–20 € ⭐4.1",a:"70 Quai Perrache · food hall",tel:null,map:"https://www.google.com/maps/dir/?api=1&destination=70+Quai+Perrache+Lyon",w:"https://h-eat.eu"}]}
+ {h:"🍽 Cena gio 29 Ott · Vieux Lyon (bouchon, prenotare per 4)",items:[
+  {n:"Le Laurencin",p:"15–25 €",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/dir/?api=1&destination=24+Rue+Saint-Jean+Lyon",w:"https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin"},
+  {n:"Chez Grand-Mère",p:"25–27 €",a:"11 Rue du Bœuf",tel:"+33951613538",map:"https://www.google.com/maps/dir/?api=1&destination=11+Rue+du+Boeuf+Lyon",w:"http://www.chezgrandmere.fr"},
+  {n:"Daniel & Denise",p:"25–40 €",a:"36 Rue Tramassac",tel:"+33478422462",map:"https://www.google.com/maps/dir/?api=1&destination=36+Rue+Tramassac+Lyon",w:"https://www.danieletdenise.fr"},
+  {n:"Notre Maison",p:"25–40 €",a:"2 Rue de Gadagne",tel:"+33472417848",map:"https://www.google.com/maps/dir/?api=1&destination=2+Rue+de+Gadagne+Lyon",w:null},
+  {n:"La Cave des Voyageurs",p:"10–25 €",a:"7 Place Saint-Paul",tel:"+33478289228",map:"https://www.google.com/maps/dir/?api=1&destination=7+Place+Saint-Paul+Lyon",w:null}]},
+ {h:"🍽 Pranzo ven 30 Ott · banchi Halles Paul Bocuse",items:[
+  {n:"Chez Antonin",p:"15–30 €",a:"Écailler: ostriche e pesce",tel:"+33478623910",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:null},
+  {n:"Giraudet",p:"15–25 €",a:"Quenelle di luccio · zuppa di cipolle",tel:"+33478623405",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:"https://www.giraudet.fr"},
+  {n:"Charcuterie Sibilia",p:"10–20 €",a:"Dal 1922 · saucisson brioché",tel:"+33478622129",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:"https://www.charcuterie-sibilia.com"},
+  {n:"Chez Léon",p:"15–30 €",a:"Classico bouchon",tel:"+33478623028",map:"https://www.google.com/maps/dir/?api=1&destination=Halles+Paul+Bocuse+Lyon",w:null}]},
+ {h:"🍽 Cena ven 30 Ott · vicino hotel (Perrache/Confluence)",items:[
+  {n:"Brasserie Georges ★",p:"30–50 €",a:"30 Cours de Verdun · a 300 m dall'hotel",tel:"+33472565454",map:"https://www.google.com/maps/dir/?api=1&destination=30+Cours+de+Verdun+Lyon",w:"https://www.brasseriegeorges.com"},
+  {n:"Les Petites Cantines",p:"10–18 €",a:"74 Rue de la Charité",tel:"+33478383638",map:"https://www.google.com/maps/dir/?api=1&destination=74+Rue+de+la+Charite+Lyon",w:"https://www.lespetitescantines.org"},
+  {n:"HEAT Food Court",p:"10–20 €",a:"70 Quai Perrache · food hall",tel:null,map:"https://www.google.com/maps/dir/?api=1&destination=70+Quai+Perrache+Lyon",w:"https://h-eat.eu"}]}
 ];
 
 const GUIDES = {
@@ -769,45 +786,49 @@ const GUIDES = {
     {icon:"🕰️",title:"Un po' di storia",text:"Lione fu fondata nel <b>43 a.C.</b> da <b>Lucio Munazio Planco</b> come <b>Lugdunum</b>. Divenne <b>capitale della Gallia Lugdunense</b>."},
     {icon:"👀",title:"Da vedere",text:"La <b>Casa dei Cantori (Manécanterie)</b>, l'<b>Hôtel de Gadagne</b>, il <b>Giardino Archeologico St-Jean</b>."},
     {icon:"💡",title:"Consiglio",text:"Inizia dalla piazza e lasciati guidare dai vicoli."},
-    {icon:"🚶",title:"Il percorso stasera",text:"Da Place Saint-Jean entri nella cattedrale, poi attraversi il <b>traboule più lungo di Lione</b>."}]},
+    {icon:"🚶",title:"Il percorso stasera",text:"Da Place Saint-Jean attraversi subito il <b>traboule più lungo di Lione</b>, poi la cattedrale e la funicolare per Fourvière."}]},
   "x:croix":{heroEmoji:"👨‍🏭",wiki:"Croix-Rousse",title:"Extra · La Croix-Rousse, la collina che lavora",subtitle:"Croix-Rousse · extra",intro:"La terza collina di Lione: qui i canuts tessnero la seta.",sections:[
     {icon:"📖",title:"La collina che lavora",text:"Contrapposta alla Fourvière 'che prega', la <b>Croix-Rousse</b> ospitava le seterie."},
     {icon:"🧵",title:"I canuts",text:"Nel <b>1831</b> da qui iniziò la <b>rivolta dei canuts</b>, la prima rivolta operaia della storia."},
     {icon:"🏛️",title:"L'Anfiteatro delle Tre Gallie",text:"Costruito nel <b>19 a.C.</b>, uno dei primi anfiteatri del mondo."},
     {icon:"🚡",title:"Come arrivarci",text:"Con la <b>funicolare</b> o a piedi da Place des Terreaux."}]},
-  "0:1":{heroEmoji:"⛪",wiki:"Cathédrale Saint-Jean-Baptiste de Lyon",subtitle:"Cattedrale Saint-Jean + Longue Traboule",intro:"Il cuore del Vieux Lyon: la cattedrale con l'orologio astronomico, e il traboule più lungo.",sections:[
-    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>. L'ingresso del traboule è al <b>54 di Rue Saint-Jean</b>, uscita al <b>27 di Rue du Bœuf</b>."},
-    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>. Dentro c'è uno dei <b>più antichi orologi astronomici d'Europa</b>. Aperta <b>8:15–19:45</b>, ingresso gratuito."},
-    {icon:"🕰️",title:"L'orologio astronomico",text:"Ogni giorno alle <b>12:00, 14:00, 15:00 e 16:00</b> c'è uno spettacolino con angeli, galli e San Giovanni."},
-    {icon:"📖",title:"I traboules",text:"Dal latino <i>trans ambulare</i>. Passaggi coperti <b>esistenti solo a Lione</b>. Servivano ai <b>canuts</b> e durante la WWII furono rifugio della <b>Resistenza</b>."},
-    {icon:"🧭",title:"Quanti sono",text:"Oltre <b>400</b>, ma solo <b>50 aperti al pubblico</b>."},
-    {icon:"🚪",title:"Come entrare",text:"Premi il <b>bottone</b> accanto al portone."},
-    {icon:"⚠️",title:"Attenzione",text:"Il traboule chiude alle <b>19:00</b>: per questo lo mettiamo <i>prima</i> di Fourvière."}]},
-  "0:2":{heroEmoji:"🚡",wiki:"Funiculaire de Fourvière",subtitle:"Funicolare Saint-Jean → Fourvière",intro:"La funicolare parte accanto alla Cattedrale e ti porta sulla 'Collina che prega'.",sections:[
+  "0:1":{heroEmoji:"🚪",wiki:"Traboule",subtitle:"La Longue Traboule · 54 Rue Saint-Jean",intro:"Il traboule più lungo di Lione: quattro cortili rinascimentali in fila, da Rue Saint-Jean a Rue du Bœuf.",sections:[
+    {icon:"📍",title:"Dove sei",text:"Ingresso al <b>54 di Rue Saint-Jean</b>, uscita al <b>27 di Rue du Bœuf</b>. Il portone è a due passi dalla Cattedrale."},
+    {icon:"📖",title:"Cosa sono i traboules",text:"Dal latino <i>trans ambulare</i>: passaggi coperti <b>esistenti solo a Lione</b>. Servivano ai <b>canuts</b> della seta e durante la WWII furono rifugio della <b>Resistenza</b>."},
+    {icon:"🧭",title:"Quanti sono",text:"Oltre <b>400</b> in città, ma solo <b>~50 aperti al pubblico</b>. Questo attraversa <b>quattro cortili e quattro edifici</b>."},
+    {icon:"🚪",title:"Come entrare",text:"Premi il <b>bottone</b> accanto al portone: è un condominio privato, silenzio e rispetto."},
+    {icon:"⚠️",title:"Attenzione",text:"Chiude alle <b>19:00</b>: per questo lo facciamo <i>prima</i> della cattedrale e di Fourvière."}]},
+  "0:2":{heroEmoji:"⛪",wiki:"Cathédrale Saint-Jean-Baptiste de Lyon",subtitle:"Cattedrale Saint-Jean",intro:"Il cuore del Vieux Lyon: il miglior esempio europeo di transizione romanico→gotico, con uno dei più antichi orologi astronomici d'Europa.",sections:[
+    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, a due passi dall'uscita della traboule."},
+    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>. Aperta <b>8:15–19:45</b> nei giorni feriali, ingresso gratuito."},
+    {icon:"🕰️",title:"L'orologio astronomico",text:"Ogni giorno alle <b>12:00, 14:00, 15:00 e 16:00</b> c'è lo spettacolino con angeli, galli e San Giovanni: stasera ammira solo il meccanismo."},
+    {icon:"👀",title:"Da vedere",text:"La <b>Casa dei Cantori (Manécanterie)</b>, l'<b>Hôtel de Gadagne</b>, il <b>Giardino Archeologico St-Jean</b> — se torni di giorno."}]},
+  "0:3":{heroEmoji:"🚡",wiki:"Funiculaire de Fourvière",subtitle:"Funicolare Saint-Jean → Fourvière",intro:"La funicolare parte accanto alla Cattedrale e ti porta sulla 'Collina che prega'.",sections:[
     {icon:"📍",title:"Dove sei",text:"Stazione della funicolare accanto alla <b>Cattedrale di Saint-Jean</b>."},
     {icon:"📖",title:"La collina che prega",text:"Sulla collina nacque il primo nucleo di <b>Lugdunum</b>. Qui nacquero <b>Claudio</b> e <b>Caracalla</b>."},
     {icon:"🏛️",title:"La zona romana",text:"Restano il <b>Teatro Antico</b> (il più antico di Francia) e l'<b>Odeon</b>."},
-    {icon:"🚡",title:"La funicolare",text:"Le prime linee risalgono al <b>1878</b>. Oggi è la linea F2 (ogni ~10 min)."},
+    {icon:"🚡",title:"La funicolare",text:"Le prime linee risalgono al <b>1878</b>. Oggi è la linea F2 (ogni ~10 min, ticket TCL 2,10 €)."},
+    {icon:"⚠️",title:"Attenzione",text:"A fine ottobre possibili manutenzioni: verifica su <b>tcl.fr</b> la settimana prima (in caso, bus navetta TCL)."},
     {icon:"💡",title:"Consiglio",text:"Sali in funicolare; se torni di giorno, scendi a piedi tra i giardini."}],
    linkTo:"x:croix"},
-  "0:3":{heroEmoji:"🌇",wiki:"Basilique de Fourvière",subtitle:"Basilica di Fourvière",intro:"La basilica del 1870 mescola gotico, classico e bizantino.",sections:[
+  "0:4":{heroEmoji:"🌃",wiki:"Basilique de Fourvière",subtitle:"Basilica di Fourvière",intro:"La basilica del 1870 mescola gotico, classico e bizantino.",sections:[
     {icon:"📍",title:"Dove sei",text:"Sulla cima della collina, alla terrazza davanti alla basilica."},
     {icon:"📖",title:"Da sapere",text:"Costruita tra il <b>1872 e il 1896</b> su progetto di <b>Pierre Bossan</b>. Capolavoro neobizantino con influenze gotiche e romaniche."},
     {icon:"😲",title:"Curiosità",text:"Vista dalla Città Vecchia, sembra un <b>gigantesco elefante rovesciato</b>! Le due chiese sono sovrapposte."},
-    {icon:"👀",title:"La vista",text:"Si vedono i tetti della Città Vecchia e, se limpido, <b>le Alpi fino al Monte Bianco</b>."},
+    {icon:"👀",title:"La vista",text:"Stasera, il tappeto di luci della città. Di giorno, se limpido, <b>le Alpi fino al Monte Bianco</b>."},
     {icon:"🕐",title:"Orari",text:"<b>7:00–20:00</b>. Ingresso gratuito."},
     {icon:"🌙",title:"Se torni a dicembre",text:"L'<b>8 dicembre</b> Lione si accende con la <b>Festa delle Luci</b>."},
     {icon:"🏛️",title:"Il Museo Gallo-Romano",text:"Tra Teatro e Odeon, con la <b>tavola in bronzo di Claudio</b>."},
     {icon:"💡",title:"Consiglio",text:"La terrazza dietro la basilica è il punto foto migliore di Lione."}]},
-  "0:4":{heroEmoji:"🚡",subtitle:"Funicolare giù a Saint-Jean",intro:"Discesa rapida con la F2 verso il cuore del Vieux Lyon.",sections:[
+  "0:5":{heroEmoji:"🚡",subtitle:"Funicolare giù a Saint-Jean",intro:"Discesa rapida con la F2 verso il cuore del Vieux Lyon.",sections:[
     {icon:"💡",title:"Consiglio",text:"La F2 parte ogni ~10 min fino a tarda sera."}]},
-  "0:5":{heroEmoji:"🍽️",subtitle:"Cena in un bouchon",intro:"Le storiche trattorie lionesi: andouillette, quenelle, saucisson.",sections:[
+  "0:6":{heroEmoji:"🍽️",subtitle:"Cena in un bouchon",intro:"Le storiche trattorie lionesi: andouillette, quenelle, saucisson.",sections:[
     {icon:"📖",title:"Cosa sono i bouchon",text:"Trattorie storiche di Lione, riconoscibili dal <b>fascio di fieno</b> appeso all'insegna."},
     {icon:"👩‍🍳",title:"Le 'Mères Lyonnaises'",text:"Figure come <b>Eugénie Brazier</b> (prima donna con tre stelle Michelin) hanno reso celebre la cucina lionese."},
     {icon:"🍖",title:"Cosa mangiare",text:"<b>Andouillette</b>, <b>quenelle</b>, <b>saucisson chaud</b>. Vino: un <b>Côtes du Rhône</b>."},
     {icon:"📞",title:"Prenotazioni",text:"Nomi e numeri nella scheda <b>🍽️ Mangiare</b>."},
     {icon:"💡",title:"Consiglio",text:"Portate <b>contanti</b>: molti bouchon non accettano carte."}]},
-  "0:6":{heroEmoji:"🚕",subtitle:"Rientro in hotel",intro:"Rientro comodo in taxi. Meglio non tornare a piedi.",sections:[
+  "0:7":{heroEmoji:"🚕",subtitle:"Rientro in hotel",intro:"Rientro comodo in taxi. Meglio non tornare a piedi.",sections:[
     {icon:"💡",title:"Consiglio",text:"Chiama un taxi all'uscita o usa l'app. Numeri nella scheda <b>🆘 SOS</b>."},
     {icon:"🌙",title:"Domani",text:"Bellecour, Terreaux, Mur des Lyonnais, Parc de la Tête d'Or, Halles Bocuse e Brasserie Georges."}]},
   "1:0":{heroEmoji:"🚇",wiki:"Place Bellecour",subtitle:"Place Bellecour",intro:"310x200 metri: la più grande piazza pedonale d'Europa.",sections:[
@@ -828,7 +849,7 @@ const GUIDES = {
   "1:3":{heroEmoji:"🌳",wiki:"Parc de la Tête d'Or",subtitle:"Parc de la Tête d'Or",intro:"Grande parco cittadino con lago, serre botaniche e piccolo zoo.",sections:[
     {icon:"📍",title:"Dove sei",text:"Nel quartiere della Part-Dieu. Tram ~20 min dal centro."},
     {icon:"📖",title:"Da sapere",text:"Inaugurato nel <b>1857</b>, <b>117 ettari</b>. Una <b>testa di Cristo in oro</b> sarebbe sepolta sul fondo del lago."},
-    {icon:"🕐",title:"Orari",text:"Aperto fino alle <b>22:30</b> (in stagione). Ingresso gratuito."},
+    {icon:"🕐",title:"Orari",text:"Dal 15 ottobre chiude alle <b>20:30</b> (orario invernale); d'estate fino alle 22:30. Ingresso gratuito."},
     {icon:"💡",title:"Consiglio",text:"Punta sul lago e sulle serre."}]},
   "1:4":{heroEmoji:"🧀",wiki:"Halles Paul Bocuse",subtitle:"Les Halles Paul Bocuse",intro:"Il tempio della gastronomia: Sibilia (salumi dal 1922) e Giraudet (quenelle).",sections:[
     {icon:"📍",title:"Dove sei",text:"<b>102 Cours Lafayette</b>."},
@@ -863,14 +884,14 @@ const GUIDES = {
 
 const GMD = "https://www.google.com/maps/dir/?api=1&travelmode=driving";
 const TRIP = [
- {label:"Andata · Mercoledì 29 Ott",route:"Magenta → Lione",rows:[
+ {label:"Andata · Giovedì 29 Ott",route:"Magenta → Lione",rows:[
   {dir:"tunnel",name:"Traforo del Fréjus",via:"🚇 Tunnel · sempre aperto",km:"438 km",dur:"4h 38m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~58 €</b>",tot:"~159,80 €",
    map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Traforo del Fréjus")}`,
    note:"itinerario più rapido, il traforo è aperto tutto l'anno."},
   {dir:"valico",name:"Passo del Moncenisio",via:"⛰️ Valico · gratuito",km:"444 km",dur:"5h 17m",det:"Traforo <b>0,00 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~59 €</b>",tot:"~104,20 €",
    map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Passo del Moncenisio")}`,
    note:"~55 € in meno, ma 40 min in più e il valico dipende dal meteo."}]},
- {label:"Ritorno · Venerdì 31 Ott",route:"Lione → Magenta",rows:[
+ {label:"Ritorno · Sabato 31 Ott",route:"Lione → Magenta",rows:[
   {dir:"tunnel",name:"Traforo del Monte Bianco",via:"🚇 Tunnel · sempre aperto",km:"445 km",dur:"4h 51m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~35 €</b> · Carburante <b>~59 €</b>",tot:"~150,70 €",
    map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, VA")}&waypoints=${encodeURIComponent("Tunnel du Mont-Blanc")}`,
    note:"passaggio sotto il Monte Bianco. Il ritorno più veloce e affidabile."},
@@ -1114,6 +1135,7 @@ function render() {
   }
   padHTML.innerHTML = `
     <div class="pad-inner">
+      <button class="pbtn metro" onclick="openTransit()" aria-label="Pianta dei mezzi pubblici">🚇<small>METRO</small></button>
       <button class="pbtn nav ${idx === 0 ? 'off' : ''}" onclick="prevS()" aria-label="Tappa precedente">◀<small>PREC</small></button>
       ${doneBtn}
       <button class="pbtn nav ${idx >= steps.length - 1 ? 'off' : ''}" onclick="nextS()" aria-label="Tappa successiva">▶<small>NEXT</small></button>
@@ -1279,10 +1301,62 @@ function prevS() {
   }
 }
 
+function openTransit() {
+  const s = steps[idx];
+  const m = s ? mapLinks(s) : null;
+  overlay.innerHTML = `
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sh-top">
+        <b>🚇 Pianta dei mezzi · Lione</b>
+        <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="tmap-wrap">
+      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione 2024-2026 (mapa-metro.com)" onerror="this.style.display='none';document.getElementById('tmap-fallback').style.display='block'">
+      <div id="tmap-fallback" style="display:none">
+      <svg viewBox="0 0 340 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mini pianta mezzi: Metro A, Metro D, funicolare F2, tram T1" style="display:block;width:100%;height:auto">
+        <rect width="340" height="360" rx="14" fill="#ffffff"/>
+        <text x="16" y="28" font-size="12.5" font-weight="900" fill="#17323b" font-family="sans-serif">🚇 Mini-rete dei vostri mezzi</text>
+        <line x1="170" y1="60" x2="170" y2="114" stroke="#008f9e" stroke-width="7" stroke-linecap="round"/>
+        <line x1="170" y1="114" x2="170" y2="182" stroke="#00843d" stroke-width="7" stroke-linecap="round"/>
+        <polyline points="80,232 170,182 258,182" fill="none" stroke="#d4002a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <polyline points="258,272 170,250 80,232 80,314" fill="none" stroke="#0072bc" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+        <text x="156" y="94" text-anchor="end" font-size="12" font-weight="900" fill="#008f9e" font-family="sans-serif">F2</text>
+        <text x="156" y="154" text-anchor="end" font-size="12" font-weight="900" fill="#00843d" font-family="sans-serif">M D</text>
+        <text x="214" y="172" text-anchor="middle" font-size="12" font-weight="900" fill="#d4002a" font-family="sans-serif">M A</text>
+        <text x="130" y="226" text-anchor="middle" font-size="12" font-weight="900" fill="#0072bc" font-family="sans-serif">T1</text>
+        <circle cx="170" cy="60" r="7" fill="#ffffff" stroke="#008f9e" stroke-width="3"/>
+        <circle cx="170" cy="114" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
+        <circle cx="170" cy="182" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
+        <circle cx="258" cy="182" r="7" fill="#ffffff" stroke="#d4002a" stroke-width="3"/>
+        <circle cx="80" cy="232" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
+        <circle cx="258" cy="272" r="7" fill="#ffffff" stroke="#0072bc" stroke-width="3"/>
+        <circle cx="80" cy="314" r="7" fill="#ffffff" stroke="#0072bc" stroke-width="3"/>
+        <text x="184" y="64" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Fourvière 🌃</text>
+        <text x="184" y="118" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Vieux Lyon</text>
+        <text x="184" y="204" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Bellecour</text>
+        <text x="258" y="200" text-anchor="middle" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Hôtel de Ville</text>
+        <text x="66" y="236" text-anchor="end" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Perrache</text>
+        <text x="66" y="251" text-anchor="end" font-size="11" font-weight="700" fill="#0e9f6e" font-family="sans-serif">🏨 il vostro hotel</text>
+        <text x="246" y="290" text-anchor="end" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Halles Bocuse</text>
+        <text x="246" y="305" text-anchor="end" font-size="10.5" fill="#5b7a80" font-family="sans-serif">(Part-Dieu)</text>
+        <text x="94" y="318" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Musée des Confluences</text>
+        <text x="170" y="346" text-anchor="middle" font-size="10" font-weight="700" fill="#5b7a80" font-family="sans-serif">🎫 Ticket 2,10 € · valido 1h · convalide sempre</text>
+      </svg>
+      </div>
+      </div>
+      <div class="sbtns" style="grid-template-columns:1fr 1fr;margin-top:12px">
+        <a class="sitem" style="justify-content:center" href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" target="_blank" rel="noopener">🗺️ Apri pianta completa</a>
+        ${m ? `<a class="sitem" style="justify-content:center" href="${m.transit}" target="_blank" rel="noopener">🧭 Percorso di questa tappa</a>` : `<a class="sitem" style="justify-content:center" href="https://www.tcl.fr" target="_blank" rel="noopener">🧭 tcl.fr</a>`}
+      </div>
+      <p class="shint">📡 Pianta dettagliata: serve rete (mapa-metro.com) · offline resta la mini-rete con i vostri 4 mezzi.<br>⚠️ Funivia F2: possibili manutenzioni a fine ottobre — verifica tcl.fr la settimana prima.</p>
+    </div>`;
+  overlay.hidden = false;
+}
+
 function openSheet() {
   const doneCount = steps.filter((_, i) => state[dayIdx + ':' + i]).length;
   overlay.innerHTML = `
-    <div class="sheet">
+    <div class="sheet" onclick="event.stopPropagation()">
       <div class="sh-top">
         <b>⚙️ Servizio · ${DAYS[dayIdx].name}</b>
         <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
@@ -1322,6 +1396,7 @@ function closeSheet() {
   overlay.hidden = true;
   overlay.innerHTML = '';
 }
+overlay.addEventListener('click', closeSheet);
 function switchDay(i) {
   dayIdx = i;
   steps = DAYS[i].steps;
@@ -1397,7 +1472,7 @@ document.getElementById('food').innerHTML = FOOD.map(g => `
 `).join('') + `
   <div class="tips">
     <div>💡 <b>Prenotate i bouchon</b> — sono piccoli e si riempiono. Portate contanti.</div>
-    <div>⏰ Ristoranti chiusi tra 14:00 e 19:00. Halles Bocuse chiuse domenica sera e lunedì.</div>
+    <div>⏰ Ristoranti chiusi tra 14:00 e 19:00. Halles Bocuse: lun–sab 7:30–19:30 · domenica solo mattina (7:30–13:00).</div>
   </div>`;
 
 const PAGES = {
