@@ -473,21 +473,21 @@
   .sb-all { background: #f9e0e0; border: 1.5px solid #d98080; color: #b03030; }
   .shint { font-size: 11px; color: var(--mut); text-align: center; margin-top: 12px; line-height: 1.5; }
 
-  /* Guide sheet più alta (88vh) per occupare più spazio sullo schermo */
+  /* Guide sheet portata a 94vh per occupare ancora più spazio utile in alto */
   .guide-sheet {
     width: 100%; max-width: 560px; margin: auto auto 0 auto; background: #f7fbfa;
     border: 1px solid var(--line); border-bottom: none; border-radius: 22px 22px 0 0;
-    height: 88vh; max-height: 88vh;
+    height: 94vh; max-height: 94vh;
     display: flex; flex-direction: column; overflow: hidden; color: var(--txt);
     box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
   }
   .guide-hero {
-    position: relative; height: 150px;
+    position: relative; height: 130px;
     background: linear-gradient(135deg, #bfe3dc 0%, #d3efe9 55%, #e8f2ef 100%);
     display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
   }
   .gh-emoji {
-    font-size: 78px; filter: drop-shadow(0 8px 22px #0008);
+    font-size: 64px; filter: drop-shadow(0 8px 22px #0008);
     animation: float 3.6s ease-in-out infinite;
   }
   .guide-hero img.gh-img {
@@ -501,17 +501,17 @@
     pointer-events: none;
   }
   .gh-close {
-    position: absolute; top: 12px; right: 12px; z-index: 3;
+    position: absolute; top: 10px; right: 10px; z-index: 3;
     background: #ffffffee; border: 1.5px solid var(--line); color: #17323b;
-    font-weight: 900; font-size: 15px; width: 40px; height: 40px;
+    font-weight: 900; font-size: 15px; width: 38px; height: 38px;
     border-radius: 12px; backdrop-filter: blur(4px); cursor: pointer;
   }
   .guide-body {
     flex: 1; 
-    overflow-y: scroll; /* Forza lo scroll indipendente e fluido */
+    overflow-y: scroll;
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: contain;
-    padding: 10px 20px 40px 20px;
+    padding: 10px 20px 48px 20px;
   }
   .g-sub {
     font-size: 11px; color: var(--amber); font-weight: 900;
