@@ -89,8 +89,8 @@
   }
 
   .kicker, .kicker .phase, .stepno, .stepno .badge-done, .meta, .meta b,
-  .countdown, .alldone p, .guide-box, .guide-text, .guide-open-btn,
-  .guide-title, .tip, .photo-status, .ttable td, .ttable .t-name,
+  .alldone p, .guide-box, .guide-text, .guide-open-btn,
+  .guide-title, .tip, .ttable td, .ttable .t-name,
   .ttable .t-det, .ttable .t-det b, .ttable .t-tot, .trip-note {
     transition: background-color 1.4s ease, color 1.4s ease, border-color 1.4s ease;
   }
@@ -146,7 +146,7 @@
     padding: calc(108px + env(safe-area-inset-top)) 18px 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
-  main.foodpage, main.sospage { padding-top: calc(12px + env(safe-area-inset-top)); }
+  main.foodpage { padding-top: calc(12px + env(safe-area-inset-top)); }
   /* FIX 1: spazio di scorrimento sotto la card — così "Apri guida completa",
      i bottoni mappa e il tip non restano mai coperti dal pad fisso
      (PREC / FATTO / NEXT / TAXI) e dalla barra di navigazione. */
@@ -197,25 +197,16 @@
     text-align: center; font-size: 14px; color: var(--mut-bg); margin-bottom: 8px; line-height: 1.4;
   }
   .meta b { color: var(--txt-bg); }
-  .countdown {
-    text-align: center; font-size: 12px; font-weight: 800;
-    color: var(--amber-text); min-height: 18px; margin-bottom: 16px;
-    font-variant-numeric: tabular-nums;
+  .poi-open-btn {
+    display: block; width: 100%; max-width: 440px; margin: 14px auto 0; padding: 11px 14px;
+    background: rgba(15,90,80,.05); border: 1.5px solid var(--line-bg); color: var(--txt-bg);
+    font-family: inherit; font-size: 12.5px; font-weight: 900; border-radius: 12px;
+    text-align: center; min-height: 44px; transition: transform .1s;
   }
-
-  .card-photo {
-    display: none; width: 100%; max-width: 440px; max-height: 180px;
-    object-fit: cover; border-radius: 14px; margin: 0 auto 14px;
-    box-shadow: var(--shadow);
-  }
-  .card-photo.loaded { display: block; }
-  .photo-status {
-    max-width: 440px; margin: -6px auto 14px; font-size: 11px; font-weight: 700;
-    color: var(--mut-bg); text-align: center; padding: 9px;
-    border: 1px dashed var(--line-bg); border-radius: 12px;
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-  }
-  .photo-status.ok { display: none; }
+  .poi-open-btn:active { transform: scale(.98); }
+  .poi-open-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
+  body.phase-evening .poi-open-btn,
+  body.phase-night .poi-open-btn { background: rgba(0,0,0,.15); }
 
   .guide-box {
     margin: 0 auto 16px; max-width: 440px;
@@ -234,7 +225,7 @@
   }
   .guide-text {
     font-size: 14px; line-height: 1.55; color: var(--txt-bg);
-    display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
   }
   body.phase-evening .guide-text,
   body.phase-night .guide-text { color: #dceeea; }
@@ -266,18 +257,90 @@
   }
 
   .map-actions {
-    display: flex; justify-content: center; gap: 10px; margin-top: 14px; flex-wrap: wrap;
+    display: flex; justify-content: center; gap: 6px; margin: 14px auto 0;
+    width: 100%; max-width: 440px; flex-wrap: nowrap;
   }
   .map-btn {
-    display: flex; align-items: center; gap: 6px; text-decoration: none;
-    font-size: 12.5px; font-weight: 800; padding: 11px 16px; border-radius: 12px;
-    color: #fff; transition: transform .1s; min-height: 44px;
+    display: flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none;
+    font-size: 11px; font-weight: 800; padding: 9px 4px; border-radius: 11px;
+    color: #fff; transition: transform .1s; min-height: 40px; white-space: nowrap;
+    flex: 1 1 0; min-width: 0;
   }
   .map-btn:active { transform: scale(.95); }
   .map-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
   .map-walk { background: #059669; box-shadow: 0 4px 12px #05966944; }
   .map-transit { background: #2563eb; box-shadow: 0 4px 12px #2563eb44; }
   .map-drive { background: #d97706; box-shadow: 0 4px 12px #d9770644; }
+  .map-here { background: #17323b; box-shadow: 0 4px 12px #17323b44; }
+
+  .poi-list {
+    max-width: 440px; margin: 8px auto 14px; width: 100%;
+    background: rgba(255,255,255,.55); border: 1px solid var(--line);
+    border-radius: 13px; overflow: hidden; box-shadow: var(--shadow);
+  }
+  .poi {
+    display: flex; align-items: center; gap: 8px;
+    padding: 8px 9px; border-bottom: 1px solid rgba(23,50,59,.08);
+  }
+  .poi:last-child { border-bottom: none; }
+  .poi.start { border-left: 4px solid var(--green-text); }
+  .poi.end { border-left: 4px solid var(--amber-text); }
+  .poi .pi {
+    font-size: 16px; width: 22px; text-align: center; flex-shrink: 0;
+  }
+  .poi .pt { flex: 1; min-width: 0; }
+  .poi .pt b { display: block; font-size: 12.5px; font-weight: 700; color: var(--txt); line-height: 1.25; }
+  .poi .pt small { display: block; font-size: 9.5px; color: #6b8589; margin-top: 1px; line-height: 1.3; }
+  .poi .wrap { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; flex-shrink: 0; }
+  .poi .flag {
+    font-size: 9px; font-weight: 900; color: #0a7f56; white-space: nowrap;
+    background: #0e9f6e1a; border: 1px solid #0e9f6e55; border-radius: 6px; padding: 2px 6px;
+  }
+  .poi .go {
+    flex-shrink: 0; font-size: 10px; font-weight: 900; text-decoration: none;
+    background: #1d4ed8; color: #fff; padding: 7px 9px; border-radius: 9px;
+    min-height: 34px; display: flex; align-items: center; justify-content: center; white-space: nowrap;
+  }
+  body.phase-evening .poi-list,
+  body.phase-night .poi-list {
+    background: rgba(0,0,0,.2); border-color: var(--line-bg);
+    box-shadow: 0 4px 16px rgba(0,0,0,.25);
+  }
+  body.phase-evening .poi,
+  body.phase-night .poi { border-bottom-color: rgba(255,255,255,.1); }
+  body.phase-evening .poi .pt b,
+  body.phase-night .poi .pt b { color: #eaf7f4; }
+  body.phase-evening .poi .pt small,
+  body.phase-night .poi .pt small { color: #b8dcd5; }
+  body.phase-evening .poi .flag,
+  body.phase-night .poi .flag {
+    color: var(--green-text); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25);
+  }
+
+  .sos-block {
+    background: #fff5f5; border: 1.5px solid #ef9a9a; border-radius: 14px;
+    padding: 12px 13px; margin-bottom: 14px;
+  }
+  .sos-block .sos-t {
+    font-size: 11px; font-weight: 900; text-transform: uppercase;
+    letter-spacing: 1px; color: #b71c1c; margin-bottom: 9px;
+  }
+  .sos-row {
+    display: flex; align-items: center; justify-content: space-between;
+    gap: 8px; padding: 7px 0;
+  }
+  .sos-chip {
+    display: flex; align-items: center; gap: 8px; font-size: 13px;
+    font-weight: 800; color: #7f1d1d; min-width: 0;
+  }
+  .sos-chip small { display: block; font-size: 10.5px; font-weight: 700; color: #a36a6a; }
+  .sos-row a {
+    text-decoration: none; font-size: 11.5px; font-weight: 900;
+    padding: 9px 12px; border-radius: 10px; min-height: 38px;
+    display: flex; align-items: center; white-space: nowrap;
+  }
+  .sos-row .a-tel { background: #b91c1c; color: #fff; }
+  .sos-row .a-map { background: #1d4ed8; color: #fff; margin-left: 6px; }
 
   .pad {
     position: fixed; bottom: calc(64px + env(safe-area-inset-bottom)); left: 0; right: 0; z-index: 15;
@@ -517,11 +580,6 @@
     font-size: 64px; filter: drop-shadow(0 8px 22px #0008);
     animation: float 3.6s ease-in-out infinite;
   }
-  .guide-hero img.gh-img {
-    position: absolute; inset: 0; width: 100%; height: 100%;
-    object-fit: cover; z-index: 1; opacity: 0; transition: opacity .4s;
-  }
-  .guide-hero img.gh-img.loaded { opacity: 1; }
   .guide-hero::after {
     content: ''; position: absolute; inset: 0; z-index: 2;
     background: linear-gradient(to bottom, transparent 40%, #f7fbfa 100%);
@@ -645,81 +703,6 @@
 <main id="foodPage" hidden><div id="food"></div></main>
 <main id="tripPage" hidden><div id="trip"></div></main>
 
-<main id="sosPage" hidden>
-  <div class="list">
-    <div class="list-h">📞 Un tocco e chiami</div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">🚕 Taxi Lyon 24/7</span></div>
-      <div class="r-btns" style="margin-top:8px">
-        <a class="b-tel" href="tel:+33478268181">📞 04 78 26 81 81</a>
-      </div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">🚕 Allo Taxi (300 taxi)</span></div>
-      <div class="r-btns" style="margin-top:8px">
-        <a class="b-tel" href="tel:+33478282323">📞 04 78 28 23 23</a>
-      </div>
-    </div>
-    <div class="ritem">
-      <div class="r-top">
-        <span class="r-name">🏨 Hôtel Charlemagne</span>
-        <span class="r-price">23 Cours Charlemagne</span>
-      </div>
-      <div class="r-btns" style="margin-top:8px">
-        <a class="b-tel" href="tel:+33472777000">📞 04 72 77 70 00</a>
-        <a class="b-map" href="https://maps.google.com/?q=45.746017,4.823900">📍 GPS</a>
-      </div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">🚨 Emergenza UE</span></div>
-      <div class="r-btns" style="margin-top:8px">
-        <a class="b-tel" href="tel:112" style="background:#7f1d1d;color:#fecaca">📞 112</a>
-      </div>
-    </div>
-  </div>
-  <div class="list">
-    <div class="list-h">🚇 TCL · mezzi che userete</div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">Metro D / A</span><span class="r-price">2,10 €</span></div>
-      <div class="r-addr">Vieux Lyon · Bellecour · Hôtel de Ville · ticket valido 1h</div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">Funicolare F2</span></div>
-      <div class="r-addr">St-Jean ↔ Fourvière (ogni ~10 min) · ⚠️ possibili manutenzioni: verifica tcl.fr</div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">Tram T1</span></div>
-      <div class="r-addr">Part-Dieu · Perrache · Confluence · Musée des Confluences</div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">Lyon City Card 1g</span><span class="r-price">~29–32 €</span></div>
-      <div class="r-addr">Trasporti illimitati + musei · <a href="https://www.tcl.fr" style="color:var(--blue)">tcl.fr</a></div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">🗺️ Piante della rete</span></div>
-      <div class="r-addr">Pianta dei mezzi col tasto <b>🚇 METRO</b> nella scheda Adesso · dettagliata: <a href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" style="color:var(--blue)">mapa-metro</a> · <a href="https://www.tcl.fr/assistance/le-reseau-tcl/plans-du-reseau" style="color:var(--blue)">piani ufficiali</a> · <a href="https://www.tcl.fr/sites/default/files/2024-11/Carte%20r%C3%A9seau%20unifi%C3%A9.pdf" style="color:var(--blue)">carta completa (PDF)</a></div>
-    </div>
-  </div>
-  <div class="list">
-    <div class="list-h">📲 Metti l'app sul telefono</div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">iPhone (Safari)</span></div>
-      <div class="r-addr">Apri il file in Safari → pulsante Condividi → scorri → <b>"Aggiungi a Home"</b> → Aggiungi.</div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">Android (Chrome)</span></div>
-      <div class="r-addr">Apri il file in Chrome → menu ⋮ → <b>"Aggiungi a schermata Home"</b> / "Installa app".</div>
-    </div>
-    <div class="ritem">
-      <div class="r-top"><span class="r-name">⚠️ Da sapere</span></div>
-      <div class="r-addr">Le spunte restano salvate sul telefono che usi. Scegli un unico metodo: salva il file in <b>File</b> e aprilo sempre da lì.</div>
-    </div>
-  </div>
-  <div class="tips">
-    <div>🔴 <b>Validate i biglietti</b> prima di salire — multe salate.</div>
-    <div>🔴 Dopo cena a Vieux Lyon: <b>taxi</b>, non a piedi (2 km).</div>
-  </div>
-</main>
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <div class="overlay" id="overlay" hidden></div>
@@ -730,35 +713,34 @@
   <a href="#" class="on" data-nav="nowPage"><span class="ni">📍</span>Adesso</a>
   <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Giorno</a>
   <a href="#" data-nav="foodPage"><span class="ni">🍽️</span>Mangiare</a>
-  <a href="#" data-nav="sosPage"><span class="ni">🆘</span>SOS</a>
 </nav>
 
 <script>
 const DAYS = [
  { id:1, label:"29 Ott", date:"Giovedì 29 Ott", name:"Fourvière + Vieux Lyon", time:"18:30 → 23:00", steps:[
-   {time:"18:30",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15 €",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne Lyon",dest:"Place Saint-Jean Lyon"},
-   {time:"18:45",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · chiude alle 19:00",desc:"Il traboule più lungo di Lione: quattro cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean Lyon",dest:"27 Rue du Boeuf Lyon"},
-   {time:"19:05",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Boeuf Lyon",dest:"Cathédrale Saint-Jean Lyon"},
-   {time:"19:35",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL 2,10 €",desc:"Saliamo sulla 'Collina che prega'. La funicolare (dal <b>1878</b>, oggi linea F2) parte accanto alla Cattedrale.",tip:"⚠️ Verifica su tcl.fr che la F2 non sia in manutenzione a fine ottobre.",orig:"Cathédrale Saint-Jean Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"19:45",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta verso le 18:25: la terrazza regala il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. La terrazza dietro la basilica resta il punto foto migliore, anche di notte.",orig:"Basilique de Fourvière Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"20:15",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique de Fourvière Lyon",dest:"Place Saint-Jean Lyon"},
-   {time:"20:30",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean Lyon",dest:"8 Place Saint-Jean Lyon"},
-   {time:"22:00",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · 20–27 €",desc:"Rientro comodo verso l'hotel.",tip:"Non rientrate a piedi: 2 km in salita dopo cena.",warn:true,orig:"8 Place Saint-Jean Lyon",dest:"Hôtel Charlemagne Lyon"}]},
+   {time:"18:30",dur:"🚕 ~12 min in taxi",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15 €",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne Lyon",dest:"Place Saint-Jean Lyon"},
+   {time:"18:45",dur:"🚶 2 min a piedi",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · chiude alle 19:00",desc:"Il traboule più lungo di Lione: quattro cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean Lyon",dest:"27 Rue du Boeuf Lyon"},
+   {time:"19:05",dur:"🚶 2 min a piedi",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Boeuf Lyon",dest:"Cathédrale Saint-Jean Lyon"},
+   {time:"19:35",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL 2,10 €",desc:"Saliamo sulla 'Collina che prega'. La funicolare (dal <b>1878</b>, oggi linea F2) parte accanto alla Cattedrale.",tip:"⚠️ Verifica su tcl.fr che la F2 non sia in manutenzione a fine ottobre.",orig:"Cathédrale Saint-Jean Lyon",dest:"Basilique de Fourvière Lyon"},
+   {time:"19:45",dur:"📍 sul posto",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta verso le 18:25: la terrazza regala il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. La terrazza dietro la basilica resta il punto foto migliore, anche di notte.",orig:"Basilique de Fourvière Lyon",dest:"Basilique de Fourvière Lyon"},
+   {time:"20:15",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique de Fourvière Lyon",dest:"Place Saint-Jean Lyon"},
+   {time:"20:30",dur:"🚶 3 min a piedi",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean Lyon",dest:"8 Place Saint-Jean Lyon"},
+   {time:"22:00",dur:"🚕 ~10 min in taxi",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · 20–27 €",desc:"Rientro comodo verso l'hotel.",tip:"Non rientrate a piedi: 2 km in salita dopo cena.",warn:true,orig:"8 Place Saint-Jean Lyon",dest:"Hôtel Charlemagne Lyon"}]},
  { id:2, label:"30 Ott", date:"Venerdì 30 Ott", name:"Tour città + Cena", time:"09:00 → 23:00", steps:[
-   {time:"09:00",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A/D · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (67.128 m²), la più grande piazza pedonale d'Europa.",tip:"☕ Colazione: se non la fate in hotel, fermatevi in uno dei caffè intorno a Bellecour.",orig:"Hôtel Charlemagne Lyon",dest:"Place Bellecour Lyon"},
-   {time:"09:30",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",orig:"Place Bellecour Lyon",dest:"Place des Terreaux Lyon"},
-   {time:"10:15",emoji:"🎨",title:"Mur des Lyonnais",meta:"Fresco gigante: Claudio, Lumière, Jacquard · 5 min a piedi",desc:"Un affresco monumentale di <b>800 m²</b> con <b>36 personaggi</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux Lyon",dest:"Mur des Lyonnais Lyon"},
-   {time:"11:00",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Tram ~20 min · lago + serra · gratis · fino alle 20:30 (orario invernale)",desc:"Inaugurato nel <b>1857</b>, è il più grande parco urbano di Lione con <b>117 ettari</b>.",orig:"Mur des Lyonnais Lyon",dest:"Parc de la Tête d'Or Lyon"},
-   {time:"12:30",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · banchi: Sibilia, Giraudet, Antonin · lun–sab 7:30–19:30",desc:"Il tempio della gastronomia, intitolato a <b>Paul Bocuse</b> nel 2006.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or Lyon",dest:"Les Halles Paul Bocuse Lyon"},
-   {time:"15:00",emoji:"😴",title:"Riposo in hotel",meta:"Metro/Tram ~20 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Les Halles Paul Bocuse Lyon",dest:"Hôtel Charlemagne Lyon"},
-   {time:"19:30",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"A 300 m dall'hotel · dal 1836 · Art Déco · 30–50 €",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Se piena: alternative nella scheda 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne Lyon",dest:"Brasserie Georges Lyon"},
-   {time:"22:00",emoji:"🚶",title:"Rientro a piedi",meta:"300 metri · due passi digestivi sul lungo Saona",desc:"Quattro passi digestivi lungo la Saona per tornare in hotel.",orig:"Brasserie Georges Lyon",dest:"Hôtel Charlemagne Lyon"}]},
+   {time:"09:00",dur:"🚇 ~15 min in metro",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A/D · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (67.128 m²), la più grande piazza pedonale d'Europa.",tip:"☕ Colazione: se non la fate in hotel, fermatevi in uno dei caffè intorno a Bellecour.",orig:"Hôtel Charlemagne Lyon",dest:"Place Bellecour Lyon"},
+   {time:"09:30",dur:"🚶 ~15 min a piedi",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",orig:"Place Bellecour Lyon",dest:"Place des Terreaux Lyon"},
+   {time:"10:15",dur:"🚶 ~5 min a piedi",emoji:"🎨",title:"Mur des Lyonnais",meta:"Fresco gigante: Claudio, Lumière, Jacquard · 5 min a piedi",desc:"Un affresco monumentale di <b>800 m²</b> con <b>36 personaggi</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux Lyon",dest:"Mur des Lyonnais Lyon"},
+   {time:"11:00",dur:"🚊 ~20 min in tram",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Tram ~20 min · lago + serra · gratis · fino alle 20:30 (orario invernale)",desc:"Inaugurato nel <b>1857</b>, è il più grande parco urbano di Lione con <b>117 ettari</b>.",orig:"Mur des Lyonnais Lyon",dest:"Parc de la Tête d'Or Lyon"},
+   {time:"12:30",dur:"🚊 ~25 min in tram",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · banchi: Sibilia, Giraudet, Antonin · lun–sab 7:30–19:30",desc:"Il tempio della gastronomia, intitolato a <b>Paul Bocuse</b> nel 2006.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or Lyon",dest:"Les Halles Paul Bocuse Lyon"},
+   {time:"15:00",dur:"🚇 ~20 min in metro",emoji:"😴",title:"Riposo in hotel",meta:"Metro/Tram ~20 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Les Halles Paul Bocuse Lyon",dest:"Hôtel Charlemagne Lyon"},
+   {time:"19:30",dur:"🚶 5 min a piedi",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"A 300 m dall'hotel · dal 1836 · Art Déco · 30–50 €",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Se piena: alternative nella scheda 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne Lyon",dest:"Brasserie Georges Lyon"},
+   {time:"22:00",dur:"🚶 5 min a piedi",emoji:"🚶",title:"Rientro a piedi",meta:"300 metri · due passi digestivi sul lungo Saona",desc:"Quattro passi digestivi lungo la Saona per tornare in hotel.",orig:"Brasserie Georges Lyon",dest:"Hôtel Charlemagne Lyon"}]},
  { id:3, label:"31 Ott", date:"Sabato 31 Ott", name:"Tour in auto + partenza", time:"09:00 → 12:00", steps:[
-   {time:"09:00",emoji:"🚗",title:"Musée des Confluences",meta:"~10 min in auto · vista esterna (museo apre alle 10:30 · sabato aperto · 12 €)",desc:"Architettura futuristica progettata da <b>Coop Himmelb(l)au</b>, dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne Lyon",dest:"Musée des Confluences Lyon"},
-   {time:"09:40",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"~15 min · salumi e formaggi da portare a casa",desc:"Ultimi acquisti. Portati a casa un pezzo di Lione.",orig:"Musée des Confluences Lyon",dest:"Les Halles Paul Bocuse Lyon"},
-   {time:"10:30",emoji:"🚉",title:"Gare Part-Dieu",meta:"~10 min · stazione principale · parcheggio",desc:"Il centro direzionale e la stazione principale di Lione.",orig:"Les Halles Paul Bocuse Lyon",dest:"Gare Part-Dieu Lyon"},
-   {time:"10:45",emoji:"🏙️",title:"Tour Incity",meta:"200 m a piedi · grattacielo più alto di Lione",desc:"Il grattacielo più alto di Lione (<b>200 metri</b>). Completato nel <b>2015-2016</b>.",orig:"Gare Part-Dieu Lyon",dest:"Tour Incity Lyon"},
-   {time:"11:30",emoji:"👋",title:"Check-out e via",meta:"Tour Incity → Hotel ~15 min · fine del viaggio",desc:"È tempo di salutare Lione.",tip:"Partite da Part-Dieu? Saltate il rientro in hotel.",orig:"Tour Incity Lyon",dest:"Hôtel Charlemagne Lyon"}]}
+   {time:"09:00",dur:"🚗 ~10 min in auto",emoji:"🚗",title:"Musée des Confluences",meta:"~10 min in auto · vista esterna (museo apre alle 10:30 · sabato aperto · 12 €)",desc:"Architettura futuristica progettata da <b>Coop Himmelb(l)au</b>, dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne Lyon",dest:"Musée des Confluences Lyon"},
+   {time:"09:40",dur:"🚗 ~15 min in auto",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"~15 min · salumi e formaggi da portare a casa",desc:"Ultimi acquisti. Portati a casa un pezzo di Lione.",orig:"Musée des Confluences Lyon",dest:"Les Halles Paul Bocuse Lyon"},
+   {time:"10:30",dur:"🚗 ~10 min in auto",emoji:"🚉",title:"Gare Part-Dieu",meta:"~10 min · stazione principale · parcheggio",desc:"Il centro direzionale e la stazione principale di Lione.",orig:"Les Halles Paul Bocuse Lyon",dest:"Gare Part-Dieu Lyon"},
+   {time:"10:45",dur:"🚶 3 min a piedi",emoji:"🏙️",title:"Tour Incity",meta:"200 m a piedi · grattacielo più alto di Lione",desc:"Il grattacielo più alto di Lione (<b>200 metri</b>). Completato nel <b>2015-2016</b>.",orig:"Gare Part-Dieu Lyon",dest:"Tour Incity Lyon"},
+   {time:"11:30",dur:"🚗 ~15 min in auto",emoji:"👋",title:"Check-out e via",meta:"Tour Incity → Hotel ~15 min · fine del viaggio",desc:"È tempo di salutare Lione.",tip:"Partite da Part-Dieu? Saltate il rientro in hotel.",orig:"Tour Incity Lyon",dest:"Hôtel Charlemagne Lyon"}]}
 ];
 
 const FOOD = [
@@ -880,6 +862,52 @@ const GUIDES = {
   "2:4":{heroEmoji:"👋",subtitle:"Check-out e via",intro:"Fine del viaggio.",sections:[
     {icon:"💡",title:"Consiglio",text:"Se hai tempo prima del treno, una passeggiata al Parc de la Tête d'Or è un bel modo per salutare Lione."},
     {icon:"🎒",title:"In valigia",text:"Salumi, formaggi, una quenelle e il ricordo di una città che merita di essere scoperta."}]}
+};
+
+const POIS = {
+  "0:0":[{i:"⛪",n:"Cattedrale Saint-Jean",d:"la facciata gotica · si visita due tappe dopo",q:"Cathédrale Saint-Jean Lyon",k:"main"},
+         {i:"🏛️",n:"Place Saint-Jean",d:"il sagrato che apre la Città Vecchia",q:"Place Saint-Jean Lyon"},
+         {i:"⛰️",n:"Basilica di Fourvière",d:"bianca sulla collina che sovrasta la piazza",q:"Basilique de Fourvière Lyon"}],
+  "0:1":[{i:"🚪",n:"La Longue Traboule",d:"quattro cortili rinascimentali in fila · chiude 19:00",q:"Longue Traboule 54 Rue Saint-Jean Lyon",k:"main"},
+         {i:"🏛️",n:"I cortili del Cinquecento",d:"gallerie e soffitti a cassettoni rinascimentali",q:"Traboules Vieux Lyon Lyon"},
+         {i:"🐂",n:"27 Rue du Bœuf",d:"l'uscita: una corte rinascimentale piena di vita",q:"27 Rue du Boeuf Lyon"}],
+  "0:2":[{i:"⏰",n:"L'orologio astronomico",d:"del 1593 · uno dei più antichi d'Europa",q:"Horloge astronomique Cathédrale Saint-Jean Lyon",k:"main"},
+         {i:"⛪",n:"Navata e portali",d:"il passaggio dal romanico al gotico si legge in facciata",q:"Cathédrale Saint-Jean Lyon"},
+         {i:"🌹",n:"Il rosone",d:"la vetrata sopra il portale centrale",q:"Cathédrale Saint-Jean Lyon"}],
+  "0:3":[{i:"🚡",n:"La ficelle",d:"la funicolare che sale dal 1878 · ticket TCL 2,10 €",q:"Funiculaire Vieux Lyon Lyon",k:"main"}],
+  "0:4":[{i:"⛪",n:"Basilique de Fourvière",d:"i mosaici dorati e la Vergine d'oro · aperta fino 20:00",q:"Basilique de Fourvière Lyon",k:"main"},
+         {i:"🌃",n:"Terrazza panoramica",d:"il tappeto di luci della città · il punto foto dietro la basilica",q:"Esplanade de Fourvière Lyon"},
+         {i:"🗼",n:"Tour Métallique",d:"la 'piccola Eiffel' di Lione, 1894 · solo da ammirare",q:"Tour Métallique de Fourvière Lyon"},
+         {i:"🏛️",n:"Teatri romani",d:"Lugdunum, capitale della Gallia · a 5 min a piedi",q:"Théâtres romains de Fourvière Lyon"}],
+  "0:6":[{i:"🍽️",n:"L'insegna 'Bouchon Lyonnais'",d:"la targa che certifica la cucina autentica",q:"Bouchons Lyonnais Vieux Lyon",k:"main"},
+         {i:"🥟",n:"I piatti-rituale",d:"quenelle, saucisson chaud, andouillette",q:"Bouchon Vieux Lyon Lyon"},
+         {i:"🍶",n:"Il pot lyonnais",d:"il Beaujolais servito nei boccali di ceramica",q:"Bouchon Vieux Lyon Lyon"}],
+  "1:0":[{i:"🐎",n:"Statua di Luigi XIV",d:"equestre, 1825 · il punto d'onore della piazza",q:"Statue équestre Louis XIV Bellecour Lyon",k:"main"},
+         {i:"📍",n:"Il chilometro zero",d:"tutte le distanze di Lione si misurano da qui",q:"Place Bellecour Lyon"}],
+  "1:1":[{i:"⛲",n:"Place des Terreaux",d:"fontana di Bartholdi · il padre della Statua della Libertà",q:"Place des Terreaux Lyon",k:"main"},
+         {i:"🎭",n:"Opéra de Lyon",d:"cupola di vetro di Jean Nouvel sulla facciata del 1756",q:"Opéra de Lyon Lyon"},
+         {i:"⛲",n:"Place des Jacobins",d:"la piazza più elegante del percorso · fontana del 1885",q:"Place des Jacobins Lyon",walk:true},
+         {i:"🛍️",n:"Rue de la République",d:"via pedonale ottocentesca · la spina della passeggiata",q:"Rue de la République Lyon",walk:true}],
+  "1:2":[{i:"🎨",n:"La Fresque des Lyonnais",d:"800 m² · 36 lionesi illustri · cercate Saint-Exupéry e i Lumière",q:"Fresque des Lyonnais Lyon",k:"main"}],
+  "1:3":[{i:"🏞️",n:"Il lago",d:"le barche del parco dal 1857",q:"Lac du Parc de la Tête d'Or Lyon",k:"main"},
+         {i:"🦁",n:"Il giardino zoologico",d:"gratuito · leoni e giraffe a due passi",q:"Zoo de Lyon Lyon"},
+         {i:"🌴",n:"Le serre botaniche",d:"Victoria amazonica e orchidee · chiudono 17:30",q:"Serres du Jardin Botanique Lyon"},
+         {i:"⛲",n:"Porte des Enfants du Rhône",d:"l'ingresso monumentale sul Rodano",q:"Porte des Enfants du Rhône Lyon"}],
+  "1:4":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia Halles Paul Bocuse Lyon",k:"main"},
+         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet Halles de Lyon Paul Bocuse"},
+         {i:"🍰",n:"Antonin",d:"la pasticceria golosa delle Halles",q:"Antonin Halles Paul Bocuse Lyon"}],
+  "1:6":[{i:"🍺",n:"La sala Art Déco",d:"dal 1836 · una delle brasserie più grandi d'Europa",q:"Brasserie Georges Lyon",k:"main"},
+         {i:"⚗️",n:"La birra in loco",d:"prodotta in casa nei tini d'epoca",q:"Brasserie Georges Lyon"},
+         {i:"🏛️",n:"La facciata neoclassica",d:"il tempio a colonne su Cours de Verdun",q:"Brasserie Georges Lyon"}],
+  "1:7":[{i:"🌊",n:"Il lungofiume",d:"l'argine della Saona illuminato · due passi digestivi",q:"Quai Perrache Lyon",k:"main",walk:true}],
+  "2:0":[{i:"🏛️",n:"Il 'cristallo' di Coop Himmelb(l)au",d:"acciaio e vetro: il museo come una nuvola",q:"Musée des Confluences Lyon",k:"main"},
+         {i:"🌊",n:"La confluenza Rodano–Saona",d:"il punto esatto in cui i due fiumi si incontrano",q:"Confluence Rhône et Saône Lyon"},
+         {i:"🏗️",n:"Il quartiere Confluence",d:"ex dock industriali rinati in architettura contemporanea",q:"Quartier de la Confluence Lyon"}],
+  "2:1":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia Halles Paul Bocuse Lyon",k:"main"},
+         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet Halles de Lyon Paul Bocuse"},
+         {i:"🍰",n:"Antonin",d:"la pasticceria golosa delle Halles",q:"Antonin Halles Paul Bocuse Lyon"}],
+  "2:2":[{i:"✏️",n:"Le Crayon",d:"la torre-matita del 1977 · l'altro simbolo di Part-Dieu",q:"Tour Part-Dieu Lyon",k:"main"}],
+  "2:3":[{i:"🏙️",n:"Tour Incity",d:"200 m · il grattacielo più alto di Lione",q:"Tour Incity Lyon",k:"main"}]
 };
 
 const GMD = "https://www.google.com/maps/dir/?api=1&travelmode=driving";
@@ -1014,57 +1042,11 @@ function mapLinks(s) {
   };
 }
 
-let photoCache = {};
-try {
-  photoCache = JSON.parse(localStorage.getItem('lyonPhotos')) || {};
-} catch (e) {
-  photoCache = {};
-}
-function fetchWikiPhoto(title) {
-  if (photoCache[title]) return Promise.resolve(photoCache[title]);
-  return fetch(`https://fr.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`)
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(j => {
-      const u = j && j.originalimage && j.originalimage.width <= 1600
-        ? j.originalimage.source
-        : j && j.thumbnail
-          ? j.thumbnail.source.replace(/\/\d+px-/, '/800px-')
-          : null;
-      if (u) {
-        photoCache[title] = u;
-        try {
-          localStorage.setItem('lyonPhotos', JSON.stringify(photoCache));
-        } catch (e) {}
-      }
-      return u;
-    })
-    .catch(() => null);
-}
-function hydratePhotos() {
-  document.querySelectorAll('[data-wiki]').forEach(img => {
-    const t = img.dataset.wiki;
-    if (!t || img.dataset.busy) return;
-    const status = document.getElementById('photo-status');
-    if (photoCache[t]) {
-      img.src = photoCache[t];
-      img.classList.add('loaded');
-      if (status) status.classList.add('ok');
-      img.dataset.busy = '1';
-      return;
-    }
-    img.dataset.busy = '1';
-    fetchWikiPhoto(t).then(u => {
-      if (!u || !img.isConnected) {
-        if (status && !u && !img.classList.contains('loaded')) {
-          status.textContent = '📷 offline — la foto comparirà alla prima connessione';
-        }
-        return;
-      }
-      img.src = u;
-      img.classList.add('loaded');
-      if (status) status.classList.add('ok');
-    });
-  });
+let poisOpen = {};
+function togglePois() {
+  const k = dayIdx + ':' + idx;
+  poisOpen[k] = !poisOpen[k];
+  render();
 }
 
 function renderDayStrip() {
@@ -1092,6 +1074,15 @@ function render() {
   }
   const isDone = !!state[dayIdx + ':' + idx];
   const guideData = GUIDES[dayIdx + ':' + idx];
+  const pois = POIS[dayIdx + ':' + idx] || [];
+  const origName = (s.orig || '').replace(/ Lyon$/, '');
+  const destName = (s.dest || '').replace(/ Lyon$/, '');
+  const norm = x => x.toLowerCase().replace(/œ/g, 'oe');
+  const poiRows = [
+    s.orig ? { i: '🚩', n: origName, d: 'partenza', q: s.orig, k: 'start' } : null,
+    ...pois.filter(p => norm(p.n) !== norm(origName) && norm(p.n) !== norm(destName)),
+    s.dest && s.dest !== s.orig ? { i: '🏁', n: destName, d: 'arrivo', q: s.dest, k: 'end' } : null
+  ].filter(Boolean);
   const m = mapLinks(s);
   const doneBtn = isDone
     ? `<button class="pbtn undo" onclick="toggleDone()" aria-label="Deseleziona tappa">DESELEZIONA ✕<small>annulla spunta</small></button>`
@@ -1099,18 +1090,13 @@ function render() {
 
   view.innerHTML = `
     <div class="kicker">Adesso · ${DAYS[dayIdx].name}<span class="phase" id="phase"></span></div>
-    <div class="stepno">tappa ${idx + 1} di ${steps.length} · prevista ${s.time}${isDone ? ' · <span class="badge-done">✓ completata</span>' : ''}</div>
+    <div class="stepno">Tappa ${idx + 1} di ${steps.length} · ${s.dur}${isDone ? ' · <span class="badge-done">✓ completata</span>' : ''}</div>
     <div class="bigcard">
       <div class="cardhead">
         <div class="emoji" aria-hidden="true">${s.emoji}</div>
         <div class="title">${s.title}</div>
       </div>
       <div class="meta">${s.meta}</div>
-      <div class="countdown" id="cd"></div>
-      ${guideData && guideData.wiki ? `
-        <img class="card-photo" data-wiki="${guideData.wiki}" alt="Foto: ${s.title}">
-        <div class="photo-status" id="photo-status">📷 foto in arrivo… (serve rete la prima volta)</div>
-      ` : ''}
       ${s.desc ? `
         <div class="guide-box">
           <div class="guide-title">📖 Cosa sapere</div>
@@ -1121,10 +1107,12 @@ function render() {
         <a class="map-btn map-walk" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>
         <a class="map-btn map-transit" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>
         <a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚕 Taxi</a>
+        <a class="map-btn map-here" href="https://www.google.com/maps" target="_blank" rel="noopener">📍 Sei qui</a>
       </div>
+      ${poiRows.length ? `<button class="poi-open-btn" onclick="togglePois()">${poisOpen[dayIdx + ':' + idx] ? '▴ Chiudi i punti di interesse' : '📍 Apri i punti di interesse della tappa'}</button>` : ''}
+      ${poisOpen[dayIdx + ':' + idx] && poiRows.length ? `<div class="poi-list">${poiRows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 solo a piedi</span>' : ''}<a class="go" href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>` : ''}
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
     </div>`;
-  hydratePhotos();
 
   let padHTML = document.getElementById('pad-fixed');
   if (!padHTML) {
@@ -1145,10 +1133,8 @@ function render() {
 }
 
 function tick() {
-  const cd = document.getElementById('cd');
   const ph = document.getElementById('phase');
   if (ph) ph.textContent = '· ' + phaseLabel();
-  if (cd) cd.textContent = (idx + 1 < steps.length) ? `poi: ${steps[idx + 1].title}` : '';
 }
 setInterval(tick, 30000);
 setInterval(() => {
@@ -1236,7 +1222,6 @@ function openGuideKey(key) {
   guideOverlay.innerHTML = `
     <div class="guide-sheet" onclick="event.stopPropagation()">
       <div class="guide-hero">
-        ${g.wiki ? `<img class="gh-img" data-wiki="${g.wiki}" alt="" onerror="this.remove()">` : ''}
         <div class="gh-emoji" aria-hidden="true">${g.heroEmoji || s.emoji}</div>
         <button class="gh-close" onclick="closeGuide()" aria-label="Chiudi guida">✕</button>
       </div>
@@ -1258,7 +1243,6 @@ function openGuideKey(key) {
       </div>
     </div>`;
   guideOverlay.hidden = false;
-  hydratePhotos();
 }
 function closeGuide() {
   guideOverlay.hidden = true;
@@ -1348,7 +1332,7 @@ function openTransit() {
         <a class="sitem" style="justify-content:center" href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" target="_blank" rel="noopener">🗺️ Apri pianta completa</a>
         ${m ? `<a class="sitem" style="justify-content:center" href="${m.transit}" target="_blank" rel="noopener">🧭 Percorso di questa tappa</a>` : `<a class="sitem" style="justify-content:center" href="https://www.tcl.fr" target="_blank" rel="noopener">🧭 tcl.fr</a>`}
       </div>
-      <p class="shint">📡 Pianta dettagliata: serve rete (mapa-metro.com) · offline resta la mini-rete con i vostri 4 mezzi.<br>⚠️ Funivia F2: possibili manutenzioni a fine ottobre — verifica tcl.fr la settimana prima.</p>
+      <p class="shint">📡 Pianta dettagliata: serve rete (mapa-metro.com) · offline resta la mini-rete con i vostri 4 mezzi.<br>🎫 Lyon City Card 1g ~29–32 €: trasporti illimitati + musei · tcl.fr<br>⚠️ Funivia F2: possibili manutenzioni a fine ottobre — verifica tcl.fr la settimana prima.</p>
     </div>`;
   overlay.hidden = false;
 }
@@ -1360,6 +1344,26 @@ function openSheet() {
       <div class="sh-top">
         <b>⚙️ Servizio · ${DAYS[dayIdx].name}</b>
         <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="sos-block">
+        <div class="sos-t">🚨 Sicurezza · un tocco e chiami</div>
+        <div class="sos-row">
+          <span class="sos-chip">🆘 Emergenza UE<small>polizia · ambulanza · vigili del fuoco</small></span>
+          <a class="a-tel" href="tel:112">📞 112</a>
+        </div>
+        <div class="sos-row">
+          <span class="sos-chip">🚕 Taxi Lyon 24/7<small>radiotaxi · sempre attivo</small></span>
+          <a class="a-tel" href="tel:+33478268181">📞 Chiama</a>
+        </div>
+        <div class="sos-row">
+          <span class="sos-chip">🚕 Allo Taxi<small>300 taxi · 24/7</small></span>
+          <a class="a-tel" href="tel:+33478282323">📞 Chiama</a>
+        </div>
+        <div class="sos-row">
+          <span class="sos-chip">🏨 Hôtel Charlemagne<small>23 Cours Charlemagne · Perrache</small></span>
+          <a class="a-tel" href="tel:+33472777000">📞 Chiama</a>
+          <a class="a-map" href="https://maps.google.com/?q=45.746017,4.823900" target="_blank" rel="noopener">📍 GPS</a>
+        </div>
       </div>
       <div class="dayswitch">
         ${DAYS.map((d, i) => `
@@ -1388,7 +1392,7 @@ function openSheet() {
         <button class="sb-day" onclick="resetDay()">♻︎ Azzera giorno</button>
         <button class="sb-all" onclick="resetAll()">♻︎ Azzera tutto</button>
       </div>
-      <p class="shint">💡 Le spunte sono condivise con "Adesso".</p>
+      <p class="shint">💡 Le spunte sono condivise con "Adesso".<br>📲 Installa su Home: Safari → Condividi → Aggiungi a Home · Chrome → ⋮ → Aggiungi a schermata Home.</p>
     </div>`;
   overlay.hidden = false;
 }
@@ -1479,7 +1483,6 @@ const PAGES = {
   nowPage: view,
   dayPage: dayView,
   foodPage: document.getElementById('foodPage'),
-  sosPage: document.getElementById('sosPage'),
   tripPage: document.getElementById('tripPage')
 };
 function showPage(id) {
