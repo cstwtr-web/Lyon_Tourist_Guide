@@ -78,7 +78,6 @@
     transition: background-color 1.4s ease, color 1.4s ease;
   }
 
-  /* Riduci motion se preferito */
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
       animation-duration: 0.01ms !important;
@@ -102,7 +101,6 @@
   .sky.evening { background: radial-gradient(120% 90% at 50% -10%, rgba(255,200,150,.12), transparent 55%); }
   .sky.night   { background: radial-gradient(120% 90% at 50% -10%, rgba(150,170,220,.08), transparent 55%); }
 
-  /* Top bar */
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 30;
     display: flex; justify-content: space-between; align-items: center;
@@ -122,7 +120,6 @@
     border: 1px solid var(--line);
   }
 
-  /* Day strip */
   .daystrip {
     position: fixed; top: calc(58px + env(safe-area-inset-top)); left: 0; right: 0;
     display: flex; justify-content: center; gap: 8px; z-index: 20; padding: 0 14px;
@@ -149,7 +146,6 @@
   main.foodpage, main.sospage { padding-top: calc(12px + env(safe-area-inset-top)); }
   main[hidden] { display: none !important; }
 
-  /* Vista Adesso */
   .kicker {
     text-align: center; font-size: 11px; font-weight: 900;
     letter-spacing: 1.8px; text-transform: uppercase;
@@ -268,7 +264,6 @@
   .map-transit { background: #2563eb; box-shadow: 0 4px 12px #2563eb44; }
   .map-drive { background: #d97706; box-shadow: 0 4px 12px #d9770644; }
 
-  /* Pad fisso */
   .pad {
     position: fixed; bottom: calc(64px + env(safe-area-inset-bottom)); left: 0; right: 0; z-index: 15;
     background: linear-gradient(to top, var(--bg) 65%, transparent);
@@ -320,7 +315,6 @@
   .alldone h2 { font-size: 24px; font-weight: 900; }
   .alldone p { color: var(--mut-bg); font-size: 15px; max-width: 300px; line-height: 1.45; }
 
-  /* Vista Giorno */
   .day-h {
     margin: 12px auto 10px;
     background: linear-gradient(135deg, #b45309, #d97706);
@@ -384,7 +378,6 @@
   .st-sub { font-size: 12.5px; color: var(--mut); margin: 4px 0 8px; line-height: 1.35; }
   .st-hint { font-size: 11.5px; color: #5b7a80; font-weight: 700; }
 
-  /* Liste */
   .list {
     margin: 12px auto; background: var(--card); border: 1px solid var(--line);
     border-radius: 14px; overflow: hidden; width: 100%; max-width: 480px; color: var(--txt);
@@ -417,7 +410,6 @@
   }
   .tips b { color: #92600a; }
 
-  /* Toast & overlay */
   .toast {
     position: fixed; top: calc(108px + env(safe-area-inset-top)); left: 50%;
     transform: translateX(-50%) translateY(-16px);
@@ -430,7 +422,7 @@
 
   .overlay {
     position: fixed; inset: 0; background: #0a1f1dcc; backdrop-filter: blur(5px);
-    z-index: 70; display: flex; align-items: flex-end;
+    z-index: 70; display: flex; align-items: flex-end; justify-content: center;
   }
   .overlay[hidden] { display: none !important; }
   .sheet {
@@ -481,14 +473,16 @@
   .sb-all { background: #f9e0e0; border: 1.5px solid #d98080; color: #b03030; }
   .shint { font-size: 11px; color: var(--mut); text-align: center; margin-top: 12px; line-height: 1.5; }
 
-  /* Guide sheet */
+  /* Guide sheet ottimizzata per PC con altezza fissa proporzionata e scroll forzato */
   .guide-sheet {
-    width: 100%; max-width: 560px; margin: 0 auto; background: #f7fbfa;
+    width: 100%; max-width: 560px; margin: auto auto 0 auto; background: #f7fbfa;
     border: 1px solid var(--line); border-bottom: none; border-radius: 22px 22px 0 0;
-    max-height: 90vh; display: flex; flex-direction: column; overflow: hidden; color: var(--txt);
+    height: 72vh; max-height: 650px;
+    display: flex; flex-direction: column; overflow: hidden; color: var(--txt);
+    box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
   }
   .guide-hero {
-    position: relative; height: 160px;
+    position: relative; height: 150px;
     background: linear-gradient(135deg, #bfe3dc 0%, #d3efe9 55%, #e8f2ef 100%);
     display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
   }
@@ -510,10 +504,14 @@
     position: absolute; top: 12px; right: 12px; z-index: 3;
     background: #ffffffee; border: 1.5px solid var(--line); color: #17323b;
     font-weight: 900; font-size: 15px; width: 40px; height: 40px;
-    border-radius: 12px; backdrop-filter: blur(4px);
+    border-radius: 12px; backdrop-filter: blur(4px); cursor: pointer;
   }
   .guide-body {
-    flex: 1; overflow-y: auto; padding: 8px 18px calc(20px + env(safe-area-inset-bottom));
+    flex: 1; 
+    overflow-y: scroll; /* Forza lo scroll indipendente e reattivo alla rotellina */
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    padding: 10px 20px 40px 20px;
   }
   .g-sub {
     font-size: 11px; color: var(--amber); font-weight: 900;
@@ -535,7 +533,6 @@
   .g-sec-x b { color: var(--txt); font-weight: 800; }
   .g-sec-x i { color: var(--mut); }
 
-  /* Trip */
   .trip-hero {
     margin: 12px auto 10px;
     background: linear-gradient(135deg, #0f766e, #14b8a6);
@@ -590,7 +587,6 @@
     margin: 0 auto 12px; max-width: 480px; width: 100%; padding: 0 2px;
   }
 
-  /* Bottom nav */
   nav {
     position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
     background: rgba(244,250,248,.97); backdrop-filter: blur(12px);
@@ -707,7 +703,6 @@
 </nav>
 
 <script>
-/* ════ DATI (invariati) ════ */
 const DAYS = [
  { id:1, label:"29 Ott", date:"Mercoledì 29 Ott", name:"Fourvière + Vieux Lyon", time:"18:30 → 23:00", steps:[
    {time:"18:30",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15 €",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne Lyon",dest:"Place Saint-Jean Lyon"},
@@ -889,7 +884,7 @@ document.getElementById('trip').innerHTML = TRIP.map(g => `
       <td><a class="t-btn" href="${r.map}" target="_blank" rel="noopener">🗺️<br>Maps</a></td>
     </tr>`).join('')}
   </table>
-  ${g.rows.map(r => `<p class="trip-note">💡 <b>${r.name}</b>: ${r.note}</p>`).join('')}
+  ${g.rows.map(r => `<p class="trip-note">💡 <b>${r.name}</b>:${r.note}</p>`).join('')}
 `).join('') +
 `<div class="tips">
   <div>🚦 <b>Trafori (Fréjus / Monte Bianco)</b>: sempre aperti, costo ~56,40 €, si paga alla barriera anche con carta.</div>
@@ -898,7 +893,6 @@ document.getElementById('trip').innerHTML = TRIP.map(g => `
   <div>💶 <b>Combinazioni andata+ritorno</b>: valico+valico <b>~190,70 €</b> · miste <b>~246–255 €</b> · tunnel+tunnel <b>~310,50 €</b>.</div>
 </div>`;
 
-/* ════ STATO ════ */
 let memFB = {};
 let storeOK = true;
 try {
@@ -932,7 +926,6 @@ let idx = steps.findIndex((_, i) => !state[dayIdx + ':' + i]);
 if (idx < 0) idx = steps.length;
 let undoStack = Object.keys(state);
 
-/* ════ FASE ORARIA ════ */
 function phaseFor(h) {
   if (h >= 5 && h < 9) return 'morning';
   if (h >= 9 && h < 17) return 'day';
@@ -985,7 +978,6 @@ function mapLinks(s) {
   };
 }
 
-/* ════ FOTO ════ */
 let photoCache = {};
 try {
   photoCache = JSON.parse(localStorage.getItem('lyonPhotos')) || {};
@@ -1046,7 +1038,6 @@ function renderDayStrip() {
   ).join('');
 }
 
-/* ════ RENDER ADESSO ════ */
 function render() {
   renderDayStrip();
   renderDayPage();
@@ -1085,8 +1076,7 @@ function render() {
       ${s.desc ? `
         <div class="guide-box">
           <div class="guide-title">📖 Cosa sapere</div>
-          <div class="guide-text">${s.desc}</div>
-          ${guideData ? `<button class="guide-open-btn" onclick="openGuide()">📖 Apri guida completa →</button>` : ''}
+          <div class="guide-text">${s.desc}</div>${guideData ? `<button class="guide-open-btn" onclick="openGuide()">📖 Apri guida completa →</button>` : ''}
         </div>
       ` : ''}
       <div class="map-actions">
@@ -1127,7 +1117,6 @@ setInterval(() => {
   if (c) c.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
 }, 1000);
 
-/* ════ RENDER GIORNO ════ */
 function renderDayPage() {
   const day = DAYS[dayIdx];
   const done = day.steps.filter((_, i) => state[dayIdx + ':' + i]).length;
@@ -1160,9 +1149,8 @@ function renderDayPage() {
                 <span class="bdg">${i + 1}/${day.steps.length}</span>
                 <span class="bdg">${s.time}</span>
               </div>
-              <div class="st-tit">${s.emoji} ${s.title}</div>
-              <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>
-              ${hint ? `<div class="st-hint">${hint}</div>` : ''}
+              <div class="st-tit">${s.emoji}${s.title}</div>
+              <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>${hint ? `<div class="st-hint">${hint}</div>` : ''}
             </div>
           </div>`;
       }).join('')}
@@ -1196,7 +1184,6 @@ function goStep(i) {
   toast(`▶ ${steps[i].title}`);
 }
 
-/* ════ GUIDE SHEET ════ */
 function openGuide() {
   openGuideKey(dayIdx + ':' + idx);
 }
@@ -1220,7 +1207,7 @@ function openGuideKey(key) {
         <div class="g-intro">${g.intro}</div>
         ${g.sections.map(sec => `
           <div class="g-sec">
-            <div class="g-sec-t">${sec.icon} ${sec.title}</div>
+            <div class="g-sec-t">${sec.icon}${sec.title}</div>
             <div class="g-sec-x">${sec.text}</div>
           </div>
         `).join('')}
@@ -1240,7 +1227,6 @@ function closeGuide() {
 }
 guideOverlay.addEventListener('click', closeGuide);
 
-/* ════ AZIONI ════ */
 function toggleDone() {
   const key = dayIdx + ':' + idx;
   if (state[key]) {
@@ -1276,7 +1262,6 @@ function prevS() {
   }
 }
 
-/* ════ SERVICE SHEET ════ */
 function openSheet() {
   const doneCount = steps.filter((_, i) => state[dayIdx + ':' + i]).length;
   overlay.innerHTML = `
@@ -1301,8 +1286,8 @@ function openSheet() {
           return `
             <button class="sitem ${cur ? 'cur' : ''} ${done ? 'done' : ''}" onclick="jumpTo(${i})">
               <span class="si-st">${done ? '✓' : cur ? '▶' : i + 1}</span>
-              <span class="si-tt">${s.emoji} ${s.title}
-                <div class="si-mm">${s.time} · ${s.meta.replace(/<[^>]+>/g, '')}</div>
+              <span class="si-tt">${s.emoji}${s.title}
+                <div class="si-mm">${s.time} ·${s.meta.replace(/<[^>]+>/g, '')}</div>
               </span>
             </button>`;
         }).join('')}
@@ -1374,7 +1359,6 @@ function resetAll() {
 }
 document.getElementById('svcBtn').addEventListener('click', openSheet);
 
-/* ════ FOOD PAGE ════ */
 document.getElementById('food').innerHTML = FOOD.map(g => `
   <div class="list">
     <div class="list-h">${g.h}</div>
@@ -1399,7 +1383,6 @@ document.getElementById('food').innerHTML = FOOD.map(g => `
     <div>⏰ Ristoranti chiusi tra 14:00 e 19:00. Halles Bocuse chiuse domenica sera e lunedì.</div>
   </div>`;
 
-/* ════ NAVIGAZIONE ════ */
 const PAGES = {
   nowPage: view,
   dayPage: dayView,
@@ -1426,7 +1409,6 @@ document.querySelectorAll('nav a').forEach(a => {
   });
 });
 
-/* ════ SWIPE E TASTIERA ════ */
 let tx = 0, ty = 0;
 view.addEventListener('touchstart', e => {
   tx = e.touches[0].clientX;
