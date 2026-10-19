@@ -1236,18 +1236,49 @@ function mapLinks(s) {
   };
 }
 /* "Tu sei qui" = posizione GPS reale nel momento del tocco.
-   La scheda si apre subito (niente blocco popup), poi riceve le coordinate. */
+   La posizione si chiede nella pagina stessa (così il telefono mostra il permesso),
+   poi si apre un pannello con i bottoni: il secondo tocco apre Maps senza blocchi. */
 function hereNow(ev) {
   if (ev) ev.preventDefault();
-  const fallback = 'https://www.google.com/maps/@?api=1&map_action=map';
-  const w = window.open('about:blank', '_blank');
-  const go = url => { if (w) w.location.href = url; else location.href = url; };
-  if (!navigator.geolocation) { go(fallback); return; }
-  toast('📡 Cerco la tua posizione…');
+  const s = steps[idx];
+  const mapsHere = 'https://www.google.com/maps/@?api=1&map_action=map';
+  const panel = body => {
+    overlay.innerHTML = `
+      <div class="sheet" onclick="event.stopPropagation()">
+        <div class="sh-top"><b>📍 Tu sei qui</b>
+          <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
+        ${body}
+      </div>`;
+    overlay.hidden = false;
+  };
+  if (!navigator.geolocation || !window.isSecureContext) {
+    panel(`<p class="info-p">Questo browser non dà la posizione a questa pagina${window.isSecureContext ? '' : ' (pagina non sicura)'}.</p>
+      <div class="r-btns" style="margin-top:12px"><a class="b-map" href="${mapsHere}" target="_blank" rel="noopener">🗺️ Apri Maps sulla mia posizione</a></div>`);
+    return;
+  }
+  panel(`<p class="info-p">📡 Cerco la tua posizione… se il telefono lo chiede, tocca <b>Consenti</b>.</p>`);
   navigator.geolocation.getCurrentPosition(
-    p => go('https://www.google.com/maps/search/?api=1&query=' + p.coords.latitude.toFixed(6) + ',' + p.coords.longitude.toFixed(6)),
-    () => { toast('GPS non disponibile: apro Maps sulla tua posizione'); go(fallback); },
-    { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 });
+    p => {
+      const ll = p.coords.latitude.toFixed(6) + ',' + p.coords.longitude.toFixed(6);
+      const acc = Math.round(p.coords.accuracy);
+      panel(`<p class="info-p">Posizione trovata (precisione ~${acc} m).</p>
+        <div class="r-btns" style="margin-top:12px">
+          <a class="b-map" href="https://www.google.com/maps/search/?api=1&query=${ll}" target="_blank" rel="noopener">🗺️ Vedi dove sono</a>
+          ${s && s.dest ? `<a class="b-tel" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 Portami alla tappa</a>` : ''}
+        </div>`);
+    },
+    e => {
+      const why = e.code === 1
+        ? 'Permesso negato. In Chrome: lucchetto o ⓘ accanto all\'indirizzo → Autorizzazioni → Posizione → Consenti. Controlla anche che la posizione del telefono sia accesa.'
+        : e.code === 3 ? 'Il GPS non ha risposto in tempo (sei al chiuso?). Riprova all\'aperto.'
+        : 'Posizione non disponibile: controlla che la localizzazione del telefono sia attiva.';
+      panel(`<p class="info-p">${why}</p>
+        <div class="r-btns" style="margin-top:12px">
+          <button class="b-tel" style="border:0;font:inherit;font-weight:800;padding:11px 14px;border-radius:10px;min-height:44px" onclick="hereNow()">↻ Riprova</button>
+          <a class="b-map" href="${mapsHere}" target="_blank" rel="noopener">🗺️ Apri Maps</a>
+        </div>`);
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
 }
 /* "Portami qui": percorso dalla posizione reale all'arrivo della tappa (Maps usa la posizione attuale se manca l'origine) */
 function takeMeLink(s) {
