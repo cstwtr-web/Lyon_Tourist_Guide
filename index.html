@@ -116,31 +116,33 @@
 
   .topbar {
     position: fixed; top: 0; left: 0; right: 0; z-index: 30;
-    display: flex; justify-content: space-between; align-items: center;
-    padding: calc(10px + env(safe-area-inset-top)) 14px 8px;
+    display: flex; justify-content: space-between; align-items: center; gap: 6px;
+    padding: calc(10px + env(safe-area-inset-top)) 12px 8px;
   }
   .tbtn {
     background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 12px; padding: 10px 14px; border-radius: 10px;
-    min-height: 42px; cursor: pointer;
+    font-weight: 800; font-size: 18px; padding: 0; border-radius: 10px;
+    width: 52px; height: 44px; flex: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
   }
   .tbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   .tbtn.on { color: var(--amber); border-color: var(--amber); }
   .clock {
     font-size: 12px; font-weight: 800; color: var(--mut);
     font-variant-numeric: tabular-nums;
-    background: #ffffffcc; padding: 7px 12px; border-radius: 10px;
-    border: 1px solid var(--line);
+    background: #ffffffcc; padding: 0; border-radius: 10px;
+    border: 1.5px solid var(--line); width: 52px; height: 44px; flex: none;
+    display: flex; align-items: center; justify-content: center;
   }
 
   .daystrip {
-    position: fixed; top: calc(58px + env(safe-area-inset-top)); left: 0; right: 0;
-    display: flex; justify-content: center; gap: 8px; z-index: 20; padding: 0 14px;
+    flex: 1; min-width: 0;
+    display: flex; justify-content: center; gap: 6px;
   }
   .daystrip button {
     background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 12px; padding: 9px 18px; border-radius: 99px;
-    min-height: 38px; letter-spacing: .3px; cursor: pointer;
+    font-weight: 800; font-size: 12px; padding: 0 6px; border-radius: 99px;
+    flex: 1 1 0; max-width: 84px; min-width: 0; height: 44px; white-space: nowrap; cursor: pointer;
     transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .12s;
   }
   .daystrip button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
@@ -153,7 +155,7 @@
   main {
     position: relative; z-index: 10; height: 100%;
     display: flex; flex-direction: column;
-    padding: calc(108px + env(safe-area-inset-top)) 18px 0;
+    padding: calc(66px + env(safe-area-inset-top)) 18px 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   main.foodpage { padding-top: calc(12px + env(safe-area-inset-top)); }
@@ -527,7 +529,7 @@
   }
 
   .toast {
-    position: fixed; top: calc(108px + env(safe-area-inset-top)); left: 50%;
+    position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 50%;
     transform: translateX(-50%) translateY(-16px);
     background: #cfe6df; border: 1px solid var(--line); color: var(--txt);
     font-size: 13px; font-weight: 700; padding: 11px 18px; border-radius: 99px;
@@ -738,11 +740,10 @@
 <div class="sky day" id="sky"></div>
 
 <div class="topbar">
-  <button class="tbtn" id="svcBtn" aria-label="Apri pannello servizio">⚙️ Servizio</button>
+  <button class="tbtn" id="svcBtn" aria-label="Apri pannello servizio" title="Servizio">⚙️</button>
+  <div class="daystrip" id="daystrip" role="tablist" aria-label="Seleziona giorno"></div>
   <span class="clock" id="clock" aria-live="polite">--:--</span>
 </div>
-
-<div class="daystrip" id="daystrip" role="tablist" aria-label="Seleziona giorno"></div>
 
 <main id="nowPage" role="main"></main>
 <main id="dayPage" hidden></main>
@@ -1781,7 +1782,7 @@ function showPage(id) {
   document.querySelectorAll('nav a').forEach(x => x.classList.toggle('on', x.dataset.nav === id));
   const strip = document.getElementById('daystrip');
   const useDay = (id === 'nowPage' || id === 'dayPage');
-  strip.style.display = useDay ? 'flex' : 'none';
+  strip.style.visibility = useDay ? 'visible' : 'hidden';
   const pad = document.getElementById('pad-fixed');
   if (pad) pad.style.display = (id === 'nowPage') ? 'flex' : 'none';
   if (id === 'dayPage') renderDayPage();
