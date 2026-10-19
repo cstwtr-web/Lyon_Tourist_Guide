@@ -282,6 +282,8 @@
     box-shadow: var(--shadow-sm);
   }
   .map-btn:active { transform: scale(.95); }
+  .loop-wrap { display: flex; width: 100%; max-width: 440px; margin: 6px auto 0; }
+  .loop-wrap .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
   .map-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   body.phase-evening .map-btn,
   body.phase-night .map-btn {
@@ -463,7 +465,8 @@
   .step:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   .step.done { opacity: .48; }
   .step.done .st-tit { text-decoration: line-through; }
-  .step.cur { border-color: var(--amber); background: #ffc93c14; }
+  .step.cur { border-color: var(--amber); border-width: 2.5px; background: #fff8e6; color: #17323b; }
+  .step.cur .st-sub, .step.cur .st-hint { color: #3d5f63; }
   .chk {
     appearance: none; -webkit-appearance: none;
     width: 32px; height: 32px; min-width: 32px;
@@ -718,6 +721,15 @@
     color: var(--mut); text-decoration: none; min-height: 58px;
   }
   nav a .ni { font-size: 20px; }
+  .taxi-card {
+    font-size: 24px; font-weight: 900; line-height: 1.3; text-align: center;
+    padding: 18px 10px; border: 3px dashed var(--line); border-radius: 14px; margin-bottom: 12px;
+  }
+  .taxi-card small { display: block; font-size: 14px; font-weight: 700; color: var(--mut); margin-top: 6px; }
+  .info-p { font-size: 13.5px; line-height: 1.5; margin: 0; }
+  .info-p + .info-p { margin-top: 8px; }
+  .ritem.alert { background: #fde8e8; }
+  .ritem.alert .r-name { color: #991b1b; }
   nav a.on { color: var(--amber); }
   nav a:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
 </style>
@@ -736,383 +748,384 @@
 <main id="dayPage" hidden></main>
 <main id="foodPage" hidden><div id="food"></div></main>
 <main id="tripPage" hidden><div id="trip"></div></main>
+<main id="infoPage" hidden><div id="info"></div></main>
 
 
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="overlay" id="overlay" hidden></div>
-<div class="overlay" id="guideOverlay" hidden></div>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Pannello" hidden></div>
+<div class="overlay" id="guideOverlay" role="dialog" aria-modal="true" aria-label="Guida della tappa" hidden></div>
 
 <nav aria-label="Navigazione principale">
   <a href="#" data-nav="tripPage"><span class="ni">🚗</span>Viaggio</a>
   <a href="#" class="on" data-nav="nowPage"><span class="ni">📍</span>Adesso</a>
   <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Giorno</a>
   <a href="#" data-nav="foodPage"><span class="ni">🍽️</span>Mangiare</a>
+  <a href="#" data-nav="infoPage"><span class="ni">🆘</span>Info</a>
 </nav>
 
 <script>
 const DAYS = [
- { id:1, label:"29 Ott", date:"Giovedì 29 Ott", name:"Fourvière + Vieux Lyon", time:"18:30 → 23:00", steps:[
-   {time:"18:30",dur:"🚕 ~12 min in taxi",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15 €",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne Lyon",dest:"Place Saint-Jean Lyon"},
-   {time:"18:45",dur:"🚶 2 min a piedi",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · chiude alle 19:00",desc:"Il traboule più lungo di Lione: quattro cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean Lyon",dest:"27 Rue du Boeuf Lyon"},
-   {time:"19:05",dur:"🚶 2 min a piedi",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Boeuf Lyon",dest:"Cathédrale Saint-Jean Lyon"},
-   {time:"19:35",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL 2,10 €",desc:"Saliamo sulla 'Collina che prega'. La funicolare (dal <b>1878</b>, oggi linea F2) parte accanto alla Cattedrale.",tip:"⚠️ Verifica su tcl.fr che la F2 non sia in manutenzione a fine ottobre.",orig:"Cathédrale Saint-Jean Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"19:45",dur:"📍 sul posto",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta verso le 18:25: la terrazza regala il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. La terrazza dietro la basilica resta il punto foto migliore, anche di notte.",orig:"Basilique de Fourvière Lyon",dest:"Basilique de Fourvière Lyon"},
-   {time:"20:15",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique de Fourvière Lyon",dest:"Place Saint-Jean Lyon"},
-   {time:"20:30",dur:"🚶 3 min a piedi",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean Lyon",dest:"8 Place Saint-Jean Lyon"},
-   {time:"22:00",dur:"🚕 ~10 min in taxi",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · 20–27 €",desc:"Rientro comodo verso l'hotel.",tip:"Non rientrate a piedi: 2 km in salita dopo cena.",warn:true,orig:"8 Place Saint-Jean Lyon",dest:"Hôtel Charlemagne Lyon"}]},
+ { id:1, label:"29 Ott", date:"Giovedì 29 Ott", name:"Fourvière + Vieux Lyon", time:"17:00 → 22:30", steps:[
+   {time:"17:00",dur:"🚗 arrivo in auto",emoji:"🏨",title:"Arrivo, parcheggio e check-in",meta:"Hôtel Charlemagne · <b>23 Cours Charlemagne</b> · check-in dalle 15:00 · parcheggio custodito a 150 m, <b>21 €/giorno</b> su prenotazione",desc:"Lasciate l'auto: fino a sabato vi muovete a piedi, in metro e in taxi. Al banco servono <b>documento con foto</b> e <b>carta di credito</b>.",tip:"⚠️ Tutta Lione è ZFE: senza bollino <b>Crit'Air</b> sul parabrezza la multa è 68 €, anche da parcheggiati. Dettagli in 🆘 Info.",warn:true,orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
+   {time:"18:30",dur:"🚕 ~12 min in taxi",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15–25 € · 1 taxi = max 4 persone",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Place Saint-Jean, 69005 Lyon"},
+   {time:"18:45",dur:"🚶 2 min a piedi",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · aperta 7:00–19:00",desc:"Il traboule più lungo di Lione: cinque cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean, 69005 Lyon",dest:"Longue Traboule, 54 Rue Saint-Jean, 69005 Lyon"},
+   {time:"19:05",dur:"🚶 2 min a piedi",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Bœuf, 69005 Lyon",dest:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon"},
+   {time:"19:35",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL <b>2,10 €</b> (vale 1h: copre anche la discesa)",desc:"Saliamo sulla 'Collina che prega'. La funicolare F2 (in servizio dal <b>1900</b>) parte dalla stazione Vieux Lyon, accanto alla Cattedrale.",tip:"⚠️ Ultima corsa F2 verso le 22:00. Verifica su tcl.fr che non sia in manutenzione.",orig:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",dest:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"},
+   {time:"19:45",dur:"📍 sul posto",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta alle <b>17:32</b>: a quest'ora dalla terrazza vedi il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. L'esplanade accanto alla basilica resta il punto foto migliore, anche di notte. La basilica chiude alle 20:00.",loop:{label:"Giro: basilica → esplanade → teatri romani",from:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",via:["Esplanade de Fourvière, Place de Fourvière, 69005 Lyon"],to:"Théâtres romains de Fourvière, 6 Rue de l'Antiquaille, 69005 Lyon"},orig:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",dest:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"},
+   {time:"20:15",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",dest:"Place Saint-Jean, 69005 Lyon"},
+   {time:"20:30",dur:"🚶 3 min a piedi",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean, 69005 Lyon",dest:"Rue Saint-Jean, 69005 Lyon"},
+   {time:"22:00",dur:"🚕 ~10 min in taxi",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · ~15–25 €",desc:"Rientro comodo verso l'hotel.",tip:"A piedi sono ~2,5 km in piano (~30 min): col freddo e dopo cena, meglio il taxi.",orig:"Rue Saint-Jean, 69005 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"}]},
  { id:2, label:"30 Ott", date:"Venerdì 30 Ott", name:"Tour città + Cena", time:"09:00 → 23:00", steps:[
-   {time:"09:00",dur:"🚇 ~15 min in metro",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A/D · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (67.128 m²), la più grande piazza pedonale d'Europa.",tip:"☕ Colazione: se non la fate in hotel, fermatevi in uno dei caffè intorno a Bellecour.",orig:"Hôtel Charlemagne Lyon",dest:"Place Bellecour Lyon"},
-   {time:"09:30",dur:"🚶 ~15 min a piedi",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",orig:"Place Bellecour Lyon",dest:"Place des Terreaux Lyon"},
-   {time:"10:15",dur:"🚶 ~5 min a piedi",emoji:"🎨",title:"Mur des Lyonnais",meta:"Fresco gigante: Claudio, Lumière, Jacquard · 5 min a piedi",desc:"Un affresco monumentale di <b>800 m²</b> con <b>36 personaggi</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux Lyon",dest:"Mur des Lyonnais Lyon"},
-   {time:"11:00",dur:"🚊 ~20 min in tram",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Tram ~20 min · lago + serra · gratis · fino alle 20:30 (orario invernale)",desc:"Inaugurato nel <b>1857</b>, è il più grande parco urbano di Lione con <b>117 ettari</b>.",orig:"Mur des Lyonnais Lyon",dest:"Parc de la Tête d'Or Lyon"},
-   {time:"12:30",dur:"🚊 ~25 min in tram",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · banchi: Sibilia, Giraudet, Antonin · lun–sab 7:30–19:30",desc:"Il tempio della gastronomia, intitolato a <b>Paul Bocuse</b> nel 2006.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or Lyon",dest:"Les Halles Paul Bocuse Lyon"},
-   {time:"15:00",dur:"🚇 ~20 min in metro",emoji:"😴",title:"Riposo in hotel",meta:"Metro/Tram ~20 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Les Halles Paul Bocuse Lyon",dest:"Hôtel Charlemagne Lyon"},
-   {time:"19:30",dur:"🚶 5 min a piedi",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"A 300 m dall'hotel · dal 1836 · Art Déco · 30–50 €",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Se piena: alternative nella scheda 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne Lyon",dest:"Brasserie Georges Lyon"},
-   {time:"22:00",dur:"🚶 5 min a piedi",emoji:"🚶",title:"Rientro a piedi",meta:"300 metri · due passi digestivi sul lungo Saona",desc:"Quattro passi digestivi lungo la Saona per tornare in hotel.",orig:"Brasserie Georges Lyon",dest:"Hôtel Charlemagne Lyon"}]},
- { id:3, label:"31 Ott", date:"Sabato 31 Ott", name:"Tour in auto + partenza", time:"09:00 → 12:00", steps:[
-   {time:"09:00",dur:"🚗 ~10 min in auto",emoji:"🚗",title:"Musée des Confluences",meta:"~10 min in auto · vista esterna (museo apre alle 10:30 · sabato aperto · 12 €)",desc:"Architettura futuristica progettata da <b>Coop Himmelb(l)au</b>, dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne Lyon",dest:"Musée des Confluences Lyon"},
-   {time:"09:40",dur:"🚗 ~15 min in auto",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"~15 min · salumi e formaggi da portare a casa",desc:"Ultimi acquisti. Portati a casa un pezzo di Lione.",orig:"Musée des Confluences Lyon",dest:"Les Halles Paul Bocuse Lyon"},
-   {time:"10:30",dur:"🚗 ~10 min in auto",emoji:"🚉",title:"Gare Part-Dieu",meta:"~10 min · stazione principale · parcheggio",desc:"Il centro direzionale e la stazione principale di Lione.",orig:"Les Halles Paul Bocuse Lyon",dest:"Gare Part-Dieu Lyon"},
-   {time:"10:45",dur:"🚶 3 min a piedi",emoji:"🏙️",title:"Tour Incity",meta:"200 m a piedi · grattacielo più alto di Lione",desc:"Il grattacielo più alto di Lione (<b>200 metri</b>). Completato nel <b>2015-2016</b>.",orig:"Gare Part-Dieu Lyon",dest:"Tour Incity Lyon"},
-   {time:"11:30",dur:"🚗 ~15 min in auto",emoji:"👋",title:"Check-out e via",meta:"Tour Incity → Hotel ~15 min · fine del viaggio",desc:"È tempo di salutare Lione.",tip:"Partite da Part-Dieu? Saltate il rientro in hotel.",orig:"Tour Incity Lyon",dest:"Hôtel Charlemagne Lyon"}]}
+   {time:"09:00",dur:"🚇 ~15 min in metro",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A da Perrache (2 fermate) · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (~62.000 m²), la più grande piazza pedonale d'Europa.",tip:"🎫 Oggi fate 4 corse: il <b>Ticket 24h (7,10 €)</b> conviene sui biglietti singoli (2,10 €).",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Place Bellecour, 69002 Lyon"},
+   {time:"09:30",dur:"🚶 ~15 min a piedi",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",via:["Statue équestre de Louis XIV, Place Bellecour, 69002 Lyon","Statue de Saint-Exupéry et du Petit Prince, Place Bellecour, 69002 Lyon","Place des Jacobins, 69002 Lyon","Rue de la République, 69002 Lyon","Opéra de Lyon, 1 Place de la Comédie, 69001 Lyon"],orig:"Place Bellecour, 69002 Lyon",dest:"Place des Terreaux, 69001 Lyon"},
+   {time:"10:15",dur:"🚶 ~10 min a piedi",emoji:"🎨",title:"Mur des Lyonnais",meta:"Muro dipinto: Claudio, Lumière, Saint-Exupéry · ~10 min a piedi · gratis",desc:"Un muro dipinto di <b>800 m²</b> con <b>~30 lionesi celebri</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux, 69001 Lyon",dest:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon"},
+   {time:"11:00",dur:"🚇 ~30 min metro + piedi",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Metro A Hôtel de Ville → <b>Masséna</b> + ~10 min a piedi · gratis · serre <b>9:00–16:30</b> · parco fino alle 20:30",desc:"Creato nel <b>1857</b>, è il più grande parco urbano di Lione: <b>105 ettari</b> con un lago di 16.",loop:{label:"Giro del parco: lago → isola → zoo → serre",from:"Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon",via:["Lac du Parc de la Tête d'Or, 69006 Lyon","Île du Souvenir, Parc de la Tête d'Or, 69006 Lyon","Zoo de Lyon, Parc de la Tête d'Or, 69006 Lyon"],to:"Grandes Serres du Parc de la Tête d'Or, 69006 Lyon"},orig:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon",dest:"Parc de la Tête d'Or, Place Général Leclerc, 69006 Lyon"},
+   {time:"12:30",dur:"🚶 ~25 min a piedi",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · ~25 min a piedi o 🚌 bus C3 (fermata <b>Halles Paul Bocuse</b>) · ristoranti <b>11:30–14:30</b>",desc:"Il tempio della gastronomia lionese, intitolato a <b>Paul Bocuse</b>.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or, Place Général Leclerc, 69006 Lyon",dest:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
+   {time:"15:00",dur:"🚇 ~25 min metro o taxi",emoji:"😴",title:"Riposo in hotel",meta:"Metro (Part-Dieu → Perrache, 2 cambi) o taxi ~15 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
+   {time:"19:30",dur:"🚶 ~7 min a piedi",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"~500 m dall'hotel · dal 1836 · Art Déco · 30–50 € · <b>prenotazione solo online</b>",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Prenotate online su brasseriegeorges.com: il telefono risponde solo lun–ven 9–18. Se piena: alternative in 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Brasserie Georges, 30 Cours de Verdun Perrache, 69002 Lyon"},
+   {time:"22:00",dur:"🚶 ~7 min a piedi",emoji:"🚶",title:"Rientro a piedi",meta:"~500 m attraverso Perrache · due passi digestivi",desc:"Quattro passi digestivi per tornare in hotel, dall'altra parte della stazione di Perrache.",via:["Gare de Lyon-Perrache, 69002 Lyon"],orig:"Brasserie Georges, 30 Cours de Verdun Perrache, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"}]},
+ { id:3, label:"31 Ott", date:"Sabato 31 Ott", name:"Giro in auto + rientro", time:"09:00 → 11:30", car:true, steps:[
+   {time:"09:00",dur:"🚶 2 min a piedi",emoji:"🧳",title:"Check-out e auto",meta:"Check-out <b>entro le 11:00</b> · auto al parcheggio custodito (150 m) · si parte già carichi",desc:"Si lascia l'hotel subito: il giro finisce alle Halles e da lì si parte per casa, senza tornare indietro.",tip:"Controllate camera, caricabatterie e documenti: non si ripassa dall'hotel.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
+   {time:"09:15",dur:"🚗 ~10 min in auto",emoji:"🏛️",title:"Musée des Confluences",meta:"Vista esterna + punta della confluenza · museo 10:30–18:30 · <b>12 €</b>",desc:"Architettura futuristica di <b>Coop Himmelb(l)au</b> (2014), proprio dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Musée des Confluences, 86 Quai Perrache, 69002 Lyon"},
+   {time:"10:15",dur:"🚗 ~20 min in auto",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"Parking LPA Halles (ingresso <b>Rue Garibaldi</b>) · sabato 7:30–19:30",desc:"Ultimi acquisti: salumi e formaggi sottovuoto da portare a casa.",orig:"Musée des Confluences, 86 Quai Perrache, 69002 Lyon",dest:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
+   {time:"11:00",dur:"🚶 ~5 min a piedi",emoji:"🏙️",title:"Tour Incity",meta:"Angolo Cours Lafayette / Rue Garibaldi · solo esterno · gratis",desc:"Il grattacielo più alto di Lione (<b>200 m</b> con l'antenna), completato nel <b>2015</b>. Poco più in là, la 'matita' Tour Part-Dieu.",loop:{label:"Giro: Incity → Crayon → ritorno all'auto",from:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",via:["Tour Incity, 116 Cours Lafayette, 69003 Lyon","Tour Part-Dieu, 129 Rue Servient, 69003 Lyon"],to:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Tour Incity, 116 Cours Lafayette, 69003 Lyon"},
+   {time:"11:30",dur:"🚗 ~4h50 in auto",emoji:"👋",title:"Partenza per Magenta",meta:"Via Traforo del Monte Bianco · ~445 km · ~4h50 + soste",desc:"È tempo di salutare Lione. Opzioni e costi nella scheda 🚗 Viaggio.",tip:"Pranzo: un panino comprato alle Halles da mangiare in viaggio.",orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Magenta, MI, Italia"}]}
 ];
 
 const FOOD = [
  {h:"🍽 Cena gio 29 Ott · Vieux Lyon (bouchon, prenotare per 4)",items:[
-  {n:"Le Laurencin",p:"15–25 €",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/search/?api=1&query=Le+Laurencin+24+Rue+Saint-Jean+Lyon",w:"https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin"},
-  {n:"Chez Grand-Mère",p:"25–27 €",a:"11 Rue du Bœuf",tel:"+33951613538",map:"https://www.google.com/maps/search/?api=1&query=Chez+Grand-Mere+11+Rue+du+Boeuf+Lyon",w:"http://www.chezgrandmere.fr"},
-  {n:"Daniel & Denise",p:"25–40 €",a:"36 Rue Tramassac",tel:"+33478422462",map:"https://www.google.com/maps/search/?api=1&query=Daniel+et+Denise+36+Rue+Tramassac+Lyon",w:"https://www.danieletdenise.fr"},
-  {n:"Notre Maison",p:"25–40 €",a:"2 Rue de Gadagne",tel:"+33472417848",map:"https://www.google.com/maps/search/?api=1&query=Notre+Maison+2+Rue+de+Gadagne+Lyon",w:null},
-  {n:"La Cave des Voyageurs",p:"10–25 €",a:"7 Place Saint-Paul",tel:"+33478289228",map:"https://www.google.com/maps/search/?api=1&query=La+Cave+des+Voyageurs+7+Place+Saint-Paul+Lyon",w:null}]},
+  {n:"Le Laurencin",p:"15–25 €",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/search/?api=1&query=Le+Laurencin%2C+24+Rue+Saint-Jean%2C+69005+Lyon",w:"https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin"},
+  {n:"Chez Grand-Mère",p:"25–27 €",a:"11 Rue du Bœuf",tel:"+33951613538",map:"https://www.google.com/maps/search/?api=1&query=Chez+Grand-M%C3%A8re%2C+11+Rue+du+B%C5%93uf%2C+69005+Lyon",w:"http://www.chezgrandmere.fr"},
+  {n:"Daniel & Denise",p:"25–40 €",a:"36 Rue Tramassac",tel:"+33478422462",map:"https://www.google.com/maps/search/?api=1&query=Daniel+et+Denise+Saint-Jean%2C+36+Rue+Tramassac%2C+69005+Lyon",w:"https://www.danieletdenise.fr"},
+  {n:"Notre Maison",p:"25–40 €",a:"2 Rue de Gadagne",tel:"+33472417848",map:"https://www.google.com/maps/search/?api=1&query=Notre+Maison%2C+2+Rue+de+Gadagne%2C+69005+Lyon",w:null},
+  {n:"La Cave des Voyageurs",p:"10–25 €",a:"7 Place Saint-Paul",tel:"+33478289228",map:"https://www.google.com/maps/search/?api=1&query=La+Cave+des+Voyageurs%2C+7+Place+Saint-Paul%2C+69005+Lyon",w:null}]},
  {h:"🍽 Pranzo ven 30 Ott · banchi Halles Paul Bocuse",items:[
-  {n:"Chez Antonin",p:"15–30 €",a:"Écailler: ostriche e pesce",tel:"+33478623910",map:"https://www.google.com/maps/search/?api=1&query=Chez+Antonin+Halles+Paul+Bocuse+Lyon",w:null},
-  {n:"Giraudet",p:"15–25 €",a:"Quenelle di luccio · zuppa di cipolle",tel:"+33478623405",map:"https://www.google.com/maps/search/?api=1&query=Giraudet+Halles+de+Lyon+Paul+Bocuse",w:"https://www.giraudet.fr"},
-  {n:"Charcuterie Sibilia",p:"10–20 €",a:"Dal 1922 · saucisson brioché",tel:"+33478622129",map:"https://www.google.com/maps/search/?api=1&query=Charcuterie+Sibilia+Halles+Paul+Bocuse+Lyon",w:"https://www.charcuterie-sibilia.com"},
-  {n:"Chez Léon",p:"15–30 €",a:"Écailler: ostriche e frutti di mare · dal 1920",tel:"+33478623028",map:"https://www.google.com/maps/search/?api=1&query=Chez+Leon+Halles+de+Lyon+Paul+Bocuse",w:null}]},
+  {n:"Chez Antonin",p:"15–30 €",a:"Écailler: ostriche e pesce",tel:"+33478623910",map:"https://www.google.com/maps/search/?api=1&query=Chez+Antonin%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:null},
+  {n:"Giraudet",p:"15–25 €",a:"Quenelle di luccio · zuppa di cipolle",tel:"+33478623405",map:"https://www.google.com/maps/search/?api=1&query=Giraudet%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:"https://www.giraudet.fr"},
+  {n:"Charcuterie Sibilia",p:"10–20 €",a:"Dal 1922 · saucisson brioché",tel:"+33478622129",map:"https://www.google.com/maps/search/?api=1&query=Charcuterie+Sibilia%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:"https://www.charcuterie-sibilia.com"},
+  {n:"Chez Léon",p:"15–30 €",a:"Écailler: ostriche e frutti di mare · dal 1920",tel:"+33478623028",map:"https://www.google.com/maps/search/?api=1&query=Chez+L%C3%A9on%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:null}]},
  {h:"🍽 Cena ven 30 Ott · vicino hotel (Perrache/Confluence)",items:[
-  {n:"Brasserie Georges ★",p:"30–50 €",a:"30 Cours de Verdun · a 300 m dall'hotel",tel:"+33472565454",map:"https://www.google.com/maps/search/?api=1&query=Brasserie+Georges+30+Cours+de+Verdun+Lyon",w:"https://www.brasseriegeorges.com"},
-  {n:"Les Petites Cantines",p:"10–18 €",a:"74 Rue de la Charité",tel:"+33478383638",map:"https://www.google.com/maps/search/?api=1&query=Les+Petites+Cantines+74+Rue+de+la+Charite+Lyon",w:"https://www.lespetitescantines.org"},
-  {n:"HEAT Food Court",p:"10–20 €",a:"70 Quai Perrache · food hall",tel:null,map:"https://www.google.com/maps/search/?api=1&query=HEAT+Food+Court+70+Quai+Perrache+Lyon",w:"https://h-eat.eu"}]}
+  {n:"Brasserie Georges ★",p:"30–50 €",a:"30 Cours de Verdun · ~500 m dall'hotel · prenotazione solo online",tel:"+33472565454",map:"https://www.google.com/maps/search/?api=1&query=Brasserie+Georges%2C+30+Cours+de+Verdun+Perrache%2C+69002+Lyon",w:"https://www.brasseriegeorges.com"},
+  {n:"Les Petites Cantines",p:"10–18 €",a:"74 Rue de la Charité",tel:"+33478383638",map:"https://www.google.com/maps/search/?api=1&query=Les+Petites+Cantines%2C+74+Rue+de+la+Charit%C3%A9%2C+69002+Lyon",w:"https://www.lespetitescantines.org"},
+  {n:"HEAT Food Court",p:"10–20 €",a:"70 Quai Perrache · food hall",tel:null,map:"https://www.google.com/maps/search/?api=1&query=HEAT%2C+70+Quai+Perrache%2C+69002+Lyon",w:"https://h-eat.eu"}]}
 ];
 
 const GUIDES = {
-  "0:0":{heroEmoji:"🏘️",wiki:"Vieux Lyon",subtitle:"Vieux Lyon · Place Saint-Jean",intro:"La Città Vecchia è il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO. Stasera siete nel suo cuore, Place Saint-Jean: la piazza che apre la passeggiata.",sections:[
+  "0:0":{heroEmoji:"🏨",subtitle:"Arrivo · Hôtel Charlemagne",intro:"Si arriva da Magenta, si lascia l'auto e si ricarica mezz'ora prima della serata nel Vieux Lyon.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 30–45 min · 🕐 check-in <b>dalle 15:00</b> · 🅿️ parcheggio custodito a <b>150 m</b>, <b>21 €/giorno</b> su prenotazione · 📶 Wi-Fi gratuito<br>📍 23 Cours Charlemagne, 69002 Lyon (Perrache)"},
+    {icon:"✅",title:"Al banco",text:"• <b>Documento con foto</b> e <b>carta di credito</b><br>• Confermate il <b>parcheggio</b> (va prenotato)"},
+    {icon:"📍",title:"Dove sei",text:"<b>Hôtel Charlemagne</b>, 23 Cours Charlemagne, a sud della stazione di Perrache. Metro A <b>Perrache</b>. <a href='https://www.google.com/maps/search/?api=1&query=H%C3%B4tel+Charlemagne%2C+23+Cours+Charlemagne%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"🚗",title:"Auto e ZFE",text:"Lione è <b>Zona a basse emissioni</b> 24 ore su 24, anche da parcheggiati: serve il bollino <b>Crit'Air</b> (multa 68 €). In pratica sono ammessi diesel dal 2011 e benzina dal 2006. Il bollino si ordina solo su <b>certificat-air.gouv.fr</b>."},
+    {icon:"🎲",title:"Se...",text:"⏰ Se arrivate dopo le 18:00: niente doccia, taxi subito — la Longue Traboule chiude alle 19:00<br>🚦 Se siete molto in ritardo: saltate la traboule e partite dalla Cattedrale (aperta fino alle 19:45)"},
+    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel</b>: <a href='tel:+33472777000'>04 72 77 70 00</a> (comunicate l'orario di arrivo) · 🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
+
+  "0:1":{heroEmoji:"🏘️",wiki:"Vieux Lyon",subtitle:"Vieux Lyon · Place Saint-Jean",intro:"La Città Vecchia è il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO. Stasera siete nel suo cuore, Place Saint-Jean: la piazza che apre la passeggiata.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 5–10 min (solo piazza) · 💶 gratis · 🚇 Metro D, fermata <b>Vieux Lyon</b> · 🕐 sempre aperta<br>📍 Punto di partenza della serata"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>facciata gotica della Cattedrale</b> vista dal sagrato (illuminata di sera)<br>• Il <b>muro dipinto</b> a sinistra della piazza (Fresque des Lyonnais) — è a 4 min a piedi<br>• La <b>Casa dei Cantori</b>, il edificio romanico più antico di Lione, a destra della cattedrale"},
-    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, davanti alla Cattedrale. Metro D, fermata Vieux Lyon. <a href='https://www.google.com/maps/search/?api=1&query=Place+Saint-Jean+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>facciata gotica della Cattedrale</b> vista dal sagrato (illuminata di sera)<br>• Le <b>facciate rinascimentali</b> di Rue Saint-Jean, a due passi<br>• La <b>Manécanterie</b> (Casa dei Cantori), uno degli edifici romanici più antichi di Lione, a destra della cattedrale"},
+    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, davanti alla Cattedrale. Metro D, fermata Vieux Lyon. <a href='https://www.google.com/maps/search/?api=1&query=Place+Saint-Jean%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
     {icon:"📖",title:"Da sapere",text:"La <b>Vecchia Lione</b> si estende lungo la riva destra della Saona. Qui, durante il Rinascimento, lavoravano gli artigiani della seta. Le facciate color pastello che vedete sono proprio di quel periodo (XVI sec.)."},
     {icon:"🕰️",title:"Un po' di storia",text:"Lione fu fondata nel <b>43 a.C.</b> da <b>Lucio Munazio Planco</b> come <b>Lugdunum</b>. Divenne <b>capitale della Gallia Lugdunense</b> e una delle città più importanti dell'Impero romano: qui nacquero gli imperatori <b>Claudio</b> e <b>Caracalla</b>."},
     {icon:"👀",title:"Da vedere",text:"La <b>Casa dei Cantori (Manécanterie)</b>, l'<b>Hôtel de Gadagne</b> (a 3 min, ospita i Musei Gadagne), il <b>Giardino Archeologico St-Jean</b> dietro l'abside della Cattedrale."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: perfetto, la traboule è coperta<br>⏳ Se hai 15 min in più: una passeggiata fino a <b>Saint-Paul</b> (2 min) con la sua collegiata<br>🚫 Se la Cattedrale è chiusa: il Giardino Archeologico resta aperto (ingresso libero)"},
+    {icon:"🛡️",title:"Salvato nel 1964",text:"Negli anni '60 il quartiere rischiava la demolizione. Nel <b>1964</b> è diventato il <b>primo 'secteur sauvegardé' di Francia</b>; dal <b>1998</b> il centro storico di Lione è <b>patrimonio UNESCO</b>."},
+    {icon:"🎶",title:"La Manécanterie",text:"A destra della cattedrale: costruita nell'<b>XI secolo</b>, è probabilmente l'edificio più antico di Lione dopo quelli romani. Era il refettorio dei canonici, poi la scuola dei cantori. Le statue dei santi in facciata furono sfregiate nel <b>1562</b>, durante le guerre di religione."},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: perfetto, la traboule è coperta<br>⏳ Se hai 15 min in più: una passeggiata fino a <b>Saint-Paul</b> (2 min) con la sua collegiata<br>🚫 Se la Cattedrale è chiusa: il Giardino Archeologico accanto si vede anche da fuori"},
     {icon:"💡",title:"Consiglio",text:"Inizia dalla piazza e lasciati guidare dai vicoli. Il sagrato è il punto foto migliore per la facciata della Cattedrale, meglio di sera con le luci."},
     {icon:"🚶",title:"Il percorso stasera",text:"Da Place Saint-Jean attraverserai subito il <b>traboule più lungo di Lione</b>, poi la cattedrale e la funicolare per Fourvière. In due ore e mezza fai il giro completo del cuore rinascimentale."},
-    {icon:"📞",title:"Numeri utili",text:"🚕 <b>Taxi Lyon</b>: <a href='tel:+33478268181'>04 78 26 81 81</a> · 🚨 <b>Emergenze</b>: 112 · 🍽️ <b>Ristoranti</b>: scheda 🍽️ Mangiare"}]},
+    {icon:"📞",title:"Numeri utili",text:"🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a> · 🚨 <b>Emergenze</b>: 112 · 🍽️ <b>Ristoranti</b>: scheda 🍽️ Mangiare"}]},
 
   "x:croix":{heroEmoji:"👨‍🏭",wiki:"Croix-Rousse",title:"Extra · La Croix-Rousse, la collina che lavora",subtitle:"Croix-Rousse · extra",intro:"La terza collina di Lione: qui i canuts tessero la seta. Da visitare solo se hai mezza giornata in più.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 2–3 ore · 💶 gratis (i negozi e i caffè a parte) · 🚡 funicolare C o Metro C · 🕐 quartiere sempre vivo, mercato al mattino"},
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 2–3 ore · 💶 gratis (i negozi e i caffè a parte) · 🚇 Metro C (a cremagliera) · 🕐 quartiere sempre vivo, mercato al mattino"},
     {icon:"⭐",title:"Non perdere",text:"• Il <b>Mur des Canuts</b> (fresco di 1.200 m² su Boulevard des Canuts)<br>• Il <b>mercato di Boulevard de la Croix-Rousse</b> (mar–dom mattina)<br>• La <b>salita delle scale</b> con vista sulla città"},
     {icon:"📖",title:"La collina che lavora",text:"Contrapposta alla Fourvière 'che prega', la <b>Croix-Rousse</b> ospitava le seterie. I soffitti sono alti (4 m) perché i telai Jacquard occupavano molto spazio."},
-    {icon:"🧵",title:"I canuts",text:"Nel <b>1831</b> da qui iniziò la <b>rivolta dei canuts</b>, la prima rivolta operaia della storia: tremila tessitori contro le condizioni imposte dai mercanti di seta. Repressa nel sangue, ma simbolo dell'emancipazione operaia europea."},
-    {icon:"🏛️",title:"L'Anfiteatro delle Tre Gallie",text:"Costruito nel <b>19 a.C.</b>, uno dei primi anfiteatri del mondo romano. Oggi ospita concerti estivi e spettacoli gratuiti."},
-    {icon:"🚡",title:"Come arrivarci",text:"Con la <b>funicolare</b> (linea C, da Hôtel de Ville) o a piedi da Place des Terreaux (15 min di scale — belle ma ripide)."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: rimanda, il bello è camminare<br>⏳ Se hai solo 1 ora: sali con la funicolare, Mur des Canuts, caffè, scendi<br>🛍️ Se cerchi souvenir: i negozi di tessuti e bottoni (Passage Thiaffait)"},
+    {icon:"🧵",title:"I canuts",text:"Nel <b>1831</b> da qui partì la <b>rivolta dei canuts</b>, tra le prime grandi rivolte operaie d'Europa: i tessitori contro le tariffe imposte dai mercanti di seta."},
+    {icon:"🏛️",title:"L'Anfiteatro delle Tre Gallie",text:"La prima fase risale al <b>19 d.C.</b> (iscrizione a nome di Tiberio). Uno dei luoghi simbolo della Lione romana."},
+    {icon:"🚡",title:"Come arrivarci",text:"Con la <b>Metro C</b> (a cremagliera, da Hôtel de Ville) o a piedi da Place des Terreaux (15 min di salite — belle ma ripide)."},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: rimanda, il bello è camminare<br>⏳ Se hai solo 1 ora: sali con la Metro C, Mur des Canuts, caffè, scendi<br>🛍️ Se cerchi souvenir: i negozi di tessuti e bottoni (Passage Thiaffait)"},
     {icon:"💡",title:"Consiglio",text:"Andateci di mattina: il mercato è uno dei più autentici di Francia e i prezzi sono più bassi che al centro."}]},
 
-  "0:1":{heroEmoji:"🚪",wiki:"Traboule",subtitle:"La Longue Traboule · 54 Rue Saint-Jean",intro:"Il traboule più lungo di Lione: quattro cortili rinascimentali in fila, da Rue Saint-Jean a Rue du Bœuf. Un passaggio coperto esistente solo in questa città.",sections:[
+  "0:2":{heroEmoji:"🚪",wiki:"Traboule",subtitle:"La Longue Traboule · 54 Rue Saint-Jean",intro:"Il traboule più lungo di Lione: cinque cortili rinascimentali in fila, da Rue Saint-Jean a Rue du Bœuf. Un passaggio coperto esistente solo in questa città.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 5–10 min · 💶 gratis · 🕐 <b>chiude alle 19:00</b> · 🚪 ingresso 54 Rue Saint-Jean → uscita 27 Rue du Bœuf<br>♿ scalini nei cortili (non accessibile in carrozzina)"},
-    {icon:"⭐",title:"Non perdere",text:"• Il <b>cortile con la scala a chiocciola</b> (secondo cortile)<br>• I <b>soffitti a cassettoni</b> del primo piano<br>• La <b>targa in marmo</b> con il nome della famiglia borghese originaria"},
-    {icon:"📍",title:"Dove sei",text:"Ingresso al <b>54 di Rue Saint-Jean</b>, uscita al <b>27 di Rue du Bœuf</b>. Il portone è a due passi dalla Cattedrale. <a href='https://www.google.com/maps/search/?api=1&query=54+Rue+Saint-Jean+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Cosa sono i traboules",text:"Dal latino <i>trans ambulare</i> (passare attraverso): passaggi coperti <b>esistenti solo a Lione</b>. Servivano ai <b>canuts</b> della seta per trasportare i tessuti al riparo dalla pioggia, e durante la WWII furono rifugio della <b>Resistenza</b>."},
-    {icon:"🧭",title:"Quanti sono",text:"Oltre <b>400</b> in città, ma solo <b>~50 aperti al pubblico</b>. Questo attraversa <b>quattro cortili e quattro edifici</b> in ~100 metri: è il più lungo e il più scenografico di tutti."},
-    {icon:"🚪",title:"Come entrare",text:"Premi il <b>bottone</b> a sinistra del portone nero, sotto la targa <b>54</b>. Il portone si apre dopo ~2 secondi. È un condominio privato: silenzio, niente flash, niente foto alle persone."},
-    {icon:"🎲",title:"Se...",text:"🚫 Se è chiuso: prova l'ingresso <b>27 Rue du Bœuf</b> (aperto fino alle 19:30) e percorrilo al contrario<br>⏳ Se hai 15 min in più: <b>Traboule de la Tour Rose</b> (16 Rue du Bœuf, ingresso con citofono)<br>☔ Se piove: è la cosa migliore da fare al coperto"},
-    {icon:"💡",title:"Consiglio",text:"Percorrilo dal basso verso l'alto (54 → 27): la scala finale che sbuca in Rue du Bœuf è la parte più bella."},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>scala a chiocciola</b> nel primo cortile<br>• La <b>facciata del XVI secolo</b> sul lato di Rue du Bœuf<br>• I passaggi semi-coperti che collegano i cortili"},
+    {icon:"📍",title:"Dove sei",text:"Ingresso al <b>54 di Rue Saint-Jean</b>, uscita al <b>27 di Rue du Bœuf</b>. Il portone è a due passi dalla Cattedrale. <a href='https://www.google.com/maps/search/?api=1&query=Longue+Traboule%2C+54+Rue+Saint-Jean%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Cosa sono i traboules",text:"Dal latino <i>trans ambulare</i>, 'passare attraverso': scorciatoie che collegano due strade attraversando uno o più palazzi. Quelle del Vieux Lyon sono quasi tutte <b>rinascimentali</b>; quelle della Croix-Rousse (XVIII–XIX sec.) sono legate ai <b>canuts</b>, i tessitori della seta."},
+    {icon:"🧭",title:"Quanti sono",text:"Circa <b>500</b> tra traboules e cortili (≈200 nel Vieux Lyon), ma solo <b>una cinquantina</b> aperti al pubblico. Dal <b>1990</b> una convenzione con i proprietari garantisce il passaggio 7:00–19:00, in cambio di pulizia e luci pagate dalla città. Questa attraversa <b>cinque cortili e quattro edifici</b>: è la più lunga del Vieux Lyon."},
+    {icon:"🚪",title:"Come entrare",text:"Aperta <b>tutti i giorni 7:00–19:00</b>. Si entra da uno dei due portoni (54 Rue Saint-Jean o 27 Rue du Bœuf). È usata ogni giorno dai residenti: silenzio, niente flash, niente foto alle persone."},
+    {icon:"🧩",title:"Una parola tutta lionese",text:"Esiste anche la <b>miraboule</b>: il cortile interno che non porta da nessuna parte, se non a sé stesso. La parola l'ha inventata lo storico Félix Benoît negli anni '60."},
+    {icon:"🎲",title:"Se...",text:"🚫 Se è chiuso (dopo le 19:00): niente da fare, passa alla Cattedrale<br>⏳ Se hai 15 min in più: <b>Traboule de la Tour Rose</b> (16 Rue du Bœuf, ingresso con citofono)<br>☔ Se piove: è la cosa migliore da fare al coperto"},
+    {icon:"💡",title:"Consiglio",text:"Entra da Rue Saint-Jean ed esci in Rue du Bœuf: così sbuchi davanti alla facciata del Cinquecento."},
     {icon:"⚠️",title:"Attenzione",text:"Chiude alle <b>19:00</b>: per questo lo facciamo <i>prima</i> della cattedrale e di Fourvière."}]},
 
-  "0:2":{heroEmoji:"⛪",wiki:"Cathédrale Saint-Jean-Baptiste de Lyon",subtitle:"Cattedrale Saint-Jean",intro:"Il cuore del Vieux Lyon: il miglior esempio europeo di transizione romanico→gotico, con uno dei più antichi orologi astronomici d'Europa.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 15 min (navata) · 30 min (con orologio e chiostro) · 💶 gratis · 🕐 <b>8:15–19:45</b> feriali · ♿ rampa laterale su Rue Saint-Jean<br>📍 Place Saint-Jean"},
-    {icon:"⭐",title:"Non perdere",text:"• L'<b>orologio astronomico del 1593</b> (uno dei più antichi d'Europa)<br>• Il <b>rosone</b> sopra il portale centrale (XIV sec.)<br>• Il <b>chiostro</b> a destra dell'altare, spesso ignorato dai turisti<br>• Il <b>Giardino Archeologico</b> dietro l'abside (resti del battistero paleocristiano, sempre aperto)"},
-    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, a due passi dall'uscita della traboule. <a href='https://www.google.com/maps/search/?api=1&query=Cathédrale+Saint-Jean+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>: la navata è romanica (XII sec.), il coro è gotico (XIV sec.). Aperta <b>8:15–19:45</b> nei giorni feriali, ingresso gratuito. Spalle e caviglie coperte (buona norma anche fuori stagione)."},
-    {icon:"🕰️",title:"L'orologio astronomico",text:"Costruito nel <b>1593</b>, restaurato nel 2013. Ogni giorno alle <b>12:00, 14:00, 15:00 e 16:00</b> c'è lo spettacolino con angeli, galli e San Giovanni: stasera ammira solo il meccanismo, ma torna domani se passi."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: perfetto, sei al coperto<br>🚫 Se è chiusa: il Giardino Archeologico dietro l'abside è sempre aperto e gratis<br>⏳ Se hai 30 min in più: chiostro + Giardino + una sosta all'ombra<br>🎵 Se sei qui a luglio: concerti d'organo gratuiti il mercoledì"},
-    {icon:"💡",title:"Consiglio",text:"Non fermarti alla navata: il bello è nei dettagli. Guarda in alto i <b>capitelli romanici</b> (prima arcata a sinistra) e la <b>vetrata del rosone</b> dal lato opposto della piazza."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici in Rue Saint-Jean (a 50 m). Niente bar interno. Fontanella in Place Saint-Jean (angolo nord-ovest)."}]},
+  "0:3":{heroEmoji:"⛪",wiki:"Cathédrale Saint-Jean-Baptiste de Lyon",subtitle:"Cattedrale Saint-Jean",intro:"Il cuore del Vieux Lyon: il miglior esempio europeo di transizione romanico→gotico, con uno dei più antichi orologi astronomici d'Europa.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 15–30 min · 💶 gratis · 🕐 <b>lun–ven 8:15–19:45</b> · sab–dom 8:15–19:00<br>📍 Place Saint-Jean"},
+    {icon:"⭐",title:"Non perdere",text:"• L'<b>orologio astronomico</b>, uno dei più antichi d'Europa<br>• Il <b>rosone</b> sopra il portale centrale<br>• Il <b>Giardino Archeologico</b> accanto alla cattedrale (resti delle chiese paleocristiane)"},
+    {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, a due passi dall'uscita della traboule. <a href='https://www.google.com/maps/search/?api=1&query=Cath%C3%A9drale+Saint-Jean-Baptiste%2C+8+Place+Saint-Jean%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>: la navata è romanica (XII sec.), il coro è gotico (XIV sec.). Aperta <b>8:15–19:45</b> nei giorni feriali, ingresso gratuito. È un luogo di culto: voce bassa durante le funzioni."},
+    {icon:"🕰️",title:"L'orologio astronomico",text:"Citato già nel <b>XV secolo</b>, reinstallato da Hugues Levet nel <b>1598</b>. Si anima solo <b>quattro volte al giorno: 12:00, 14:00, 15:00 e 16:00</b>. Stasera ammira solo il meccanismo."},
+    {icon:"👑",title:"Qui è passata la storia",text:"Due <b>concili ecumenici</b> (1245 e 1274), l'incoronazione di papa <b>Giovanni XXII</b> (1316) e il matrimonio di <b>Enrico IV con Maria de' Medici</b> (13 dicembre 1600)."},
+    {icon:"🏗️",title:"Tre secoli di cantiere",text:"Iniziata verso il <b>1180</b> e finita nel <b>1480</b>: per questo l'abside è romanica e la facciata gotica. Il Dio Padre in cima al timpano è del 1481."},
+    {icon:"🔍",title:"Cosa guardare nell'orologio",text:"Oltre all'ora segna la <b>data</b>, le posizioni di <b>Sole, Luna e Terra</b> e il sorgere delle stelle sopra Lione. Quando si anima, gli automi mettono in scena animali e un'<b>Annunciazione</b>."},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: perfetto, sei al coperto<br>🚫 Se è chiusa (dopo le 19:45): la facciata illuminata vale comunque la sosta<br>⏳ Se hai 15 min in più: il Giardino Archeologico accanto"},
+    {icon:"💡",title:"Consiglio",text:"Non fermarti alla navata: guarda il passaggio dal romanico del coro al gotico della facciata, e il <b>rosone</b> dal lato opposto della piazza."}]},
 
-  "0:3":{heroEmoji:"🚡",wiki:"Funiculaire de Fourvière",subtitle:"Funicolare Saint-Jean → Fourvière",intro:"La funicolare parte accanto alla Cattedrale e ti porta sulla 'Collina che prega'. Cinque minuti di salita con vista sulla città.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 5 min · 💶 2,10 € (biglietto TCL) · 🕐 ogni ~10 min fino a tarda sera · ♿ accessibile<br>🚡 linea F2, stazione <b>Vieux Lyon – Cathédrale Saint-Jean</b>"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>vista sulla Cattedrale</b> dal lato destro della cabina (in salita)<br>• La <b>stazione storica</b> del 1878, con le decorazioni originali<br>• Il <b>panorama sulla città</b> appena usciti dalla stazione superiore"},
-    {icon:"📍",title:"Dove sei",text:"Stazione della funicolare accanto alla <b>Cattedrale di Saint-Jean</b>. <a href='https://www.google.com/maps/search/?api=1&query=Funiculaire+Vieux+Lyon+Lyon' target='_blank'>Apri mappa</a>"},
+  "0:4":{heroEmoji:"🚡",wiki:"Funiculaire de Fourvière",subtitle:"Funicolare Saint-Jean → Fourvière",intro:"La funicolare parte accanto alla Cattedrale e ti porta sulla 'Collina che prega'. Cinque minuti di salita, quasi tutta in galleria.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 5 min · 💶 <b>2,10 €</b> (biglietto TCL, 1h: salita + discesa) · 🕐 ogni 5–10 min, ultima corsa ~22:00<br>🚡 linea F2, stazione <b>Vieux Lyon – Cathédrale Saint-Jean</b>"},
+    {icon:"⭐",title:"Non perdere",text:"• Il <b>panorama sulla città</b> appena usciti dalla stazione superiore<br>• La <b>basilica illuminata</b> a pochi passi dall'uscita"},
+    {icon:"📍",title:"Dove sei",text:"Stazione della funicolare accanto alla <b>Cattedrale di Saint-Jean</b>. <a href='https://www.google.com/maps/search/?api=1&query=Funiculaire+de+Lyon%2C+Cath%C3%A9drale+Saint-Jean-Baptiste%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
     {icon:"📖",title:"La collina che prega",text:"Sulla collina nacque il primo nucleo di <b>Lugdunum</b>. Qui nacquero <b>Claudio</b> e <b>Caracalla</b>. Oggi è il quartiere religioso e panoramico della città."},
     {icon:"🏛️",title:"La zona romana",text:"Restano il <b>Teatro Antico</b> (il più antico di Francia, 15 a.C.) e l'<b>Odeon</b>. Il Museo Gallo-Romano (a 5 min) espone la <b>tavola in bronzo di Claudio</b>."},
-    {icon:"🚡",title:"La funicolare",text:"Le prime linee risalgono al <b>1878</b>: Lione è stata tra le prime città al mondo con una funicolare urbana. Oggi è la linea F2 (ogni ~10 min, ticket TCL 2,10 €, valido 1 ora)."},
+    {icon:"🚡",title:"La funicolare",text:"La prima funicolare di Lione (Saint-Jean–Saint-Just, oggi F1) è del <b>1878</b>; quella di Fourvière, la F2, del <b>1900</b>. Il ticket TCL (2,10 €) vale <b>1 ora</b> con convalide illimitate: copre anche la discesa."},
+    {icon:"🧵",title:"Le due 'ficelle'",text:"I lionesi chiamano le funicolari <b>'ficelle'</b>, lo spago. Dalla stessa stazione partono la <b>F1</b> (1878) per Saint-Just e i teatri romani, e la <b>F2</b> (1900) per Fourvière: prendete la F2."},
     {icon:"🎲",title:"Se...",text:"⚠️ Se la F2 è in manutenzione: c'è il <b>bus navetta TCL</b> da Vieux Lyon (stesso biglietto)<br>🥾 Se vuoi camminare: la <b>salita delle scale di Fourvière</b> (Montée Saint-Barthélemy, 10 min, bella ma ripida)<br>☔ Se piove: la funicolare è al coperto"},
-    {icon:"💡",title:"Consiglio",text:"Sali in funicolare (veloce, comodo, con la City Card è gratis). Se torni di giorno, scendi a piedi tra i giardini: vedi il Teatro Romano senza fare il giro."},
+    {icon:"💡",title:"Consiglio",text:"Fate un biglietto a testa e convalidatelo alla salita: se scendete entro un'ora, la discesa è compresa."},
     {icon:"📞",title:"Numeri utili",text:"🚇 <b>Info TCL</b>: <a href='https://www.tcl.fr' target='_blank'>tcl.fr</a> (verifica manutenzioni F2 in tempo reale)"}],
    linkTo:"x:croix"},
 
-  "0:4":{heroEmoji:"🌃",wiki:"Basilique de Fourvière",subtitle:"Basilica di Fourvière",intro:"La basilica del 1870 mescola gotico, classico e bizantino. Il terrazza panoramica è il punto foto migliore di Lione, di giorno e di notte.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 20–30 min (basilica + terrazza) · 💶 gratis · 🕐 basilica <b>7:00–20:00</b> · terrazza sempre aperta · ♿ accessibile<br>📍 Cima della collina di Fourvière"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>terrazza panoramica dietro la basilica</b> (il tappeto di luci di notte, le Alpi di giorno)<br>• I <b>mosaici dorati</b> dell'interno<br>• La <b>cripta di Saint-Thomas</b> sotto la basilica (accesso laterale, gratis)<br>• La <b>Vergine d'oro</b> che sovrasta il campanile"},
-    {icon:"📍",title:"Dove sei",text:"Sulla cima della collina, alla terrazza davanti alla basilica. <a href='https://www.google.com/maps/search/?api=1&query=Basilique+de+Fourvière+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Costruita tra il <b>1872 e il 1896</b> su progetto di <b>Pierre Bossan</b>. Capolavoro neobizantino con influenze gotiche e romaniche, in segno di ringraziamento per la protezione della città durante la guerra franco-prussiana del 1870."},
-    {icon:"😲",title:"Curiosità",text:"Vista dalla Città Vecchia, sembra un <b>gigantesco elefante rovesciato</b>! Le due chiese sono sovrapposte: in alto la basilica (per i fedeli), in basso la cripta di Saint-Thomas (per le funzioni quotidiane)."},
-    {icon:"👀",title:"La vista",text:"Stasera, il tappeto di luci della città. Di giorno, se limpido, <b>le Alpi fino al Monte Bianco</b>. A destra si vede la <b>Tour Métallique</b> (1894), la 'piccola Eiffel' di Lione, oggi antenna TV."},
-    {icon:"🏛️",title:"Nei dintorni",text:"A 5 min a piedi: i <b>Teatri Romani</b> (Lugdunum, 15 a.C.) e l'<b>Odeon</b>. Il Museo Gallo-Romano (tra i due) espone la <b>tavola in bronzo di Claudio</b> e i mosaici delle domus."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: la basilica è coperta ma la terrazza no<br>⏳ Se hai 30 min in più: scendi a piedi tra i Teatri Romani<br>🌫️ Se c'è nebbia: la terrazza perde il panorama, ma l'interno della basilica vale comunque<br>🌙 Se torni a dicembre: la <b>Festa delle Luci</b> (8 dicembre) trasforma Fourvière in uno spettacolo"},
-    {icon:"💡",title:"Consiglio",text:"La terrazza dietro la basilica è il punto foto migliore di Lione. Di sera porta un giubbotto: in cima c'è sempre vento."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici alla stazione della funicolare (a 100 m). Fontanella davanti all'ingresso della basilica. Niente bar sulla terrazza: l'ultimo caffè è alla stazione."}]},
+  "0:5":{heroEmoji:"🌃",wiki:"Basilique de Fourvière",subtitle:"Basilica di Fourvière",intro:"La basilica (1872–1896) mescola bizantino, romanico e gotico. L'esplanade panoramica accanto è il punto foto migliore di Lione, di giorno e di notte.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 20–30 min (basilica + terrazza) · 💶 gratis · 🕐 basilica <b>7:00–20:00</b> · cancelli del santuario fino alle 23:00<br>📍 Cima della collina di Fourvière"},
+    {icon:"⭐",title:"Non perdere",text:"• L'<b>esplanade panoramica</b> accanto alla basilica (il tappeto di luci di notte, le Alpi di giorno)<br>• I <b>mosaici dorati</b> dell'interno<br>• La <b>cripta di San Giuseppe</b> sotto la basilica (gratis)<br>• La <b>Vergine dorata</b> (1852) sulla torre della vecchia cappella"},
+    {icon:"📍",title:"Dove sei",text:"Sulla cima della collina, alla terrazza davanti alla basilica. <a href='https://www.google.com/maps/search/?api=1&query=Basilique+Notre-Dame+de+Fourvi%C3%A8re%2C+8+Place+de+Fourvi%C3%A8re%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Iniziata nel <b>1872</b> e consacrata nel <b>1896</b>, su progetto di <b>Pierre Bossan</b>. Capolavoro neobizantino con influenze gotiche e romaniche, nata da un voto del 1870, durante la guerra franco-prussiana."},
+    {icon:"😲",title:"Curiosità",text:"Vista dalla Città Vecchia, sembra un <b>gigantesco elefante rovesciato</b>! Le due chiese sono sovrapposte: in alto la basilica, in basso la cripta dedicata a San Giuseppe."},
+    {icon:"👀",title:"La vista",text:"Stasera, il tappeto di luci della città. Di giorno, se limpido, <b>le Alpi fino al Monte Bianco</b>. A destra si vede la <b>Tour Métallique</b>, la 'Tour Eiffel di Lione'."},
+    {icon:"🏛️",title:"Nei dintorni",text:"A 5 min a piedi, al <b>6 Rue de l'Antiquaille</b>: il <b>Grand Théâtre</b> (~15 a.C., il più antico di Francia; fino a <b>10.700</b> spettatori dopo l'ampliamento di Adriano) e l'<b>Odéon</b> (3.000 posti). Ingresso gratis, in ottobre <b>7:00–19:00</b>: stasera sono chiusi."},
+    {icon:"🕯️",title:"Qui è nata la Festa delle Luci",text:"L'8 dicembre <b>1852</b> si inaugurava la <b>Vergine dorata</b> di Fabisch (rinviata da settembre per una piena della Saona). Pioveva; la sera il cielo si aprì e i lionesi misero spontaneamente <b>lumini alle finestre</b>. Da allora ogni 8 dicembre la città si illumina; dal 1999 è la <b>Fête des Lumières</b>."},
+    {icon:"🗼",title:"La Tour Métallique",text:"<b>85,90 m</b> di traliccio, costruita tra il <b>1892 e il 1894</b> imitando l'ultimo piano della Tour Eiffel. Sta a ~372 m d'altitudine, il punto più alto di Lione. Oggi trasmette TV e radio: non si visita."},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: la basilica è coperta ma la terrazza no<br>⏳ Se hai 15 min in più: affacciati sui Teatri Romani dall'alto (di sera sono chiusi)<br>🌫️ Se c'è nebbia: la terrazza perde il panorama, ma l'interno della basilica vale comunque<br>🌙 Se torni a dicembre: la <b>Festa delle Luci</b> (8 dicembre) trasforma Fourvière in uno spettacolo"},
+    {icon:"💡",title:"Consiglio",text:"L'esplanade accanto alla basilica è il punto foto migliore di Lione. Di sera porta un giubbotto: in cima c'è spesso vento."}]},
 
-  "0:5":{heroEmoji:"🚡",subtitle:"Funicolare giù a Saint-Jean",intro:"Discesa rapida con la F2 verso il cuore del Vieux Lyon.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 5 min · 💶 2,10 € (o gratis con Lyon City Card) · 🕐 ogni ~10 min · ♿ accessibile<br>🚡 linea F2, da Fourvière a Vieux Lyon – Cathédrale"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>vista sulla Cattedrale</b> dal lato sinistro della cabina (in discesa)<br>• Il <b>panorama notturno</b> che si apre appena usciti dalla stazione superiore"},
-    {icon:"📍",title:"Dove sei",text:"Stazione superiore della funicolare F2, a 50 m dalla basilica. <a href='https://www.google.com/maps/search/?api=1&query=Funiculaire+Fourvière+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"🚡",title:"La funicolare",text:"La F2 è la linea più veloce. In discesa il biglietto è lo stesso dell'andata se hai timbrato meno di un'ora fa (tariffa TCL: 2,10 € per 1 ora di viaggi)."},
-    {icon:"🎲",title:"Se...",text:"⚠️ Se la F2 è in manutenzione: bus navetta TCL da/per Fourvière (stesso biglietto)<br>🥾 Se vuoi scendere a piedi: la <b>Montée Saint-Barthélemy</b> (10 min, ripida) porta in Rue Saint-Jean<br>🌃 Se è tardi: la funicolare chiude intorno all'1:00 (verifica tcl.fr)"},
-    {icon:"💡",title:"Consiglio",text:"La F2 parte ogni ~10 min fino a tarda sera. In discesa non c'è coda: se la prima cabina è piena, aspetta la successiva."},
-    {icon:"📞",title:"Numeri utili",text:"🚇 <b>Info TCL</b>: <a href='https://www.tcl.fr' target='_blank'>tcl.fr</a> (orari e manutenzioni in tempo reale) · 🚕 <b>Taxi Lyon</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
+  "0:6":{heroEmoji:"🚡",subtitle:"Funicolare giù a Saint-Jean",intro:"Discesa rapida con la F2 verso il cuore del Vieux Lyon.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 5 min · 💶 compresa nel ticket della salita (se entro 1h) · 🕐 ogni 5–10 min, ultima ~22:00<br>🚡 linea F2, da Fourvière a Vieux Lyon – Cathédrale"},
+    {icon:"⭐",title:"Non perdere",text:"• Un ultimo sguardo al <b>panorama notturno</b> prima di entrare in stazione"},
+    {icon:"📍",title:"Dove sei",text:"Stazione superiore della funicolare F2, a 50 m dalla basilica. <a href='https://www.google.com/maps/search/?api=1&query=Funiculaire+Fourvi%C3%A8re%2C+Place+de+Fourvi%C3%A8re%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"🚡",title:"La funicolare",text:"Il biglietto della salita vale <b>1 ora</b> con convalide illimitate: se hai convalidato meno di un'ora fa, riconvalida lo stesso ticket."},
+    {icon:"🎲",title:"Se...",text:"⚠️ Se la F2 è in manutenzione: bus navetta TCL da/per Fourvière (stesso biglietto)<br>🥾 Se vuoi scendere a piedi: la <b>Montée Saint-Barthélemy</b> (10 min, ripida) porta in Rue Saint-Jean<br>🌃 Se è tardi: l'ultima F2 parte verso le 22:00 (verifica tcl.fr), poi taxi"},
+    {icon:"💡",title:"Consiglio",text:"La F2 parte ogni 5–10 min. In discesa di solito non c'è coda: se la cabina è piena, aspetta la successiva."},
+    {icon:"📞",title:"Numeri utili",text:"🚇 <b>Info TCL</b>: <a href='https://www.tcl.fr' target='_blank'>tcl.fr</a> (orari e manutenzioni in tempo reale) · 🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
 
-  "0:6":{heroEmoji:"🍽️",subtitle:"Cena in un bouchon",intro:"Le storiche trattorie lionesi: andouillette, quenelle, saucisson chaud. Il modo più autentico per chiudere la giornata.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h 30–2h · 💶 25–40 €/persona (vino incluso) · 🕐 prenotate per 4 · 📍 Vieux Lyon<br>💳 molti bouchon accettano solo contanti o hanno POS lento: portali"},
+  "0:7":{heroEmoji:"🍽️",subtitle:"Cena in un bouchon",intro:"Le storiche trattorie lionesi: andouillette, quenelle, saucisson chaud. Il modo più autentico per chiudere la giornata.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h 30–2h · 💶 25–40 €/persona (vino incluso) · 🕐 prenotate per 4 · 📍 Vieux Lyon<br>💳 qualche locale piccolo preferisce i contanti: tenetene un po'"},
     {icon:"⭐",title:"Non perdere",text:"• L'<b>andouillette</b> (salsiccia di maiale e trippa) — il piatto-simbolo<br>• La <b>quenelle di luccio</b> con salsa Nantua<br>• Il <b>saucisson chaud brioché</b><br>• Un <b>Côtes du Rhône</b> della casa"},
     {icon:"📖",title:"Cosa sono i bouchon",text:"Trattorie storiche di Lione, riconoscibili dal <b>fascio di fieno</b> appeso all'insegna. Cucina di recupero, porzioni generose, atmosfera rumorosa: sono l'opposto dello stellato, ed è per questo che sono autentici."},
     {icon:"👩‍🍳",title:"Le 'Mères Lyonnaises'",text:"Figure come <b>Eugénie Brazier</b> (prima donna con tre stelle Michelin, 1933) hanno reso celebre la cucina lionese. Il modello era: padrona di casa + cucina borghese semplificata + prodotti del mercato."},
     {icon:"🍖",title:"Cosa mangiare",text:"<b>Andouillette</b> (se ti piace il sapore forte), <b>quenelle</b> (delicata, per tutti), <b>saucisson chaud</b> (antipasto tipico). Vino: un <b>Côtes du Rhône</b> o un Beaujolais (il 'pot lyonnais', la brocca di ceramica)."},
     {icon:"🎲",title:"Se...",text:"🚫 Se il bouchon è pieno: alternative nella scheda 🍽️ Mangiare<br>🥗 Se sei vegetariano: la cucina lionese è tradizionalmente di carne, ma molti bouchon hanno opzioni (chiedi al momento della prenotazione)<br>🍷 Se vuoi solo bere: molti bouchon hanno un banco bar dove si può bere un bicchiere senza cena"},
-    {icon:"📞",title:"Prenotazioni",text:"Nomi e numeri nella scheda 🍽️ Mangiare. Prenotate <b>oggi pomeriggio</b> per stasera: i bouchon si riempiono."},
-    {icon:"💡",title:"Consiglio",text:"Portate <b>contanti</b>: molti bouchon non accettano carte. E non ordinate tutto subito: le porzioni sono abbondanti, meglio dividere."},
-    {icon:"📞",title:"Numeri utili",text:"🍽️ <b>Ristoranti</b>: scheda 🍽️ Mangiare · 🚕 <b>Taxi Lyon</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
+    {icon:"📞",title:"Prenotazioni",text:"Nomi e numeri nella scheda 🍽️ Mangiare. Prenotate <b>prima di partire</b>: il giovedì sera i bouchon si riempiono."},
+    {icon:"💡",title:"Consiglio",text:"Non ordinate tutto subito: le porzioni sono abbondanti, meglio dividere. Il servizio è già incluso nel conto."},
+    {icon:"📞",title:"Numeri utili",text:"🍽️ <b>Ristoranti</b>: scheda 🍽️ Mangiare · 🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
 
-  "0:7":{heroEmoji:"🚕",subtitle:"Rientro in hotel",intro:"Rientro comodo in taxi. Meglio non tornare a piedi.",sections:[
+  "0:8":{heroEmoji:"🚕",subtitle:"Rientro in hotel",intro:"Rientro comodo in taxi. Meglio non tornare a piedi.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 10 min · 💶 20–27 € · 📍 da Vieux Lyon a Hôtel Charlemagne (Perrache)<br>🚕 taxi in Place Saint-Jean o chiamato per telefono"},
     {icon:"⭐",title:"Non perdere",text:"• La <b>vista notturna</b> della Cattedrale dal finestrino<br>• Il <b>lungofiume della Saona</b> illuminato (se il taxi passa da lì)"},
-    {icon:"🚕",title:"Come chiamare",text:"Ci sono taxi in Place Saint-Jean fino a tardi. In alternativa: <b>Taxi Lyon 24/7</b> al <a href='tel:+33478268181'>04 78 26 81 81</a> (radiotaxi, sempre attivo) oppure <b>Allo Taxi</b> al <a href='tel:+33478282323'>04 78 28 23 23</a>."},
-    {icon:"🎲",title:"Se...",text:"🌧️ Se piove e non trovi taxi: chiama, non aspettare sotto la pioggia<br>💶 Se hai solo carta: quasi tutti i taxi accettano carte ormai, ma chiedi prima di salire<br>🚶 Se vuoi risparmiare: 25 min a piedi, ma è in salita dopo cena — sconsigliato"},
-    {icon:"💡",title:"Consiglio",text:"Chiama il taxi all'uscita del ristorante o usa l'app. Non tornare a piedi: 2 km in salita dopo cena non sono piacevoli, soprattutto con il freddo di fine ottobre."},
+    {icon:"🚕",title:"Come chiamare",text:"Ci sono taxi in Place Saint-Jean fino a tardi. In alternativa: <b>Taxi Lyonnais 24/7</b> al <a href='tel:+33478268181'>04 78 26 81 81</a> (radiotaxi, sempre attivo) oppure <b>Allo Taxi</b> al <a href='tel:+33472104106'>04 72 10 41 06</a>."},
+    {icon:"🎲",title:"Se...",text:"🌧️ Se piove e non trovi taxi: chiama, non aspettare sotto la pioggia<br>💶 Se hai solo carta: quasi tutti i taxi accettano carte ormai, ma chiedi prima di salire<br>🚶 Se vuoi risparmiare: ~30 min a piedi in piano lungo la Saona"},
+    {icon:"💡",title:"Consiglio",text:"Chiamate il taxi quando chiedete il conto: in 4 ci state in un solo taxi. Domani la giornata è lunga."},
     {icon:"🌙",title:"Domani",text:"Bellecour, Terreaux, Mur des Lyonnais, Parc de la Tête d'Or, Halles Bocuse e Brasserie Georges. Sveglia alle 8:00, partenza alle 9:00."},
-    {icon:"📞",title:"Numeri utili",text:"🚕 <b>Taxi Lyon 24/7</b>: <a href='tel:+33478268181'>04 78 26 81 81</a><br>🚕 <b>Allo Taxi</b>: <a href='tel:+33478282323'>04 78 28 23 23</a><br>🚨 <b>Emergenze</b>: 112"}]},
+    {icon:"📞",title:"Numeri utili",text:"🚕 <b>Taxi Lyonnais 24/7</b>: <a href='tel:+33478268181'>04 78 26 81 81</a><br>🚕 <b>Allo Taxi</b>: <a href='tel:+33472104106'>04 72 10 41 06</a><br>🚨 <b>Emergenze</b>: 112"}]},
 
-  "1:0":{heroEmoji:"🚇",wiki:"Place Bellecour",subtitle:"Place Bellecour",intro:"310x200 metri: la più grande piazza pedonale d'Europa. Il punto di partenza della giornata.",sections:[
+  "1:0":{heroEmoji:"🚇",wiki:"Place Bellecour",subtitle:"Place Bellecour",intro:"312×200 metri: la più grande piazza pedonale d'Europa. Il punto di partenza della giornata.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 10 min (piazza) · 💶 gratis · 🚇 Metro A/D, fermata <b>Bellecour</b> · 🕐 sempre aperta · ♿ accessibile<br>📍 Centro di Lione, tra Rodano e Saona"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>statua equestre di Luigi XIV</b> al centro (1825)<br>• Il <b>chilometro zero</b>: tutte le distanze di Lione si misurano da qui<br>• La <b>vista sulla collina di Fourvière</b> da sud-ovest<br>• La <b>ruota panoramica</b> in inverno (dicembre–gennaio)"},
-    {icon:"📍",title:"Dove sei",text:"<b>Place Bellecour</b>, Metro A/D fermata Bellecour. <a href='https://www.google.com/maps/search/?api=1&query=Place+Bellecour+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Con i suoi <b>67.128 m²</b> (310×200 m), è la più grande piazza pedonale d'Europa e la quinta di Francia. Costruita nel XVII secolo su progetto di Robert de Cotte, rifatta nel 1825 con la statua di Luigi XIV."},
-    {icon:"👀",title:"Da vedere",text:"La <b>statua equestre di Luigi XIV</b> (fusa nel 1825 da François-Frédéric Lemot) e il <b>memoriale della Resistenza</b> a sud-ovest. A nord-est, il <b>giardino</b> con la fontana."},
-    {icon:"🎲",title:"Se...",text:"☕ Se hai fame: i caffè intorno alla piazza sono turistici ma comodi per una colazione<br>🛍️ Se vuoi fare shopping: Rue de la République parte da qui (pedonale, 1 km)<br>🚻 Se ti serve un bagno: quelli pubblici sono a est (angolo Rue des Marronniers)"},
-    {icon:"💡",title:"Consiglio",text:"Piazza enorme e senza ombra: cappello e acqua, soprattutto se torni in estate. Oggi è la prima tappa, ma non perderci più di 10 minuti: il bello arriva dopo."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici a est della piazza. Fontanella Wallace (acqua potabile) all'angolo nord-est."}]},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>statua equestre di Luigi XIV</b> al centro (1825)<br>• Il <b>chilometro zero</b>: tutte le distanze di Lione si misurano da qui<br>• La <b>vista sulla collina di Fourvière</b> da sud-ovest"},
+    {icon:"📍",title:"Dove sei",text:"<b>Place Bellecour</b>, Metro A/D fermata Bellecour. <a href='https://www.google.com/maps/search/?api=1&query=Place+Bellecour%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Con <b>~62.000 m²</b> (312×200 m) è la più grande piazza pedonale d'Europa e la terza di Francia. Le facciate sono di <b>Robert de Cotte</b>; la prima statua di Luigi XIV (1713) fu distrutta nel 1793."},
+    {icon:"👀",title:"Da vedere",text:"La <b>statua equestre di Luigi XIV</b> (1825, di François-Frédéric Lemot) e, sullo sfondo, la <b>collina di Fourvière</b> con la basilica."},
+    {icon:"🐴",title:"'Sotto la coda del cavallo'",text:"I lionesi chiamano la statua il <b>Cheval de Bronze</b> e si danno appuntamento 'sotto la coda del cavallo'. La prima statua del Re Sole (1713) fu fusa durante la Rivoluzione; quella attuale è stata restaurata nel 2023–2024."},
+    {icon:"✈️",title:"Saint-Exupéry e il Piccolo Principe",text:"Sul lato Saona, davanti alla libreria Decitre: <b>Antoine de Saint-Exupéry</b>, nato a Lione, seduto con il <b>Piccolo Principe</b> su una colonna di marmo bianco (2000, centenario della nascita)."},
+    {icon:"📛",title:"Da dove viene il nome",text:"Da <b>'Bella Curtis'</b>, 'bel giardino': era una vigna dell'arcivescovo. È Place Bellecour solo dal <b>1850</b>, dopo essere stata place Louis-le-Grand, de la Fédération e Bonaparte. L'<b>Office du Tourisme</b> è nel padiglione della piazza, lato Rodano."},
+    {icon:"🎲",title:"Se...",text:"🛍️ Se vuoi fare shopping: Rue de la République parte da qui (pedonale, 1 km)"},
+    {icon:"💡",title:"Consiglio",text:"Piazza enorme e senza ripari dal vento: a fine ottobre una giacca in più. Non perderci più di 10 minuti: il bello arriva dopo."}]},
 
-  "1:1":{heroEmoji:"⛲",wiki:"Place des Terreaux",subtitle:"Place des Terreaux",intro:"Il cuore di Lione: Municipio, Fontana Bartholdi e Museo di Belle Arti. La piazza che ha visto la ghigliottina e i tesori nascosti.",sections:[
+  "1:1":{heroEmoji:"⛲",wiki:"Place des Terreaux",subtitle:"Place des Terreaux",intro:"Il cuore di Lione: Municipio, Fontana Bartholdi e Museo di Belle Arti.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 15–20 min (piazza) · 💶 gratis · 🚇 Metro A/C, <b>Hôtel de Ville – Louis Pradel</b> · 🕐 sempre aperta · ♿ accessibile<br>📍 Tra Croix-Rousse e Presqu'île"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>Fontana Bartholdi</b> (1892, lo stesso scultore della Statua della Libertà)<br>• La <b>facciata del Municipio</b> (XVII sec., con la campana Marie)<br>• Il <b>Museo di Belle Arti</b> a nord (8 €, chiuso il martedì)<br>• Le <b>facciate dipinte</b> delle case a est (ex atelier)"},
-    {icon:"📍",title:"Dove sei",text:"<b>Place des Terreaux</b>. Metro A/C, Hôtel de Ville – Louis Pradel. <a href='https://www.google.com/maps/search/?api=1&query=Place+des+Terreaux+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Il nome deriva dai <b>'terreaux'</b>, i fossati fangosi dell'epoca romana. Nel Medioevo era un mercato. Nel 1793, durante la Rivoluzione, qui fu ghigliottinato il sindaco royaliste e 200 oppositori."},
-    {icon:"💰",title:"Curiosità",text:"Nel <b>1993</b>, durante i lavori per la metropolitana, fu scoperto un tesoro di <b>543 monete d'oro e d'argento</b> (XIV–XV sec.) sotto la piazza. Oggi è esposto al Museo di Belle Arti."},
-    {icon:"👀",title:"Da vedere",text:"L'<b>Hôtel de Ville</b> (XVII sec., facciata monumentale), la <b>Fontana di Bartholdi</b> (1892), il <b>Museo di Belle Arti</b> (una delle collezioni più ricche di Francia: 8 €, chiuso il martedì, gratis il primo venerdì del mese)."},
-    {icon:"🎲",title:"Se...",text:"🖼️ Se piove: il Museo di Belle Arti è perfetto (10:30–18:00)<br>⏳ Se hai 30 min in più: sali alla <b>Croix-Rousse</b> con la funicolare C (a 200 m)<br>☕ Se hai sete: i caffè a sud della piazza sono meno turistici di quelli a nord"},
-    {icon:"💡",title:"Consiglio",text:"Sedetevi a un tavolino e godetevi il viavai. È una delle piazze più vive di Lione: qui si incontra tutto il centro."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici a nord (angolo Rue Paul Chenavard). Fontanella davanti al Municipio."}]},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>Fontana Bartholdi</b> (1892, lo stesso scultore della Statua della Libertà)<br>• La <b>facciata del Municipio</b> (XVII sec.)<br>• Il <b>Museo di Belle Arti</b> sul lato sud (8 €, chiuso il martedì)"},
+    {icon:"📍",title:"Dove sei",text:"<b>Place des Terreaux</b>. Metro A/C, Hôtel de Ville – Louis Pradel. <a href='https://www.google.com/maps/search/?api=1&query=Place+des+Terreaux%2C+69001+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Il nome viene dai <b>'terreaux'</b>, i terrapieni con cui fu colmato un antico fossato. Oggi è la piazza del Municipio e del Museo di Belle Arti."},
+    {icon:"👀",title:"Da vedere",text:"L'<b>Hôtel de Ville</b> (XVII sec., facciata monumentale), la <b>Fontana di Bartholdi</b> (1892), il <b>Museo di Belle Arti</b> (una delle collezioni più ricche di Francia: 8 €, chiuso il martedì, venerdì 10:30–18:00)."},
+    {icon:"⛲",title:"Una fontana nata per Bordeaux",text:"Bartholdi la disegnò per <b>Bordeaux</b> come 'carro trionfale della Garonna', ma era troppo cara: Lione la comprò dopo l'Esposizione universale del <b>1889</b>. Marianne guida <b>quattro cavalli</b>, i fiumi che corrono al mare; pesa <b>21 tonnellate</b>. Al centro della piazza dal 1992, restaurata nel 2016–2018."},
+    {icon:"🎭",title:"L'Opéra di Jean Nouvel",text:"A 2 minuti, in Place de la Comédie: un teatro del <b>1831</b> su cui Jean Nouvel (1985–1993) ha posato una grande <b>volta di vetro e acciaio</b> che ne raddoppia l'altezza."},
+    {icon:"🎲",title:"Se...",text:"🖼️ Se piove: il Museo di Belle Arti è perfetto (10:30–18:00)<br>⏳ Se hai 30 min in più: sali alla <b>Croix-Rousse</b> con la Metro C (a cremagliera) da Hôtel de Ville"},
+    {icon:"💡",title:"Consiglio",text:"Sedetevi a un tavolino e godetevi il viavai. È una delle piazze più vive di Lione: qui si incontra tutto il centro."}]},
 
-  "1:2":{heroEmoji:"🎨",wiki:"Fresque des Lyonnais",subtitle:"Mur des Lyonnais",intro:"Fresco monumentale di 800 m² con 36 personaggi che celebrano 2000 anni di storia di Lione. Gratis, visibile dalla strada, 10 minuti ben spesi.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 10–15 min · 💶 gratis · 🕐 sempre visibile · 🚶 5 min da Place des Terreaux · ♿ accessibile<br>📍 49 Rue de la Martinière, 1er arrondissement"},
-    {icon:"⭐",title:"Non perdere",text:"• I <b>fratelli Lumière</b> (inventori del cinema) sulla sinistra<br>• <b>Claudio</b>, l'imperatore romano nato a Lione<br>• <b>Saint-Exupéry</b> con il Piccolo Principe<br>• <b>Paul Bocuse</b>, lo chef più famoso di Francia<br>• <b>Jacquard</b> con il telaio per la seta"},
-    {icon:"📍",title:"Dove sei",text:"<b>Rue de la Martinière</b>, a 5 minuti da Place des Terreaux. <a href='https://www.google.com/maps/search/?api=1&query=Fresque+des+Lyonnais+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Dipinto nel <b>1995</b> da un collettivo di artisti (CitéCréation, fondata nel 1978). <b>800 m²</b> e <b>36 personaggi</b>: Claudio, i <b>fratelli Lumière</b>, <b>Jacquard</b>, <b>Paul Bocuse</b>, <b>Saint-Exupéry</b>, la fresque racconta 2000 anni di storia lionese in un trompe-l'œil architettonico."},
+  "1:2":{heroEmoji:"🎨",wiki:"Fresque des Lyonnais",subtitle:"Mur des Lyonnais",intro:"Muro dipinto di 800 m² con ~30 lionesi celebri: 2000 anni di storia di Lione. Gratis, visibile dalla strada, 10 minuti ben spesi.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 10–15 min · 💶 gratis · 🕐 sempre visibile · 🚶 ~10 min da Place des Terreaux<br>📍 Angolo 49 Quai Saint-Vincent / 2 Rue de la Martinière, 1er"},
+    {icon:"⭐",title:"Non perdere",text:"• I <b>fratelli Lumière</b> (inventori del cinema)<br>• <b>Claudio</b>, l'imperatore romano nato a Lione<br>• <b>Saint-Exupéry</b> con il Piccolo Principe<br>• <b>Paul Bocuse</b>, lo chef più famoso di Francia<br>• <b>Jacquard</b> con il telaio per la seta (lato Quai Saint-Vincent)"},
+    {icon:"📍",title:"Dove sei",text:"Angolo <b>Quai Saint-Vincent / Rue de la Martinière</b>, lungo la Saona, ~10 minuti da Place des Terreaux. <a href='https://www.google.com/maps/search/?api=1&query=Fresque+des+Lyonnais%2C+2+Rue+de+la+Martini%C3%A8re%2C+69001+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Dipinto nel <b>1994–95</b> dalla Cité de la Création. <b>800 m²</b> su due lati e <b>~30 personaggi</b> (25 storici e 6 contemporanei): Claudio, i <b>fratelli Lumière</b>, <b>Jacquard</b>, <b>Ampère</b>, <b>Paul Bocuse</b>, <b>Saint-Exupéry</b>. Un trompe-l'œil architettonico su 2000 anni di storia lionese."},
     {icon:"🎨",title:"Il trompe-l'œil",text:"Il muro 'finge' di essere un palazzo con balconi, finestre e botteghe. I personaggi si affacciano dalle finestre finte come se fossero inquilini. Guarda i dettagli: il cinema dei Lumière, il telaio di Jacquard, il Piccolo Principe che parla con Saint-Exupéry."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: il muro è scoperto, ma vale comunque una sosta di 5 min<br>⏳ Se hai 20 min in più: prosegui fino alla <b>Fresque des Canuts</b> (Croix-Rousse, sempre di CitéCréation)<br>📸 Se vuoi la foto migliore: di mattina, con il sole sulla facciata"},
-    {icon:"💡",title:"Consiglio",text:"Gratuita e visibile dalla strada: 10 minuti ben spesi. Cerca tutti e 36 i personaggi (ci sono anche De Gaulle, l'abbé Pierre, Bertrand Tavernier)."},
-    {icon:"🚻",title:"Pratico",text:"Niente bagni in loco. Fontanella a Place des Terreaux (5 min a piedi)."}]},
+    {icon:"🧑‍🤝‍🧑",title:"Chi cercare",text:"• <b>Lato Quai Saint-Vincent</b>: l'imperatore Claudio, Jacquard, il pittore Puvis de Chavannes, il regista Bertrand Tavernier<br>• <b>Lato Rue de la Martinière</b>: Ampère, i fratelli Lumière, Saint-Exupéry con il Piccolo Principe, <b>Guignol</b> con il suo creatore Laurent Mourguet, Paul Bocuse, Juliette Récamier"},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: il muro è scoperto, ma vale comunque una sosta di 5 min<br>⏳ Se hai 20 min in più: il <b>Mur des Canuts</b> alla Croix-Rousse (Metro C)<br>📸 Se vuoi la foto migliore: di mattina, con il sole sulla facciata"},
+    {icon:"💡",title:"Consiglio",text:"Gratuita e visibile dalla strada. Fate il gioco: chi trova per primo <b>Guignol</b>, il <b>Piccolo Principe</b> e il regista <b>Bertrand Tavernier</b>?"}]},
 
-  "1:3":{heroEmoji:"🌳",wiki:"Parc de la Tête d'Or",subtitle:"Parc de la Tête d'Or",intro:"Grande parco cittadino con lago, serre botaniche e piccolo zoo. Ingresso gratuito, 117 ettari, uno dei più grandi parchi urbani di Francia.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h–1h 30 · 💶 gratis · 🕐 <b>6:30–20:30</b> (invernale) · 🚊 Tram T1/T4 o Metro A · ♿ accessibile<br>📍 6e arrondissement, quartiere Part-Dieu"},
-    {icon:"⭐",title:"Non perdere",text:"• Il <b>lago</b> con le barche (noleggio ~12 €/30 min)<br>• Le <b>serre botaniche</b> (Victoria amazonica, orchidee) — chiudono 17:30<br>• Il <b>giardino zoologico</b> gratuito (leoni, giraffe, elefanti)<br>• La <b>Porte des Enfants du Rhône</b>, l'ingresso monumentale sul Rodano"},
-    {icon:"📍",title:"Dove sei",text:"Nel quartiere della Part-Dieu. Tram ~20 min dal centro. <a href='https://www.google.com/maps/search/?api=1&query=Parc+de+la+Tête+d%27Or+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Inaugurato nel <b>1857</b>, <b>117 ettari</b>, progettato da Denis e Eugène Buhler. Il nome deriva da una leggenda: una <b>testa di Cristo in oro</b> sarebbe sepolta sul fondo del lago. Da qui il nome 'Tête d'Or'."},
-    {icon:"🕐",title:"Orari e stagioni",text:"Dal 15 ottobre chiude alle <b>20:30</b> (orario invernale); d'estate fino alle 22:30. Ingresso gratuito. Le serre chiudono prima (17:30). Lo zoo chiude alle 18:00."},
-    {icon:"🎲",title:"Se...",text:"☔ Se piove: rimanda, il bello è camminare all'aperto<br>🥪 Se hai fame: chioschi interni (panini, gelati) ma cari; meglio un panino fuori<br>👶 Se hai bambini: lo zoo e il trenino (2 €) sono perfetti<br>⏳ Se hai 30 min in più: la <b>Roseraie</b> (giugno) o le <b>serre</b> (sempre)"},
+  "1:3":{heroEmoji:"🌳",wiki:"Parc de la Tête d'Or",subtitle:"Parc de la Tête d'Or",intro:"Grande parco cittadino con lago, serre botaniche e piccolo zoo. Ingresso gratuito, 105 ettari, uno dei più grandi parchi urbani di Francia.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h–1h 30 · 💶 gratis · 🕐 <b>6:30–20:30</b> (invernale) · 🚇 Metro A <b>Masséna</b> + 10 min a piedi · 🚌 C1<br>📍 6e arrondissement"},
+    {icon:"⭐",title:"Non perdere",text:"• Il <b>lago</b> (16 ettari) e l'imbarcadero<br>• Le <b>Grandes Serres</b> (piante tropicali) — <b>9:00–16:30</b><br>• Il <b>giardino zoologico</b> gratuito<br>• La <b>Porte des Enfants du Rhône</b>, l'ingresso monumentale sul Rodano"},
+    {icon:"📍",title:"Dove sei",text:"Nel 6e arrondissement. Metro A fino a <b>Masséna</b>, poi ~10 min a piedi. <a href='https://www.google.com/maps/search/?api=1&query=Parc+de+la+T%C3%AAte+d%27Or%2C+Place+G%C3%A9n%C3%A9ral+Leclerc%2C+69006+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Creato nel <b>1857</b>, oggi <b>105 ettari</b> (117 quelli acquistati nel 1856), progettato da Denis e Eugène Bühler. Il nome deriva da una leggenda: una <b>testa di Cristo in oro</b> sarebbe sepolta sul fondo del lago. Da qui il nome 'Tête d'Or'."},
+    {icon:"🕐",title:"Orari e stagioni",text:"Dal 15 ottobre chiude alle <b>20:30</b> (orario invernale); d'estate fino alle 22:30. Non si entra negli ultimi 15 minuti e può chiudere con vento forte. Le Grandes Serres: <b>9:00–16:30</b>."},
+    {icon:"⛏️",title:"Un lago scavato a mano",text:"Il paesaggista svizzero <b>Denis Bühler</b> disegnò il parco in circa quattro anni, ispirandosi al Bois de Boulogne e ai giardini inglesi. Il lago di <b>16 ettari</b> fu scavato da <b>disoccupati</b> assunti dalla città."},
+    {icon:"🪖",title:"L'isola del ricordo",text:"Sul lago, l'<b>Île du Souvenir</b> (o 'isola dei cigni') ospita il monumento ai caduti della Grande Guerra di <b>Tony Garnier</b>. Aperta <b>11:00–17:00</b>."},
+    {icon:"🦒",title:"Lo zoo gratuito",text:"La <b>pianura africana</b> (dal 2006) con giraffe, antilopi e watussi, e le <b>Foreste d'Asia</b> (2021) con 25 specie minacciate."},
+    {icon:"🎲",title:"Se...",text:"☔ Se piove: rimanda, il bello è camminare all'aperto<br>🥪 Se hai fame: chioschi interni (panini, gelati) ma cari; meglio un panino fuori<br>⏳ Se hai 30 min in più: le <b>serre</b> (entro le 16:30)"},
     {icon:"💡",title:"Consiglio",text:"Punta sul lago e sulle serre: sono la parte più caratteristica. Se hai poco tempo, salta lo zoo (carino ma standard) e fai il giro del lago."},
     {icon:"🚻",title:"Pratico",text:"Bagni pubblici in varie zone del parco (mappa all'ingresso). Fontanelle ovunque. Chioschi bar sparsi."}]},
 
   "1:4":{heroEmoji:"🧀",wiki:"Halles Paul Bocuse",subtitle:"Les Halles Paul Bocuse",intro:"Il tempio della gastronomia: Sibilia (salumi dal 1922) e Giraudet (quenelle). Il pranzo più buono della giornata.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 45 min–1h · 💶 15–30 €/persona · 🕐 <b>lun–sab 7:00–22:00</b>, dom 7:00–13:00 · 🚊 Tram T1/T4 o Metro B · ♿ accessibile<br>📍 102 Cours Lafayette"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>quenelle di Giraudet</b> (dal 1935)<br>• Il <b>saucisson brioché di Sibilia</b> (dal 1922)<br>• Le <b>ostriche di Antonin</b> (se ti piacciono)<br>• Il <b>formaggio di Mons</b> (affinato in cantina)"},
-    {icon:"📍",title:"Dove sei",text:"<b>102 Cours Lafayette</b>. Tram T1/T4, fermata <b>Halles Paul Bocuse</b>. <a href='https://www.google.com/maps/search/?api=1&query=Halles+Paul+Bocuse+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Radici nel <b>1859</b>, intitolate a <b>Paul Bocuse</b> nel <b>2006</b> (quando era ancora vivo). Oggi <b>56 commercianti</b> su 13.000 m², tra banchi di gastronomia, ristoranti e fiorai."},
-    {icon:"🍴",title:"Cosa assaggiare",text:"La <b>quenelle</b> da Giraudet (5–8 € al pezzo), il <b>saucisson brioché</b> da Sibilia (7–10 €), le <b>ostriche</b> da Antonin (15–25 € la dozzina). C'è anche il <b>vino al bicchiere</b> in molti banchi: 4–6 €."},
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 45 min–1h · 💶 15–30 €/persona · 🕐 banchi <b>lun–sab 7:30–19:30</b>, dom 7:30–13:00 · ristoranti <b>11:30–14:30</b> · 🚌 C3/C13<br>📍 102 Cours Lafayette"},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>quenelle di Giraudet</b><br>• Il <b>saucisson brioché di Sibilia</b> (dal 1922)<br>• Le <b>ostriche di Antonin</b> (se ti piacciono)<br>• Il <b>formaggio di Mons</b> (affinato in cantina)"},
+    {icon:"📍",title:"Dove sei",text:"<b>102 Cours Lafayette</b>. Bus C3/C13, fermata <b>Halles Paul Bocuse</b>. <a href='https://www.google.com/maps/search/?api=1&query=Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Il mercato coperto dei gourmet lionesi, intitolato a <b>Paul Bocuse</b> quando lo chef era ancora vivo. <b>56 commercianti</b>, di cui 12 ristoratori."},
+    {icon:"🍴",title:"Cosa assaggiare",text:"La <b>quenelle</b> da Giraudet, il <b>saucisson brioché</b> da Sibilia, le <b>ostriche</b> da Chez Antonin o Chez Léon. Prezzi indicativi nella scheda 🍽️ Mangiare."},
+    {icon:"🕰️",title:"Un po' di storia",text:"Le prime Halles aprirono ai Cordeliers il <b>1° marzo 1859</b>, in un edificio di ferro e vetro. I commercianti si sono trasferiti qui nel <b>gennaio 1971</b>; la grande facciata di vetro è del restyling dei primi anni 2000."},
+    {icon:"🦪",title:"Altri banchi famosi",text:"<b>Pupier</b> per i frutti di mare e la fromagerie <b>Mère Richard</b>, oltre a Sibilia e Giraudet."},
     {icon:"🎲",title:"Se...",text:"🌧️ Se piove: perfetto, è coperto<br>💶 Se hai solo carta: quasi tutti accettano carte, ma qualche banco storico preferisce contanti<br>🍽️ Se vuoi sederti: i ristoranti interni (Chez Léon, Chez Antonin) hanno tavoli, ma sono cari<br>🚫 Se sei vegetariano: Giraudet ha anche opzioni di verdura"},
     {icon:"💡",title:"Consiglio",text:"Non fermarti al primo banco: fai un giro completo, poi scegli. Molti banchi fanno assaggi gratuiti. Il pranzo migliore: prendi 3–4 cose piccole in banchi diversi e mangiale ai tavolini esterni."},
     {icon:"📞",title:"Numeri utili",text:"🥟 <b>Giraudet</b>: <a href='tel:+33478623405'>04 78 62 34 05</a> · 🥓 <b>Sibilia</b>: <a href='tel:+33478622129'>04 78 62 21 29</a><br>🍽️ <b>Altri banchi</b>: scheda 🍽️ Mangiare"}]},
 
   "1:5":{heroEmoji:"😴",subtitle:"Riposo in hotel",intro:"Pausa meritata. Due ore per ricaricare le batterie prima della cena in Brasserie Georges.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 2h · 📍 Hôtel Charlemagne (23 Cours Charlemagne) · 🚇 Metro A, fermata <b>Perrache</b> (5 min a piedi)<br>🔋 tempo di ricarica: doccia, riposo, cambio"},
-    {icon:"⭐",title:"Cosa fare",text:"• <b>Doccia</b> e riposo<br>• <b>Ricarica</b> del telefono (power bank per la sera)<br>• Se serve: <b>lavanderia self-service</b> in Rue de la Charité (5 min)<br>• <b>Monoprix</b> sotto l'hotel per acqua e snack"},
-    {icon:"📍",title:"Dove sei",text:"<b>Hôtel Charlemagne</b>, 23 Cours Charlemagne. Metro A, fermata <b>Perrache</b>. <a href='https://www.google.com/maps/search/?api=1&query=Hôtel+Charlemagne+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"💡",title:"Consiglio",text:"Usa questo tempo per una doccia e un riposo vero. La cena è alle 19:30: alle 19:00 devi essere pronto. Se hai bambini, questo è il momento del pisolino."},
-    {icon:"🎲",title:"Se...",text:"🛍️ Se vuoi fare un giro: il <b>Monoprix</b> sotto l'hotel ha tutto (acqua, snack, caricabatterie)<br>🧺 Se hai bisogno di lavanderia: <b>Lav'Club</b> in Rue de la Charité (5 min a piedi)<br>☕ Se hai fame: caffè e brioche al bar dell'hotel o al Monoprix"},
-    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel Charlemagne</b>: <a href='tel:+33472777000'>04 72 77 70 00</a><br>🚕 <b>Taxi Lyon</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
+    {icon:"⭐",title:"Cosa fare",text:"• <b>Doccia</b> e riposo<br>• <b>Ricarica</b> del telefono (power bank per la sera)<br>• Controllate la <b>prenotazione online</b> della Brasserie Georges"},
+    {icon:"📍",title:"Dove sei",text:"<b>Hôtel Charlemagne</b>, 23 Cours Charlemagne. Metro A, fermata <b>Perrache</b>. <a href='https://www.google.com/maps/search/?api=1&query=H%C3%B4tel+Charlemagne%2C+23+Cours+Charlemagne%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"💡",title:"Consiglio",text:"Usa questo tempo per una doccia e un riposo vero. La cena è alle 19:30: alle 19:15 si esce."},
+    {icon:"🎲",title:"Se...",text:"🛍️ Se vuoi fare un giro: <b>Place Bellecour</b> è a 2 fermate di metro<br>☔ Se piove: restate in hotel, la Brasserie è a 7 min"},
+    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel Charlemagne</b>: <a href='tel:+33472777000'>04 72 77 70 00</a><br>🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
 
-  "1:6":{heroEmoji:"🍺",wiki:"Brasserie Georges",subtitle:"Brasserie Georges",intro:"Istituzione lionese dal 1836, atmosfera Art Déco. A 300 metri dall'hotel, comodissima per la cena.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h 30–2h · 💶 30–50 €/persona · 🕐 <b>tutti i giorni 11:15–00:15</b> · 🚶 5 min dall'hotel · ♿ accessibile<br>📍 30 Cours de Verdun, Perrache"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>sala Art Déco</b> (1924) con i lampadari in vetro<br>• La <b>birra in loco</b>, prodotta nei tini d'epoca<br>• La <b>facciata neoclassica</b> su Cours de Verdun<br>• Il <b>soufflé</b> o la <b>choucroute</b> (piatti della tradizione)"},
-    {icon:"📍",title:"Dove sei",text:"A 300 metri dall'hotel. <a href='https://www.google.com/maps/search/?api=1&query=Brasserie+Georges+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Fondata nel <b>1836</b> da Georges Hoffherr. Nel <b>1924</b> fu ridecorata in stile <b>Art Déco</b> (lampadari in vetro di René Lalique, soffitto a cassettoni). Nel <b>2012</b> ha servito <b>3.245 coperti</b> in un giorno: è una delle brasserie più grandi d'Europa."},
+  "1:6":{heroEmoji:"🍺",wiki:"Brasserie Georges",subtitle:"Brasserie Georges",intro:"Istituzione lionese dal 1836, atmosfera Art Déco. A ~500 metri dall'hotel, comodissima per la cena.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 1h 30–2h · 💶 30–50 €/persona · 🕐 <b>ven 11:30–00:15</b> (servizio continuo) · 🚶 ~7 min dall'hotel<br>📍 30 Cours de Verdun, Perrache · <b>prenotazione solo online</b>"},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>sala Art Déco</b> (1924)<br>• La <b>birra in loco</b>, prodotta nei tini d'epoca<br>• La <b>facciata neoclassica</b> su Cours de Verdun<br>• Il <b>soufflé</b> o la <b>choucroute</b> (piatti della tradizione)"},
+    {icon:"📍",title:"Dove sei",text:"A ~500 metri dall'hotel, sul lato nord della stazione di Perrache. <a href='https://www.google.com/maps/search/?api=1&query=Brasserie+Georges%2C+30+Cours+de+Verdun+Perrache%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Fondata nel <b>1836</b> da Georges Hoffherr, birraio alsaziano. Nel <b>1924</b> fu ridecorata in stile <b>Art Déco</b>. È una delle brasserie più grandi d'Europa e produce ancora la sua birra."},
     {icon:"🍽️",title:"Alternative",text:"Se è piena (capita il venerdì): <b>Les Petites Cantines</b> (74 Rue de la Charité, 10–18 €, no-profit) o <b>HEAT Food Court</b> (70 Quai Perrache, 10–20 €, food hall con 8 cucine). Entrambe a 10 min a piedi."},
-    {icon:"🎲",title:"Se...",text:"🍺 Se non hai prenotato: la Brasserie Georges accetta walk-in ma aspettative di 20–30 min il venerdì sera<br>🥗 Se sei vegetariano: pochi piatti, ma insalate e zuppe ci sono<br>💶 Se hai solo carta: nessun problema, accettano tutto"},
-    {icon:"🌙",title:"Dopo cena",text:"Due passi digestivi sul lungo Saona (5 min): l'argine è illuminato e sicuro fino alle 23:00."},
+    {icon:"⭐",title:"Ospiti illustri",text:"Tra i clienti storici: <b>Verlaine, Jules Verne, Rodin, Édith Piaf, Hemingway</b>."},
+    {icon:"🏆",title:"Record da brasserie",text:"Nel <b>1986</b> servì la choucroute più grande del mondo (~1,5 tonnellate), nel <b>1996</b> un'omelette norvegese di <b>34 metri</b>. Oltre <b>700 coperti</b> per servizio."},
+    {icon:"🍽️",title:"Cosa ordinare",text:"La <b>salsiccia lionese al pistacchio</b>, la <b>choucroute</b> e, per chiudere, l'<b>omelette norvegese</b>. Birra: quella della casa."},
+    {icon:"🎲",title:"Se...",text:"🍺 Se non hai prenotato: il venerdì sera mettete in conto un'attesa<br>🥗 Se sei vegetariano: pochi piatti, ma insalate e zuppe ci sono<br>💶 Se hai solo carta: nessun problema, accettano tutto"},
+    {icon:"🌙",title:"Dopo cena",text:"Rientro a piedi in ~7 minuti, attraverso Perrache."},
     {icon:"📞",title:"Numeri utili",text:"🍺 <b>Brasserie Georges</b>: <a href='tel:+33472565454'>04 72 56 54 54</a><br>🍽️ <b>Alternative</b>: scheda 🍽️ Mangiare"}]},
 
-  "1:7":{heroEmoji:"🚶",subtitle:"Rientro a piedi",intro:"300 metri lungo la Saona. Due passi digestivi prima di dormire.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 5 min a piedi · 🚶 300 m · 📍 da Brasserie Georges a Hôtel Charlemagne<br>🌊 lungo il Quai Perrache (argine della Saona)"},
-    {icon:"⭐",title:"Non perdere",text:"• L'<b>argine illuminato</b> della Saona<br>• La <b>vista sul pont Gallieni</b> (1909, il ponte che attraversa la Saona)<br>• Se siete fortunati: i <b>cormorani</b> che dormono sui piloni"},
-    {icon:"🌊",title:"Il lungofiume",text:"Il Quai Perrache è uno degli argini più tranquilli di Lione: poco traffico, panchine, alberi. Di sera è frequentato da coppie e runner, molto sicuro."},
-    {icon:"🎲",title:"Se...",text:"🌧️ Se piove: c'è un percorso coperto passando per Rue de la Charité<br>🚶 Se hai voglia di camminare di più: allunga fino a <b>Place Bellecour</b> (10 min) prima di rientrare<br>🌙 Se è tardi: l'argine è illuminato fino a mezzanotte"},
-    {icon:"💡",title:"Consiglio",text:"Passeggiata breve ma piacevole. Domani si parte per il tour in auto: metti la sveglia alle 8:00."},
-    {icon:"🌙",title:"Domani",text:"Musée des Confluences (esterno), Halles Bocuse (ultimi acquisti), Gare Part-Dieu, Tour Incity, partenza. Tutto in auto, ~2 ore."},
-    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel Charlemagne</b>: <a href='tel:+33472777000'>04 72 77 70 00</a> · 🚕 <b>Taxi Lyon</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
+  "1:7":{heroEmoji:"🚶",subtitle:"Rientro a piedi",intro:"~500 metri attraverso Perrache. Due passi digestivi prima di dormire.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ ~7 min a piedi · 🚶 ~500 m · 📍 da Brasserie Georges a Hôtel Charlemagne<br>🚉 si passa dalla stazione di Perrache"},
+    {icon:"🎲",title:"Se...",text:"🌧️ Se piove forte: un taxi per 500 m è sprecato, meglio un ombrello<br>🚶 Se hai voglia di camminare di più: allunga fino a <b>Place Bellecour</b> (~15 min) prima di rientrare"},
+    {icon:"💡",title:"Consiglio",text:"Domani si fa check-out alle 9:00 e si parte già carichi: preparate le valigie stasera."},
+    {icon:"🌙",title:"Domani",text:"Check-out alle 9:00, Musée des Confluences (esterno), Halles Bocuse (ultimi acquisti), Tour Incity e partenza dalle Halles verso Magenta."},
+    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel Charlemagne</b>: <a href='tel:+33472777000'>04 72 77 70 00</a> · 🚕 <b>Taxi Lyonnais</b>: <a href='tel:+33478268181'>04 78 26 81 81</a>"}]},
 
-  "2:0":{heroEmoji:"🚗",wiki:"Musée des Confluences",subtitle:"Musée des Confluences",intro:"Architettura futuristica dove Rodano e Saona si incontrano. Da vedere dall'esterno (il museo apre alle 10:30), ma l'edificio merita da solo il viaggio.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 20–30 min (esterno) · 2h (interno) · 💶 gratis fuori, <b>12 €</b> dentro · 🕐 <b>10:30–18:30</b> (mar–dom) · 🚗 10 min in auto · ♿ accessibile<br>📍 86 Quai Perrache, 2e arrondissement"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>forma dell'edificio</b> (una 'nuvola' di vetro e acciaio)<br>• La <b>confluenza Rodano–Saona</b> (il punto esatto è a 200 m)<br>• Il <b>quartiere Confluence</b> (ex dock industriali rinati)<br>• Se entri: il <b>scheletro di balenottera</b> nella hall"},
-    {icon:"📍",title:"Dove sei",text:"~10 min in auto dall'hotel. <a href='https://www.google.com/maps/search/?api=1&query=Musée+des+Confluences+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Inaugurato nel <b>2014</b>, progettato dallo studio viennese <b>Coop Himmelb(l)au</b>. È un esempio di architettura <b>decostruttivista</b>: 190 m di lunghezza, 40 m di altezza, 33.000 m². La forma ricorda una nuvola di vetro e acciaio sospesa tra i due fiumi."},
-    {icon:"🌊",title:"La confluenza",text:"Il punto esatto in cui il <b>Rodano</b> (che scende dalle Alpi) e la <b>Saona</b> (che scende dai Vosgi) si incontrano. Da qui il nome 'Confluence'. A 200 m dall'ingresso c'è il belvedere."},
-    {icon:"🏗️",title:"Il quartiere",text:"Ex dock industriali rinati negli anni 2000: architettura contemporanea, il <b>Marché de la Confluence</b> (sabato mattina), il centro commerciale. Un tempo era la zona industriale di Lione, oggi è il quartiere del futuro."},
-    {icon:"🎲",title:"Se...",text:"🎟️ Se vuoi entrare: 12 €, sabato aperto 10:30–18:30. Biglietti online su museedesconfluences.fr (eviti la coda)<br>⏳ Se hai 30 min in più: passeggiata fino al belvedere della confluenza<br>☔ Se piove: perfetto per il museo (interno)<br>🚗 Se hai l'auto: parcheggio sotto il museo (2 €/h)"},
-    {icon:"💡",title:"Consiglio",text:"La forma dell'edificio merita da sola il viaggio. Se il tempo è bello, fai il giro esterno + belvedere: 20 min ben spesi, zero euro. Il museo è bello ma non essenziale per un weekend di 2 giorni."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici all'ingresso del museo (anche senza biglietto). Caffè interno (caro)."}]},
+  "2:0":{heroEmoji:"🧳",subtitle:"Check-out · Hôtel Charlemagne",intro:"Ultima mattina: si carica l'auto e si parte per il giro finale, senza tornare in hotel.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 15–20 min · 🕐 check-out <b>entro le 11:00</b> · 🅿️ auto al parcheggio custodito a <b>150 m</b> · 💶 il soggiorno si paga in hotel (tassa di soggiorno 2,86 € a notte a persona)"},
+    {icon:"✅",title:"Prima di uscire",text:"• Documenti, caricabatterie, power bank<br>• Bollino <b>Crit'Air</b> esposto sul parabrezza<br>• Navigatore impostato sul Musée des Confluences"},
+    {icon:"📍",title:"Dove sei",text:"<b>Hôtel Charlemagne</b>, 23 Cours Charlemagne. <a href='https://www.google.com/maps/search/?api=1&query=H%C3%B4tel+Charlemagne%2C+23+Cours+Charlemagne%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"🎲",title:"Se...",text:"🌧️ Se piove forte: saltate la passeggiata alla confluenza e andate dritti alle Halles (coperte)<br>⏳ Se siete in ritardo: tagliate il Musée des Confluences, non le Halles"},
+    {icon:"📞",title:"Numeri utili",text:"🏨 <b>Hotel</b>: <a href='tel:+33472777000'>04 72 77 70 00</a> · 🚨 <b>Emergenze</b>: 112"}]},
 
-  "2:1":{heroEmoji:"🧺",subtitle:"Halles Bocuse · ultimi acquisti",intro:"Salumi, formaggi e specialità da portare a casa. Il modo migliore per salutare Lione.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 20–30 min · 💶 20–50 € (a seconda di cosa compri) · 🕐 <b>lun–sab 7:00–22:00</b>, dom 7:00–13:00 · 🚗 15 min dall'hotel · ♿ accessibile<br>📍 102 Cours Lafayette"},
-    {icon:"⭐",title:"Non perdere",text:"• <b>Salumi</b> da Sibilia (saucisson brioché sottovuoto, 8–12 €)<br>• <b>Formaggi</b> da Mons (Saint-Marcellin, 5–8 €)<br>• <b>Quenelle</b> da Giraudet (vasetto sottovuoto, 10 €)<br>• <b>Bouchons dolci</b> (cioccolatini) da Voisin"},
-    {icon:"📍",title:"Dove sei",text:"<b>102 Cours Lafayette</b>. <a href='https://www.google.com/maps/search/?api=1&query=Halles+Paul+Bocuse+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"🛍️",title:"Cosa comprare",text:"<b>Salumi</b> (saucisson, rosette, jambon persillé), <b>formaggi</b> (Saint-Marcellin, Fourme d'Ambert), i famosi <b>bouchons dolci</b> (cioccolatini). Chiedi la <b>confezione sottovuoto</b> per i salumi: durano 5–7 giorni."},
-    {icon:"🎲",title:"Se...",text:"🧳 Se hai poco spazio in valigia: salumi sottovuoto + formaggi duri, non freschi<br>🎁 Se cerchi regali: i <b>bouchons dolci</b> di Voisin (scatola 15 €)<br>🚗 Se parti subito: puoi lasciare i sacchetti in auto<br>💶 Se hai solo carta: quasi tutti accettano"},
+  "2:1":{heroEmoji:"🏛️",wiki:"Musée des Confluences",subtitle:"Musée des Confluences",intro:"Architettura futuristica dove Rodano e Saona si incontrano. Da vedere dall'esterno (il museo apre alle 10:30): l'edificio merita da solo la sosta.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 20–30 min (esterno) · 2h (interno) · 💶 gratis fuori, <b>12 €</b> dentro · 🕐 <b>10:30–18:30</b> (aperto tutti i giorni nelle vacanze scolastiche) · 🚗 ~10 min dall'hotel<br>📍 86 Quai Perrache, 2e arrondissement"},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>forma dell'edificio</b> (una 'nuvola' di vetro e acciaio)<br>• La <b>punta della confluenza</b> Rodano–Saona, dietro il museo<br>• Il <b>quartiere Confluence</b> (ex aree portuali e industriali rinate)"},
+    {icon:"📍",title:"Dove sei",text:"<b>86 Quai Perrache</b>, ~10 min in auto dall'hotel. <a href='https://www.google.com/maps/search/?api=1&query=Mus%C3%A9e+des+Confluences%2C+86+Quai+Perrache%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Inaugurato nel <b>2014</b>, progettato dallo studio viennese <b>Coop Himmelb(l)au</b>. È un esempio di architettura <b>decostruttivista</b>: una nuvola di vetro e acciaio sospesa tra i due fiumi."},
+    {icon:"🌊",title:"La confluenza",text:"Il punto esatto in cui il <b>Rodano</b> (che scende dalle Alpi) e la <b>Saona</b> (che scende dai Vosgi) si incontrano. Da qui il nome 'Confluence'. La punta è subito dietro il museo."},
+    {icon:"🏗️",title:"Il quartiere",text:"Ex aree portuali e industriali rinate dagli anni 2000: architettura contemporanea lungo la Saona e un grande centro commerciale."},
+    {icon:"🔷",title:"Cristallo, nuvola, zoccolo",text:"L'edificio ha tre parti: il <b>Cristallo</b> di vetro (1.900 m², l'ingresso), la <b>Nuvola</b> rivestita d'acciaio inox con le sale, e lo <b>Zoccolo</b> di cemento che regge tutto."},
+    {icon:"🎲",title:"Se...",text:"🎟️ Se vuoi entrare: 12 €, apre alle 10:30 — ma il check-out è già fatto e le Halles aspettano<br>☔ Se piove: guardatelo dall'auto e passate alle Halles<br>🅿️ Parcheggio: a pagamento nel quartiere, seguite i cartelli"},
+    {icon:"💡",title:"Consiglio",text:"La forma dell'edificio merita da sola il viaggio. Se il tempo è bello, fai il giro esterno fino alla punta: 20 min ben spesi, zero euro. Oggi il museo non ci sta: tenetelo per il prossimo viaggio."}]},
+
+  "2:2":{heroEmoji:"🧺",subtitle:"Halles Bocuse · ultimi acquisti",intro:"Salumi, formaggi e specialità da portare a casa. Il modo migliore per salutare Lione.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 30–40 min · 💶 20–50 € (a seconda di cosa compri) · 🕐 <b>sabato 7:30–19:30</b> · 🚗 ~20 min dal Musée des Confluences<br>🅿️ Parking LPA Halles, ingresso <b>Rue Garibaldi</b> · 📍 102 Cours Lafayette"},
+    {icon:"⭐",title:"Non perdere",text:"• <b>Salumi</b> da Sibilia (saucisson brioché sottovuoto, 8–12 €)<br>• <b>Formaggi</b> da Mons (Saint-Marcellin, 5–8 €)<br>• <b>Quenelle</b> da Giraudet (vasetto sottovuoto, 10 €)"},
+    {icon:"📍",title:"Dove sei",text:"<b>102 Cours Lafayette</b>. <a href='https://www.google.com/maps/search/?api=1&query=Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"🛍️",title:"Cosa comprare",text:"<b>Salumi</b> (saucisson, rosette, jambon persillé), <b>formaggi</b> (Saint-Marcellin, Fourme d'Ambert). Chiedi la <b>confezione sottovuoto</b> per i salumi: durano 5–7 giorni."},
+    {icon:"🎲",title:"Se...",text:"🧳 Se hai poco spazio in valigia: salumi sottovuoto + formaggi duri, non freschi<br>🚗 Se parti subito: puoi lasciare i sacchetti in auto<br>💶 Se hai solo carta: quasi tutti accettano"},
     {icon:"💡",title:"Consiglio",text:"Chiedi la confezione sottovuoto per i salumi. Per i formaggi: i duri (Beaufort, Comté) resistono al viaggio, i molli (Saint-Marcellin) no."},
-    {icon:"📞",title:"Numeri utili",text:"🥓 <b>Sibilia</b>: <a href='tel:+33478622129'>04 78 62 21 29</a> · 🧀 <b>Mons</b>: <a href='tel:+33478623028'>04 78 62 30 28</a>"}]},
+    {icon:"📞",title:"Numeri utili",text:"🥓 <b>Sibilia</b>: <a href='tel:+33478622129'>04 78 62 21 29</a>"}]},
 
-  "2:2":{heroEmoji:"🚉",wiki:"Gare de Lyon-Part-Dieu",subtitle:"Gare Part-Dieu",intro:"La stazione principale di Lione: da qui partono i treni per Parigi, Marsiglia e il resto della Francia.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 10 min (parcheggio + ingresso) · 💶 gratis · 🕐 <b>4:30–1:00</b> · 🚗 10 min dall'hotel · ♿ accessibile<br>📍 Place Charles Béraudier, 3e arrondissement"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>facciata monumentale</b> (1978-1983, architetto Charles Delfante)<br>• Il <b>piano -1</b> con le consigne (deposito bagagli)<br>• La <b>vista sulla Tour Incity</b> dall'uscita ovest"},
-    {icon:"📍",title:"Dove sei",text:"<b>Gare Part-Dieu</b>, Place Charles Béraudier. <a href='https://www.google.com/maps/search/?api=1&query=Gare+Part-Dieu+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"La stazione è stata inaugurata nel <b>1983</b> (era la più grande d'Europa all'epoca) per sostituire la vecchia Gare des Brotteaux. Oggi è la <b>seconda stazione di Francia</b> per traffico dopo Paris-Gare de Lyon: 60 milioni di passeggeri/anno."},
-    {icon:"🎒",title:"Consigne",text:"Se hai bagagli: <b>deposito bagagli al piano -1</b> (a destra delle scale mobili, ~6 €/bagaglio). Aperto 6:00–23:00. Serve documento d'identità."},
-    {icon:"🍔",title:"Dove mangiare",text:"In stazione: <b>Paul</b> (piano terra), <b>Class'Croute</b> (piano 1), <b>Starbucks</b> (piano 1), <b>Five Guys</b> (piano 1). Per qualcosa di meglio: <b>Halles Paul Bocuse</b> è a 10 min a piedi."},
-    {icon:"🎲",title:"Se...",text:"🚄 Se devi prendere un TGV: <b>piano 1</b> per i treni nazionali, <b>piano terra</b> per i TER regionali<br>⏰ Se sei in ritardo: le porte chiudono 2 min prima della partenza, ma il controllo bagagli è veloce<br>🚗 Se hai l'auto: parcheggio sotterraneo (2,50 €/h, 20 €/giorno)"},
-    {icon:"💡",title:"Consiglio",text:"Non perderti: la stazione è grande ma ben segnalata. Se hai tempo, la Tour Incity è a 200 m (5 min a piedi) e merita una foto dal basso."},
-    {icon:"📞",title:"Numeri utili",text:"🚄 <b>SNCF</b>: <a href='tel:3635'>3635</a> (a pagamento) · 🚨 <b>Emergenze</b>: 112<br>🎫 <b>Biglietti</b>: <a href='https://www.sncf-connect.com' target='_blank'>sncf-connect.com</a>"}]},
+  "2:3":{heroEmoji:"🏙️",wiki:"Tour Incity",subtitle:"Tour Incity",intro:"Il grattacielo più alto di Lione: 200 m con la guglia, 39 piani, completato nel 2015. Si guarda da fuori.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ 5–10 min (esterno) · 💶 gratis · 🕐 sempre visibile · 🚶 ~5 min dalle Halles<br>📍 Angolo Cours Lafayette / Rue Garibaldi, 3e"},
+    {icon:"⭐",title:"Non perdere",text:"• La <b>vista dal basso</b> della torre di vetro<br>• Il confronto con la <b>Tour Part-Dieu</b>, detta <b>'Le Crayon'</b> (la matita), del 1972–1976"},
+    {icon:"📍",title:"Dove sei",text:"Incrocio <b>Cours Lafayette / Rue Garibaldi</b>, a due passi dalle Halles. <a href='https://www.google.com/maps/search/?api=1&query=Tour+Incity%2C+116+Cours+Lafayette%2C+69003+Lyon' target='_blank'>Apri mappa</a>"},
+    {icon:"📖",title:"Da sapere",text:"Progettata da <b>Valode & Pistre</b> con Albert Constantin: 200 m con l'antenna, 170 m al tetto, 39 piani, cantiere 2013–2015. Sono uffici (Caisse d'Epargne e SNCF): non si visita."},
+    {icon:"✏️",title:"La matita e la gomma",text:"La vicina Tour Part-Dieu (165 m, 1972–1976) è <b>'Le Crayon'</b>, la matita, per la piramide di 23 m sul tetto. La Incity, più alta e accanto, è stata subito ribattezzata <b>'La Gomme'</b>: la gomma. Negli ultimi piani del Crayon c'è un hotel, con il bar al 32° piano."},
+    {icon:"💡",title:"Consiglio",text:"Foto dall'incrocio con Rue Garibaldi, poi tornate al parcheggio delle Halles: da lì si parte per casa."}]},
 
-  "2:3":{heroEmoji:"🏙️",wiki:"Tour Incity",subtitle:"Tour Incity",intro:"Il grattacielo più alto di Lione: 200 metri, 39 piani, completato nel 2015-2016. Non si visita internamente ma vale la pena vederlo dall'esterno.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 5–10 min (esterno) · 💶 gratis · 🕐 sempre visibile · 🚶 3 min da Gare Part-Dieu · ♿ accessibile<br>📍 116 Rue de la Villette, 3e arrondissement"},
-    {icon:"⭐",title:"Non perdere",text:"• La <b>facciata di vetro</b> (doppia pelle, 20.000 m² di vetro)<br>• La <b>vista dal basso</b> sulla Place Charles Béraudier<br>• Il <b>confronto con la Tour Part-Dieu</b> (la 'matita', 1977) a 300 m"},
-    {icon:"📍",title:"Dove sei",text:"<b>116 Rue de la Villette</b>. <a href='https://www.google.com/maps/search/?api=1&query=Tour+Incity+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"📖",title:"Da sapere",text:"Con i suoi <b>200 metri</b>, è il <b>grattacielo più alto di Lione</b> e uno dei più alti di Francia (fuori Parigi). Completato nel <b>2015-2016</b>, progettato da <b>Valode & Pistre</b>. La facciata a doppia pelle riduce i consumi energetici del 40%."},
-    {icon:"🏢",title:"La 'matita'",text:"A 300 m c'è la <b>Tour Part-Dieu</b> (1977), soprannominata <b>'Le Crayon'</b> (la matita) per la sua forma. Insieme alla Tour Incity, forma la coppia di grattacieli di Part-Dieu: la 'matita' e la 'torre di vetro'."},
-    {icon:"🎲",title:"Se...",text:"📸 Se vuoi la foto migliore: dal basso, angolo Rue de la Villette<br>⏳ Se hai 15 min in più: vai a vedere <b>Le Crayon</b> (300 m) e il quartiere Part-Dieu<br>🍽️ Se hai fame: il <b>Centre Commercial Part-Dieu</b> (a 200 m) ha un food court"},
-    {icon:"💡",title:"Consiglio",text:"Non si visita internamente (è un ufficio) ma vale la pena vederlo dall'esterno per la sua architettura. Se ti piacciono i grattacieli, fai il confronto con la 'matita' a 300 m."},
-    {icon:"🚻",title:"Pratico",text:"Bagni pubblici al <b>Centre Commercial Part-Dieu</b> (a 200 m). Caffè e ristoranti nel centro commerciale."}]},
-
-  "2:4":{heroEmoji:"👋",subtitle:"Check-out e via",intro:"Fine del viaggio. Tempo di salutare Lione e portare a casa un pezzo di questa città.",sections:[
-    {icon:"⚡",title:"In sintesi",text:"⏱️ 15 min · 📍 da Tour Incity all'hotel · 🚗 ~15 min in auto<br>🎒 valigie pronte, salumi in valigia, souvenir"},
-    {icon:"⭐",title:"Prima di partire",text:"• <b>Salumi e formaggi</b> in valigia (sottovuoto)<br>• <b>Bouchons dolci</b> (cioccolatini) come regalo<br>• <b>Una foto</b> alla Tour Incity dal basso<br>• <b>Il biglietto TCL</b> come ricordo"},
-    {icon:"📍",title:"Dove sei",text:"<b>Tour Incity</b>, 116 Rue de la Villette. <a href='https://www.google.com/maps/search/?api=1&query=Tour+Incity+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"🎒",title:"In valigia",text:"Salumi, formaggi, una quenelle e il ricordo di una città che merita di essere scoperta. Attenzione: i <b>liquidi</b> (vino, olio) vanno nel bagaglio da stiva, non a mano."},
-    {icon:"🎲",title:"Se...",text:"🚄 Se parti da Part-Dieu: <b>salta il rientro in hotel</b>, vai direttamente in stazione (5 min a piedi)<br>⏳ Se hai tempo: una passeggiata al Parc de la Tête d'Or (10 min) per salutare Lione<br>🍽️ Se hai fame: Halles Paul Bocuse è a 10 min a piedi, ultimo pranzo lioneuse"},
-    {icon:"💡",title:"Consiglio",text:"Se hai tempo prima del treno, una passeggiata al Parc de la Tête d'Or è un bel modo per salutare Lione. Altrimenti, un caffè in Place Bellecour e via."},
-    {icon:"📞",title:"Numeri utili",text:"🚄 <b>SNCF</b>: <a href='tel:3635'>3635</a> · 🏨 <b>Hotel Charlemagne</b>: <a href='tel:+33472777000'>04 72 77 70 00</a><br>🚨 <b>Emergenze</b>: 112"}]}
+  "2:4":{heroEmoji:"👋",subtitle:"Partenza per Magenta",intro:"Fine del viaggio: dalle Halles si imbocca la strada di casa, senza ripassare dal centro.",sections:[
+    {icon:"⚡",title:"In sintesi",text:"⏱️ ~4h50 + soste · 🛣️ ~445 km via <b>Traforo del Monte Bianco</b> · 💶 ~150 € tra traforo, pedaggi e carburante (stima) · alternative nella scheda 🚗 Viaggio"},
+    {icon:"🎒",title:"In auto",text:"• Salumi e formaggi <b>sottovuoto</b> al fresco, lontano dal sole<br>• Panino delle Halles per il pranzo<br>• Carta pronta per pedaggi e traforo"},
+    {icon:"🎲",title:"Se...",text:"🌨️ Se nevica sui valichi: restate sui trafori (aperti tutto l'anno)<br>⏳ Se avete tempo: ultimo caffè alle Halles prima di partire"},
+    {icon:"📞",title:"Numeri utili",text:"🚨 <b>Emergenze</b>: 112 · 🏨 <b>Hotel</b> (oggetti dimenticati): <a href='tel:+33472777000'>04 72 77 70 00</a>"}]}
 };
 
 const POIS = {
-  "0:0":[{i:"⛪",n:"Cattedrale Saint-Jean",d:"la facciata gotica · si visita due tappe dopo",q:"Cathédrale Saint-Jean Lyon",k:"main"},
-         {i:"🏛️",n:"Place Saint-Jean",d:"il sagrato che apre la Città Vecchia",q:"Place Saint-Jean Lyon"},
-         {i:"⛰️",n:"Basilica di Fourvière",d:"bianca sulla collina che sovrasta la piazza",q:"Basilique de Fourvière Lyon"}],
-  "0:1":[{i:"🚪",n:"La Longue Traboule",d:"quattro cortili rinascimentali in fila · chiude 19:00",q:"Longue Traboule 54 Rue Saint-Jean Lyon",k:"main"},
-         {i:"🏛️",n:"I cortili del Cinquecento",d:"gallerie e soffitti a cassettoni rinascimentali",q:"Traboules Vieux Lyon Lyon"},
-         {i:"🐂",n:"27 Rue du Bœuf",d:"l'uscita: una corte rinascimentale piena di vita",q:"27 Rue du Boeuf Lyon"}],
-  "0:2":[{i:"⏰",n:"L'orologio astronomico",d:"del 1593 · uno dei più antichi d'Europa",q:"Horloge astronomique Cathédrale Saint-Jean Lyon",k:"main"},
-         {i:"⛪",n:"Navata e portali",d:"il passaggio dal romanico al gotico si legge in facciata",q:"Cathédrale Saint-Jean Lyon"},
-         {i:"🌹",n:"Il rosone",d:"la vetrata sopra il portale centrale",q:"Cathédrale Saint-Jean Lyon"}],
-  "0:3":[{i:"🚡",n:"La ficelle",d:"la funicolare che sale dal 1878 · ticket TCL 2,10 €",q:"Funiculaire Vieux Lyon Lyon",k:"main"}],
-  "0:4":[{i:"⛪",n:"Basilique de Fourvière",d:"i mosaici dorati e la Vergine d'oro · aperta fino 20:00",q:"Basilique de Fourvière Lyon",k:"main"},
-         {i:"🌃",n:"Terrazza panoramica",d:"il tappeto di luci della città · il punto foto dietro la basilica",q:"Esplanade de Fourvière Lyon"},
-         {i:"🗼",n:"Tour Métallique",d:"la 'piccola Eiffel' di Lione, 1894 · solo da ammirare",q:"Tour Métallique de Fourvière Lyon"},
-         {i:"🏛️",n:"Teatri romani",d:"Lugdunum, capitale della Gallia · a 5 min a piedi",q:"Théâtres romains de Fourvière Lyon"}],
-  "0:6":[{i:"🍽️",n:"L'insegna 'Bouchon Lyonnais'",d:"la targa che certifica la cucina autentica",q:"Bouchons Lyonnais Vieux Lyon",k:"main"},
-         {i:"🥟",n:"I piatti-rituale",d:"quenelle, saucisson chaud, andouillette",q:"Bouchon Vieux Lyon Lyon"},
-         {i:"🍶",n:"Il pot lyonnais",d:"il Beaujolais servito nei boccali di ceramica",q:"Bouchon Vieux Lyon Lyon"}],
-  "1:0":[{i:"🐎",n:"Statua di Luigi XIV",d:"equestre, 1825 · il punto d'onore della piazza",q:"Statue équestre Louis XIV Bellecour Lyon",k:"main"},
-         {i:"📍",n:"Il chilometro zero",d:"tutte le distanze di Lione si misurano da qui",q:"Place Bellecour Lyon"}],
-  "1:1":[{i:"⛲",n:"Place des Terreaux",d:"fontana di Bartholdi · il padre della Statua della Libertà",q:"Place des Terreaux Lyon",k:"main"},
-         {i:"🎭",n:"Opéra de Lyon",d:"cupola di vetro di Jean Nouvel sulla facciata del 1756",q:"Opéra de Lyon Lyon"},
-         {i:"⛲",n:"Place des Jacobins",d:"la piazza più elegante del percorso · fontana del 1885",q:"Place des Jacobins Lyon",walk:true},
-         {i:"🛍️",n:"Rue de la République",d:"via pedonale ottocentesca · la spina della passeggiata",q:"Rue de la République Lyon",walk:true}],
-  "1:2":[{i:"🎨",n:"La Fresque des Lyonnais",d:"800 m² · 36 lionesi illustri · cercate Saint-Exupéry e i Lumière",q:"Fresque des Lyonnais Lyon",k:"main"}],
-  "1:3":[{i:"🏞️",n:"Il lago",d:"le barche del parco dal 1857",q:"Lac du Parc de la Tête d'Or Lyon",k:"main"},
-         {i:"🦁",n:"Il giardino zoologico",d:"gratuito · leoni e giraffe a due passi",q:"Zoo de Lyon Lyon"},
-         {i:"🌴",n:"Le serre botaniche",d:"Victoria amazonica e orchidee · chiudono 17:30",q:"Serres du Jardin Botanique Lyon"},
-         {i:"⛲",n:"Porte des Enfants du Rhône",d:"l'ingresso monumentale sul Rodano",q:"Porte des Enfants du Rhône Lyon"}],
-  "1:4":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia Halles Paul Bocuse Lyon",k:"main"},
-         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet Halles de Lyon Paul Bocuse"},
-         {i:"🍰",n:"Antonin",d:"la pasticceria golosa delle Halles",q:"Antonin Halles Paul Bocuse Lyon"}],
-  "1:6":[{i:"🍺",n:"La sala Art Déco",d:"dal 1836 · una delle brasserie più grandi d'Europa",q:"Brasserie Georges Lyon",k:"main"},
-         {i:"⚗️",n:"La birra in loco",d:"prodotta in casa nei tini d'epoca",q:"Brasserie Georges Lyon"},
-         {i:"🏛️",n:"La facciata neoclassica",d:"il tempio a colonne su Cours de Verdun",q:"Brasserie Georges Lyon"}],
-  "1:7":[{i:"🌊",n:"Il lungofiume",d:"l'argine della Saona illuminato · due passi digestivi",q:"Quai Perrache Lyon",k:"main",walk:true}],
-  "2:0":[{i:"🏛️",n:"Il 'cristallo' di Coop Himmelb(l)au",d:"acciaio e vetro: il museo come una nuvola",q:"Musée des Confluences Lyon",k:"main"},
-         {i:"🌊",n:"La confluenza Rodano–Saona",d:"il punto esatto in cui i due fiumi si incontrano",q:"Confluence Rhône et Saône Lyon"},
-         {i:"🏗️",n:"Il quartiere Confluence",d:"ex dock industriali rinati in architettura contemporanea",q:"Quartier de la Confluence Lyon"}],
-  "2:1":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia Halles Paul Bocuse Lyon",k:"main"},
-         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet Halles de Lyon Paul Bocuse"},
-         {i:"🍰",n:"Antonin",d:"la pasticceria golosa delle Halles",q:"Antonin Halles Paul Bocuse Lyon"}],
-  "2:2":[{i:"✏️",n:"Le Crayon",d:"la torre-matita del 1977 · l'altro simbolo di Part-Dieu",q:"Tour Part-Dieu Lyon",k:"main"}],
-  "2:3":[{i:"🏙️",n:"Tour Incity",d:"200 m · il grattacielo più alto di Lione",q:"Tour Incity Lyon",k:"main"}]
+  /* una riga = un punto fisico; se il punto coincide con partenza/arrivo, la riga POI li sostituisce */
+  "0:1":[{i:"⛪",n:"Cattedrale Saint-Jean",d:"la facciata gotica · si visita due tappe dopo",q:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",k:"main"},
+         {i:"🎶",n:"Manécanterie",d:"XI sec. · forse l'edificio più antico di Lione dopo quelli romani",q:"Manécanterie de Lyon, 69005 Lyon"},
+         {i:"⛰️",n:"Basilica di Fourvière",d:"bianca sulla collina che sovrasta la piazza",q:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"}],
+  "0:2":[{i:"🚪",n:"La Longue Traboule · ingresso",d:"5 cortili rinascimentali · aperta 7:00–19:00",q:"Longue Traboule, 54 Rue Saint-Jean, 69005 Lyon",k:"main"},
+         {i:"🐂",n:"27 Rue du Bœuf · l'uscita",d:"sbuchi davanti alla facciata del Cinquecento",q:"27 Rue du Bœuf, 69005 Lyon"}],
+  "0:3":[{i:"⏰",n:"Cattedrale · orologio e rosone",d:"orologio astronomico (si anima 12/14/15/16) · rosone sopra il portale",q:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",k:"main"},
+         {i:"🏛️",n:"Giardino archeologico",d:"resti delle chiese paleocristiane, accanto alla cattedrale",q:"Jardin archéologique Saint-Jean, 69005 Lyon"}],
+  "0:4":[{i:"🚡",n:"Funicolare F2 · stazione Vieux Lyon",d:"la 'ficelle' in servizio dal 1900 · ticket TCL 2,10 €",q:"Funiculaire de Lyon, Cathédrale Saint-Jean-Baptiste, 69005 Lyon",k:"main"}],
+  "0:5":[{i:"⛪",n:"Basilique de Fourvière",d:"i mosaici dorati · aperta fino alle 20:00",q:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",k:"main"},
+         {i:"🌃",n:"Esplanade di Fourvière",d:"il tappeto di luci della città · accanto alla basilica",q:"Esplanade de Fourvière, Place de Fourvière, 69005 Lyon"},
+         {i:"🗼",n:"Tour Métallique",d:"85,90 m, 1892–1894 · la 'Tour Eiffel' di Lione · solo da fuori",q:"Tour métallique de Fourvière, 69005 Lyon"},
+         {i:"🏛️",n:"Teatri romani",d:"gratis · chiudono alle 19:00 (stasera solo dall'alto)",q:"Théâtres romains de Fourvière, 6 Rue de l'Antiquaille, 69005 Lyon"}],
+  "1:0":[{i:"🐎",n:"Statua di Luigi XIV · il km zero",d:"il 'Cheval de Bronze' del 1825 · da qui si misurano le distanze",q:"Statue équestre de Louis XIV, Place Bellecour, 69002 Lyon",k:"main"},
+         {i:"✈️",n:"Saint-Exupéry e il Piccolo Principe",d:"sulla colonna bianca, lato Saona",q:"Statue de Saint-Exupéry et du Petit Prince, Place Bellecour, 69002 Lyon"}],
+  "1:1":[{i:"⛲",n:"Fontana Bartholdi",d:"21 tonnellate · era stata pensata per Bordeaux",q:"Fontaine Bartholdi, Place des Terreaux, 69001 Lyon",k:"main"},
+         {i:"🖼️",n:"Musée des Beaux-Arts",d:"8 € · venerdì 10:30–18:00 · chiuso il martedì",q:"Musée des Beaux-Arts de Lyon, 20 Place des Terreaux, 69001 Lyon"},
+         {i:"🎭",n:"Opéra de Lyon",d:"la volta di vetro di Jean Nouvel (1993) sul teatro del 1831",q:"Opéra de Lyon, 1 Place de la Comédie, 69001 Lyon"},
+         {i:"⛲",n:"Place des Jacobins",d:"piazza elegante lungo il percorso",q:"Place des Jacobins, 69002 Lyon",walk:true},
+         {i:"🛍️",n:"Rue de la République",d:"via pedonale ottocentesca · la spina della passeggiata",q:"Rue de la République, 69002 Lyon",walk:true}],
+  "1:2":[{i:"🎨",n:"La Fresque des Lyonnais",d:"800 m² · ~30 lionesi illustri · cercate Saint-Exupéry e i Lumière",q:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon",k:"main"}],
+  "1:3":[{i:"🏞️",n:"Il lago",d:"16 ettari, scavato a mano nel 1857",q:"Lac du Parc de la Tête d'Or, 69006 Lyon",k:"main"},
+         {i:"🪖",n:"Île du Souvenir",d:"monumento ai caduti di Tony Garnier · 11:00–17:00",q:"Île du Souvenir, Parc de la Tête d'Or, 69006 Lyon"},
+         {i:"🌴",n:"Grandes Serres",d:"piante tropicali · 9:00–16:30",q:"Grandes Serres du Parc de la Tête d'Or, 69006 Lyon"},
+         {i:"🦒",n:"Giardino zoologico",d:"gratuito · giraffe nella pianura africana",q:"Zoo de Lyon, Parc de la Tête d'Or, 69006 Lyon"},
+         {i:"⛲",n:"Porte des Enfants du Rhône",d:"l'ingresso monumentale sul lago",q:"Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon"}],
+  "1:4":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",k:"main"},
+         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
+         {i:"🦪",n:"Chez Antonin",d:"écailler: ostriche e pesce · 9:00–22:00",q:"Chez Antonin, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"}],
+  "1:7":[{i:"🚉",n:"Stazione di Perrache",d:"si attraversa a piedi per tornare in hotel",q:"Gare de Lyon-Perrache, 69002 Lyon",k:"main",walk:true}],
+  "2:2":[{i:"🧀",n:"Sibilia",d:"saucisson e rosette sottovuoto da portare a casa",q:"Charcuterie Sibilia, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",k:"main"},
+         {i:"🥟",n:"Giraudet",d:"quenelle sottovuoto",q:"Giraudet, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
+         {i:"🦪",n:"Chez Antonin",d:"écailler: ostriche e pesce · 9:00–22:00",q:"Chez Antonin, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"}],
+  "2:3":[{i:"🏙️",n:"Tour Incity · 'la Gomma'",d:"200 m con la guglia · il grattacielo più alto di Lione",q:"Tour Incity, 116 Cours Lafayette, 69003 Lyon",k:"main"},
+         {i:"✏️",n:"Le Crayon",d:"la Tour Part-Dieu, 165 m (1972–1976)",q:"Tour Part-Dieu, 129 Rue Servient, 69003 Lyon"}]
 };
+
 
 const GMD = "https://www.google.com/maps/dir/?api=1&travelmode=driving";
 const TRIP = [
  {label:"Andata · Giovedì 29 Ott",route:"Magenta → Lione",rows:[
   {dir:"tunnel",name:"Traforo del Fréjus",via:"🚇 Tunnel · sempre aperto",km:"438 km",dur:"4h 38m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~58 €</b>",tot:"~159,80 €",
-   map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Traforo del Fréjus")}`,
+   map:`${GMD}&origin=${encodeURIComponent("Magenta, MI")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Traforo del Fréjus")}`,
    note:"itinerario più rapido, il traforo è aperto tutto l'anno."},
-  {dir:"valico",name:"Passo del Moncenisio",via:"⛰️ Valico · gratuito",km:"444 km",dur:"5h 17m",det:"Traforo <b>0,00 €</b> · Pedaggi <b>~45 €</b> · Carburante <b>~59 €</b>",tot:"~104,20 €",
-   map:`${GMD}&origin=${encodeURIComponent("Magenta, VA")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Passo del Moncenisio")}`,
+  {dir:"valico",name:"Passo del Moncenisio",via:"⛰️ Valico · gratuito",km:"444 km",dur:"5h 17m",det:"Pedaggi <b>~45 €</b> · Carburante <b>~59 €</b>",tot:"~104,20 €",
+   map:`${GMD}&origin=${encodeURIComponent("Magenta, MI")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Passo del Moncenisio")}`,
    note:"~55 € in meno, ma 40 min in più e il valico dipende dal meteo."}]},
  {label:"Ritorno · Sabato 31 Ott",route:"Lione → Magenta",rows:[
   {dir:"tunnel",name:"Traforo del Monte Bianco",via:"🚇 Tunnel · sempre aperto",km:"445 km",dur:"4h 51m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~35 €</b> · Carburante <b>~59 €</b>",tot:"~150,70 €",
-   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, VA")}&waypoints=${encodeURIComponent("Tunnel du Mont-Blanc")}`,
+   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, MI")}&waypoints=${encodeURIComponent("Tunnel du Mont-Blanc")}`,
    note:"passaggio sotto il Monte Bianco. Il ritorno più veloce e affidabile."},
-  {dir:"valico",name:"Passo del Monginevro",via:"⛰️ Valico · gratuito",km:"461 km",dur:"6h 09m",det:"Traforo <b>0,00 €</b> · Pedaggi <b>~25 €</b> · Carburante <b>~61 €</b>",tot:"~86,50 €",
-   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, VA")}&waypoints=${encodeURIComponent("Briançon|Col de Montgenèvre")}`,
+  {dir:"valico",name:"Passo del Monginevro",via:"⛰️ Valico · gratuito",km:"461 km",dur:"6h 09m",det:"Pedaggi <b>~25 €</b> · Carburante <b>~61 €</b>",tot:"~86,50 €",
+   map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, MI")}&waypoints=${encodeURIComponent("Briançon|Col de Montgenèvre")}`,
    note:"l'opzione più economica (~86 €), ma quasi 6h 30."}]}
 ];
 
 document.getElementById('trip').innerHTML = TRIP.map(g => `
-  <div class="trip-hero">
-    <div class="th-sub">${g.label}</div>
-    <h2>${g.route}</h2>
-    <span class="th-tag">🚗 2 opzioni · tunnel o valico</span>
-  </div>
-  <table class="ttable">
-    <tr><th>Itinerario</th><th>km</th><th>Durata</th><th>Totale</th><th></th></tr>
-    ${g.rows.map(r => `<tr>
-      <td>
-        <div class="t-chip ${r.dir === 'tunnel' ? 't-tun' : 't-val'}">${r.via}</div>
-        <div class="t-name">${r.name}</div>
-        <div class="t-det">${r.det}</div>
-      </td>
-      <td>${r.km}</td>
-      <td>${r.dur}</td>
-      <td class="t-tot">${r.tot}</td>
-      <td><a class="t-btn" href="${r.map}" target="_blank" rel="noopener">🗺️<br>Maps</a></td>
-    </tr>`).join('')}
-  </table>
-  ${g.rows.map(r => `<p class="trip-note">💡 <b>${r.name}</b>:${r.note}</p>`).join('')}
-`).join('') +
-`<div class="tips">
-  <div>🚦 <b>Trafori (Fréjus / Monte Bianco)</b>: sempre aperti, costo ~56,40 €, si paga alla barriera anche con carta.</div>
-  <div>🌨️ <b>Valichi (Moncenisio / Monginevro)</b>: a fine ottobre può già nevicare — <b>gomme invernali o catene a bordo</b>.</div>
-  <div>⛽ <b>Partenza consigliata</b>: andata entro le 12:00 del 29; ritorno presto il 31.</div>
-  <div>💶 <b>Combinazioni andata+ritorno</b>: valico+valico <b>~190,70 €</b> · miste <b>~246–255 €</b> · tunnel+tunnel <b>~310,50 €</b>.</div>
-</div>`;
+  <div class="list">
+    <div class="list-h">${g.label} · ${g.route}</div>
+    ${g.rows.map(r => `
+      <div class="ritem">
+        <div class="r-top">
+          <span class="r-name">${r.dir === 'tunnel' ? '🚇' : '⛰️'} ${r.name}</span>
+          <span class="r-price">${r.tot}</span>
+        </div>
+        <div class="r-addr">⏱️ ${r.dur} · 🛣️ ${r.km}<br>${r.det}</div>
+        <div class="r-btns"><a class="b-map" href="${r.map}" target="_blank" rel="noopener">🗺️ Percorso</a></div>
+      </div>`).join('')}
+  </div>`).join('') + `
+  <div class="tips">
+    <div>🚇 <b>Trafori</b> aperti tutto l'anno: ~56,40 €, si paga anche con carta. ⛰️ <b>Valichi</b> gratis ma più lenti e a fine ottobre può nevicare: gomme invernali o catene.</div>
+    <div>💶 <b>Andata + ritorno</b>: tunnel+tunnel ~310,50 € · misto ~246–255 € · valico+valico ~190,70 €.</div>
+    <div>🕐 <b>Orari</b>: in hotel alle 17:00 del 29 · il 31 si riparte dalle Halles verso le 11:30.</div>
+    <div>🟢 <b>Crit'Air</b> obbligatorio a Lione (ZFE 24/7, multa 68 €).</div>
+  </div>`;
 
 let memFB = {};
 let storeOK = true;
@@ -1125,7 +1138,7 @@ try {
 const load = () => {
   if (!storeOK) return memFB;
   try {
-    return JSON.parse(localStorage.getItem('lyonIbrida')) || {};
+    return JSON.parse(localStorage.getItem('lyonGuide15')) || {};
   } catch (e) {
     return {};
   }
@@ -1134,17 +1147,32 @@ const save = s => {
   memFB = s;
   if (storeOK) {
     try {
-      localStorage.setItem('lyonIbrida', JSON.stringify(s));
+      localStorage.setItem('lyonGuide15', JSON.stringify(s));
     } catch (e) {}
   }
 };
 let state = load();
 
-const now = new Date(), D = now.getDate(), H = now.getHours();
-let dayIdx = D === 29 ? 0 : D === 30 ? 1 : D === 31 ? 2 : (H >= 15 ? 0 : 1);
+/* Giorno del viaggio: 29/30/31 ottobre → 0/1/2; fuori dal viaggio → -1 (si apre il giorno 1) */
+const now = new Date();
+const todayIdx = (now.getMonth() === 9 && now.getDate() >= 29 && now.getDate() <= 31) ? now.getDate() - 29 : -1;
+let dayIdx = todayIdx < 0 ? 0 : todayIdx;
 let steps = DAYS[dayIdx].steps;
-let idx = steps.findIndex((_, i) => !state[dayIdx + ':' + i]);
-if (idx < 0) idx = steps.length;
+/* Tappa da mostrare per un giorno: oggi → quella dell'orario attuale (saltando le già fatte);
+   altri giorni → la prima non ancora fatta */
+function pickIdx(d) {
+  const st = DAYS[d].steps;
+  if (d === todayIdx) {
+    const n = new Date(), mins = n.getHours() * 60 + n.getMinutes();
+    let i = 0;
+    st.forEach((s, k) => { const [h, mi] = s.time.split(':').map(Number); if (h * 60 + mi <= mins) i = k; });
+    while (i < st.length && state[d + ':' + i]) i++;
+    return i;
+  }
+  const f = st.findIndex((_, k) => !state[d + ':' + k]);
+  return f < 0 ? st.length : f;
+}
+let idx = pickIdx(dayIdx);
 let undoStack = Object.keys(state);
 
 function phaseFor(h) {
@@ -1181,8 +1209,10 @@ function toast(msg) {
 function phaseLabel() {
   const s = steps[idx];
   if (!s) return '';
+  if (dayIdx !== todayIdx) return `alle ${s.time}`;
+  const n = new Date();
   const [hh, mm] = s.time.split(':').map(Number);
-  const diff = (hh * 60 + mm) - (H * 60 + now.getMinutes());
+  const diff = (hh * 60 + mm) - (n.getHours() * 60 + n.getMinutes());
   if (diff > 60) return `tra ${Math.floor(diff / 60)}h${String(diff % 60).padStart(2, '0')}`;
   if (diff > 0) return `tra ${diff} min`;
   if (diff > -60) return `in ritardo di ${-diff} min · niente panico`;
@@ -1192,11 +1222,19 @@ function phaseLabel() {
 function mapLinks(s) {
   const b = 'https://www.google.com/maps/dir/?api=1';
   const l = `&origin=${encodeURIComponent(s.orig)}&destination=${encodeURIComponent(s.dest)}`;
+  /* punti intermedi solo per il percorso a piedi, nell'ordine in cui si incontrano */
+  const w = s.via && s.via.length ? `&waypoints=${encodeURIComponent(s.via.join('|'))}` : '';
   return {
-    walk: `${b}${l}&travelmode=walking`,
+    walk: `${b}${l}${w}&travelmode=walking`,
     transit: `${b}${l}&travelmode=transit`,
     drive: `${b}${l}&travelmode=driving`
   };
+}
+/* Giro a piedi sul posto: sequenza di punti dentro il luogo della tappa */
+function loopLink(g) {
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(g.from) +
+    '&destination=' + encodeURIComponent(g.to) +
+    (g.via && g.via.length ? '&waypoints=' + encodeURIComponent(g.via.join('|')) : '') + '&travelmode=walking';
 }
 /* Link a un PUNTO di interesse (marker sulla mappa), non a un percorso */
 function poiLink(q) {
@@ -1236,23 +1274,22 @@ function render() {
   const isDone = !!state[dayIdx + ':' + idx];
   const guideData = GUIDES[dayIdx + ':' + idx];
   const pois = POIS[dayIdx + ':' + idx] || [];
-  const origName = (s.orig || '').replace(/ Lyon$/, '');
-  const destName = (s.dest || '').replace(/ Lyon$/, '');
-  const norm = x => x.toLowerCase().replace(/œ/g, 'oe');
-  const poiRows = [
-    s.orig ? { i: '🚩', n: origName, d: 'partenza', q: s.orig, k: 'start' } : null,
-    ...pois.filter(p => norm(p.n) !== norm(origName) && norm(p.n) !== norm(destName)),
-    s.dest && s.dest !== s.orig ? { i: '🏁', n: destName, d: 'arrivo', q: s.dest, k: 'end' } : null
-  ].filter(Boolean);
-  const m = mapLinks(s);
   /* Tappa "sul posto": origine = destinazione → niente percorso, solo il punto */
   const onsite = s.orig && s.dest && s.orig === s.dest;
+  const short = x => (x || '').split(',')[0];
+  const hasPoi = q => pois.some(p => p.q === q);   /* stesso luogo = una sola riga */
+  const poiRows = [
+    s.orig && !onsite && !hasPoi(s.orig) ? { i: '🚩', n: short(s.orig), d: 'tu sei qui', q: s.orig, k: 'start' } : null,
+    ...pois,
+    s.dest && !onsite && !hasPoi(s.dest) ? { i: '🏁', n: short(s.dest), d: 'arrivo', q: s.dest, k: 'end' } : null
+  ].filter(Boolean);
+  const m = mapLinks(s);
   const doneBtn = isDone
     ? `<button class="pbtn undo" onclick="toggleDone()" aria-label="Deseleziona tappa">DESELEZIONA ✕<small>annulla spunta</small></button>`
     : `<button class="pbtn done" onclick="toggleDone()" aria-label="Segna come fatto">FATTO ✓<small>avanti →</small></button>`;
 
   view.innerHTML = `
-    <div class="kicker">Adesso · ${DAYS[dayIdx].name}<span class="phase" id="phase"></span></div>
+    <div class="kicker">${dayIdx === todayIdx ? 'Adesso' : 'Programma'} · ${DAYS[dayIdx].date}<span class="phase" id="phase"></span></div>
     <div class="stepno">Tappa ${idx + 1} di ${steps.length} · ${s.dur}${isDone ? ' · <span class="badge-done">✓ completata</span>' : ''}</div>
     <div class="bigcard">
       <div class="cardhead">
@@ -1270,10 +1307,13 @@ function render() {
         ${onsite
           ? `<a class="map-btn map-here" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📍 Il punto sulla mappa</a>`
           : `<a class="map-btn map-walk" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>
-             <a class="map-btn map-transit" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>
-             <a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚕 Taxi</a>
-             <a class="map-btn map-here" href="${poiLink(s.orig)}" target="_blank" rel="noopener">📍 Sei qui</a>`}
+             ${DAYS[dayIdx].car
+               ? `<a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>`
+               : `<a class="map-btn map-transit" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>
+             <a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚕 Taxi</a>`}
+             <a class="map-btn map-here" href="${poiLink(s.orig)}" target="_blank" rel="noopener">📍 Tu sei qui</a>`}
       </div>
+      ${s.loop ? `<div class="loop-wrap"><a class="map-btn map-loop" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a></div>` : ''}
       ${poiRows.length ? `<button class="poi-open-btn" onclick="togglePois()">${poisOpen[dayIdx + ':' + idx] ? '▴ Chiudi i punti di interesse' : '📍 Apri i punti di interesse della tappa'}</button>` : ''}
       ${poisOpen[dayIdx + ':' + idx] && poiRows.length ? `<div class="poi-list">${poiRows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 solo a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>` : ''}
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
@@ -1302,10 +1342,12 @@ function tick() {
   if (ph) ph.textContent = '· ' + phaseLabel();
 }
 setInterval(tick, 30000);
-setInterval(() => {
+function updateClock() {
   const c = document.getElementById('clock');
   if (c) c.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-}, 1000);
+}
+updateClock();
+setInterval(updateClock, 15000);
 
 function renderDayPage() {
   const day = DAYS[dayIdx];
@@ -1338,6 +1380,7 @@ function renderDayPage() {
               <div class="badges">
                 <span class="bdg">${i + 1}/${day.steps.length}</span>
                 <span class="bdg">${s.time}</span>
+                <span class="bdg">${s.dur}</span>
               </div>
               <div class="st-tit">${s.emoji}${s.title}</div>
               <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>${hint ? `<div class="st-hint">${hint}</div>` : ''}
@@ -1460,7 +1503,7 @@ function openTransit() {
         <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
       </div>
       <div class="tmap-wrap">
-      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione 2024-2026 (mapa-metro.com)" onerror="this.style.display='none';document.getElementById('tmap-fallback').style.display='block'">
+      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione (mapa-metro.com)" onerror="this.style.display='none';document.getElementById('tmap-fallback').style.display='block'">
       <div id="tmap-fallback" style="display:none">
       <svg viewBox="0 0 340 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mini pianta mezzi: Metro A, Metro D, funicolare F2, tram T1" style="display:block;width:100%;height:auto">
         <rect width="340" height="360" rx="14" fill="#ffffff"/>
@@ -1486,10 +1529,10 @@ function openTransit() {
         <text x="258" y="200" text-anchor="middle" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Hôtel de Ville</text>
         <text x="66" y="236" text-anchor="end" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Perrache</text>
         <text x="66" y="251" text-anchor="end" font-size="11" font-weight="700" fill="#0e9f6e" font-family="sans-serif">🏨 il vostro hotel</text>
-        <text x="246" y="290" text-anchor="end" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Halles Bocuse</text>
-        <text x="246" y="305" text-anchor="end" font-size="10.5" fill="#5b7a80" font-family="sans-serif">(Part-Dieu)</text>
+        <text x="246" y="290" text-anchor="end" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Part-Dieu</text>
+        <text x="246" y="305" text-anchor="end" font-size="10.5" fill="#5b7a80" font-family="sans-serif">(Halles: bus C3)</text>
         <text x="94" y="318" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Musée des Confluences</text>
-        <text x="170" y="346" text-anchor="middle" font-size="10" font-weight="700" fill="#5b7a80" font-family="sans-serif">🎫 Ticket 2,10 € · valido 1h · convalide sempre</text>
+        <text x="170" y="346" text-anchor="middle" font-size="10" font-weight="700" fill="#5b7a80" font-family="sans-serif">🎫 Ticket 2,10 € · 1h, A/R incluso · Pass 24h 7,10 €</text>
       </svg>
       </div>
       </div>
@@ -1497,7 +1540,7 @@ function openTransit() {
         <a class="sitem" style="justify-content:center" href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" target="_blank" rel="noopener">🗺️ Apri pianta completa</a>
         ${m ? `<a class="sitem" style="justify-content:center" href="${m.transit}" target="_blank" rel="noopener">🧭 Percorso di questa tappa</a>` : `<a class="sitem" style="justify-content:center" href="https://www.tcl.fr" target="_blank" rel="noopener">🧭 tcl.fr</a>`}
       </div>
-      <p class="shint">📡 Pianta dettagliata: serve rete (mapa-metro.com) · offline resta la mini-rete con i vostri 4 mezzi.<br>🎫 Lyon City Card 1g ~29–32 €: trasporti illimitati + musei · tcl.fr<br>⚠️ Funivia F2: possibili manutenzioni a fine ottobre — verifica tcl.fr la settimana prima.</p>
+      <p class="shint">📡 La pianta completa serve la rete; senza rete compare la mini-rete dei vostri mezzi. Metro A per Bellecour e Hôtel de Ville; Masséna per il Parc de la Tête d'Or.<br>🎫 Ticket <b>2,10 €</b>: 1 ora di convalide illimitate · <b>Pass 24h 7,10 €</b> (conviene venerdì)<br>⚠️ Funicolare F2: ultima corsa ~22:00, verifica manutenzioni su tcl.fr.</p>
     </div>`;
   overlay.hidden = false;
 }
@@ -1517,12 +1560,12 @@ function openSheet() {
           <a class="a-tel" href="tel:112">📞 112</a>
         </div>
         <div class="sos-row">
-          <span class="sos-chip">🚕 Taxi Lyon 24/7<small>radiotaxi · sempre attivo</small></span>
+          <span class="sos-chip">🚕 Taxi Lyonnais 24/7<small>radiotaxi · sempre attivo</small></span>
           <a class="a-tel" href="tel:+33478268181">📞 Chiama</a>
         </div>
         <div class="sos-row">
-          <span class="sos-chip">🚕 Allo Taxi<small>300 taxi · 24/7</small></span>
-          <a class="a-tel" href="tel:+33478282323">📞 Chiama</a>
+          <span class="sos-chip">🚕 Allo Taxi<small>centrale 24/7</small></span>
+          <a class="a-tel" href="tel:+33472104106">📞 Chiama</a>
         </div>
         <div class="sos-row">
           <span class="sos-chip">🏨 Hôtel Charlemagne<small>23 Cours Charlemagne · Perrache</small></span>
@@ -1569,8 +1612,7 @@ overlay.addEventListener('click', closeSheet);
 function switchDay(i) {
   dayIdx = i;
   steps = DAYS[i].steps;
-  idx = steps.findIndex((_, k) => !state[i + ':' + k]);
-  if (idx < 0) idx = steps.length;
+  idx = pickIdx(i);
   closeSheet();
   render();
   toast(`Giorno ${i + 1} · ${DAYS[i].name}`);
@@ -1640,15 +1682,99 @@ document.getElementById('food').innerHTML = FOOD.map(g => `
   </div>
 `).join('') + `
   <div class="tips">
-    <div>💡 <b>Prenotate i bouchon</b> — sono piccoli e si riempiono. Portate contanti.</div>
-    <div>⏰ Ristoranti chiusi tra 14:00 e 19:00. Halles Bocuse: lun–sab 7:30–19:30 · domenica solo mattina (7:30–13:00).</div>
+    <div>💡 <b>Prenotate i bouchon</b> prima di partire: per 4 persone il giovedì sera è meglio non rischiare.</div>
+    <div>💧 Chiedete <b>une carafe d'eau</b>: l'acqua del rubinetto è gratuita. Il servizio è già incluso nel conto.</div>
+    <div>⏰ Molti ristoranti chiudono la cucina tra 14:00 e 19:00 (non la Brasserie Georges: servizio continuo).</div>
+    <div>🧀 <b>Halles Bocuse</b>: banchi lun–sab 7:30–19:30, dom 7:30–13:00 · ristoranti 11:30–14:30 · écailler 9:00–22:00.</div>
   </div>`;
+
+const INFO_HTML = `
+  <div class="list">
+    <div class="list-h">🚕 Mostra al tassista</div>
+    <div class="ritem">
+      <div class="taxi-card">Hôtel Charlemagne<br>23 Cours Charlemagne<br>69002 Lyon<small>(Perrache) · Merci !</small></div>
+      <div class="r-btns">
+        <a class="b-tel" href="tel:+33478268181">📞 Taxi Lyonnais</a>
+        <a class="b-tel" href="tel:+33472104106">📞 Allo Taxi</a>
+        <a class="b-map" href="${poiLink('Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon')}" target="_blank" rel="noopener">📍 Hotel</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🚨 Emergenze · un tocco e chiami</div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Emergenza UE</span><span class="r-price">112</span></div><div class="r-addr">Polizia, ambulanza, pompieri · gratuito, anche senza credito</div><div class="r-btns"><a class="b-tel" href="tel:112">📞 112</a></div></div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Ambulanza · Polizia · Pompieri</span><span class="r-price">15 · 17 · 18</span></div><div class="r-addr">SAMU 15 · Police 17 · Sapeurs-pompiers 18</div><div class="r-btns"><a class="b-tel" href="tel:15">📞 15</a><a class="b-tel" href="tel:17">📞 17</a><a class="b-tel" href="tel:18">📞 18</a></div></div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Farmacia di turno</span><span class="r-price">32 37</span></div><div class="r-addr">Numero nazionale · di notte: <b>Grande Pharmacie Lyonnaise</b> (Lyon 2e), solo urgenze</div><div class="r-btns"><a class="b-tel" href="tel:3237">📞 3237</a><a class="b-tel" href="tel:+33472564414">📞 Grande Pharmacie</a><a class="b-map" href="${poiLink('Grande Pharmacie Lyonnaise, 22 Rue de la République, 69002 Lyon')}" target="_blank" rel="noopener">📍 Mappa</a></div></div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Medico 24/7 · SOS Médecins</span><span class="r-price">non urgente</span></div><div class="r-addr">Visite di medicina generale, giorno e notte</div><div class="r-btns"><a class="b-tel" href="tel:+33478835151">📞 04 78 83 51 51</a></div></div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Consolato Generale d'Italia</span><span class="r-price">Lyon 6e</span></div><div class="r-addr">5 Rue du Commandant Faurax · documenti persi o rubati</div><div class="r-btns"><a class="b-tel" href="tel:+33478930017">📞 04 78 93 00 17</a><a class="b-map" href="${poiLink('Consolato Generale d\'Italia, 5 Rue du Commandant Faurax, 69006 Lyon')}" target="_blank" rel="noopener">📍 Mappa</a></div></div>
+    <div class="ritem"><div class="r-top"><span class="r-name">Oggetti smarriti · Lione</span><span class="r-price">—</span></div><div class="r-addr">Ufficio oggetti trovati della città</div><div class="r-btns"><a class="b-tel" href="tel:+33478477289">📞 04 78 47 72 89</a></div></div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🚗 Auto · ZFE e parcheggio</div>
+    <div class="ritem alert"><div class="r-name">⚠️ Bollino Crit'Air obbligatorio</div>
+      <p class="info-p">Tutta Lione è <b>ZFE</b> (zona a basse emissioni) <b>24 ore su 24, anche da parcheggiati</b>. Vietati Crit'Air 3, 4, 5 e non classificati: in pratica servono <b>diesel dal 2011</b> o <b>benzina dal 2006</b>.</p>
+      <p class="info-p">Senza bollino: <b>multa 68 €</b>. Si ordina <b>solo</b> su <b>certificat-air.gouv.fr</b> (pochi euro): diffidate dei siti che chiedono di più. Arriva per posta: ordinatelo subito.</p>
+    </div>
+    <div class="ritem"><div class="r-name">🅿️ Parcheggio hotel</div><p class="info-p">Custodito, a <b>150 m</b> dall'hotel · <b>21 €/giorno</b> · <b>su prenotazione</b>: chiedetelo all'hotel prima di partire.</p></div>
+    <div class="ritem"><div class="r-name">🅿️ Sabato alle Halles</div><p class="info-p"><b>Parking LPA Halles</b>, ingresso in Rue Garibaldi.</p></div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🎫 Mezzi pubblici TCL</div>
+    <div class="ritem">
+      <p class="info-p">🎫 <b>Ticket 2,10 €</b>: vale <b>1 ora</b> con convalide illimitate (andata e ritorno compresi). Giovedì: un ticket a testa copre salita e discesa in funicolare.</p>
+      <p class="info-p">🗓️ <b>Pass 24h 7,10 €</b>: venerdì fate 4 corse, conviene.</p>
+      <p class="info-p">🚡 Funicolare F2 (Vieux Lyon ↔ Fourvière): ogni 5–10 min, ultima corsa verso le 22:00.</p>
+      <p class="info-p">🌙 Venerdì e sabato notte la metro va avanti fino alle ~2:00.</p>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🏨 Hotel · cose da sapere</div>
+    <div class="ritem">
+      <p class="info-p">🕒 Check-in <b>dalle 15:00</b> · check-out <b>entro le 11:00</b>.</p>
+      <p class="info-p">🪪 Al banco: <b>documento con foto + carta di credito</b>. Comunicate all'hotel l'orario di arrivo.</p>
+      <p class="info-p">↩️ Cancellazione gratuita fino al <b>27 ottobre, 23:59</b>. Si paga in hotel.</p>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🌗 Luce, orari, folla</div>
+    <div class="ritem">
+      <p class="info-p">🌇 Tramonto: <b>17:32</b> il 29, <b>17:29</b> il 31. L'ora solare è già scattata il 25 ottobre: stessa ora dell'Italia.</p>
+      <p class="info-p">👨‍👩‍👧 Sono le <b>vacanze di Ognissanti</b> delle scuole francesi: più folla nei musei e alle Halles. Domenica 1 novembre è festivo.</p>
+      <p class="info-p">🔒 Musei: Belle Arti chiuso il martedì; Confluences 10:30–18:30.</p>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">👜 Sicurezza</div>
+    <div class="ritem">
+      <p class="info-p">I borseggiatori lavorano nel <b>Vieux Lyon</b> e sui mezzi affollati: borsa a tracolla davanti e chiusa, telefono in tasca davanti, niente in vista in auto.</p>
+      <p class="info-p">Furto? Chiamate il <b>17</b> e poi denuncia al commissariato.</p>
+    </div>
+  </div>
+
+  <div class="list">
+    <div class="list-h">🗣️ Quattro frasi che servono</div>
+    <div class="ritem">
+      <p class="info-p"><b>Une table pour quatre, s'il vous plaît</b> · un tavolo per quattro</p>
+      <p class="info-p"><b>L'addition, s'il vous plaît</b> · il conto</p>
+      <p class="info-p"><b>Une carafe d'eau</b> · acqua del rubinetto (gratuita)</p>
+      <p class="info-p"><b>Où sont les toilettes ?</b> · dov'è il bagno?</p>
+      <p class="info-p"><b>Pouvez-vous m'appeler un taxi ?</b> · può chiamarmi un taxi?</p>
+    </div>
+  </div>`;
+document.getElementById('info').innerHTML = INFO_HTML;
 
 const PAGES = {
   nowPage: view,
   dayPage: dayView,
   foodPage: document.getElementById('foodPage'),
-  tripPage: document.getElementById('tripPage')
+  tripPage: document.getElementById('tripPage'),
+  infoPage: document.getElementById('infoPage')
 };
 function showPage(id) {
   Object.entries(PAGES).forEach(([k, el]) => el.hidden = k !== id);
