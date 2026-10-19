@@ -1360,7 +1360,8 @@ function render() {
       ` : ''}
       <div class="map-actions">
         ${onsite
-          ? `<a class="map-btn map-here" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📍 Il punto sulla mappa</a>`
+          ? `<a class="map-btn map-point" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Il punto sulla mappa</a>
+             <a class="map-btn map-here" href="#" onclick="hereNow(event)" aria-label="Mostra la mia posizione reale sulla mappa">📍 Tu sei qui</a>`
           : `<a class="map-btn map-walk" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>
              ${DAYS[dayIdx].car
                ? `<a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>`
