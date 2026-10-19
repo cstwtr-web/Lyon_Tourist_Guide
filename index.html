@@ -155,7 +155,7 @@
   main {
     position: relative; z-index: 10; height: 100%;
     display: flex; flex-direction: column;
-    padding: calc(66px + env(safe-area-inset-top)) 18px 0;
+    padding: calc(84px + env(safe-area-inset-top)) 18px 0;
     overflow-y: auto; -webkit-overflow-scrolling: touch;
   }
   main.foodpage { padding-top: calc(12px + env(safe-area-inset-top)); }
@@ -284,7 +284,9 @@
     box-shadow: var(--shadow-sm);
   }
   .map-btn:active { transform: scale(.95); }
-  .loop-wrap { display: flex; width: 100%; max-width: 440px; margin: 6px auto 0; }
+  .loop-wrap { display: flex; gap: 6px; width: 100%; max-width: 440px; margin: 6px auto 0; }
+  .loop-wrap .map-take { flex: 0 0 34%; }
+  .loop-wrap .map-take:only-child { flex: 1 1 auto; }
   .loop-wrap .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
   .map-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
   body.phase-evening .map-btn,
@@ -1100,7 +1102,7 @@ const TRIP = [
    map:`${GMD}&origin=${encodeURIComponent("Magenta, MI")}&destination=${encodeURIComponent("Lione, Francia")}&waypoints=${encodeURIComponent("Passo del Moncenisio")}`,
    note:"~55 € in meno, ma 40 min in più e il valico dipende dal meteo."}]},
  {label:"Ritorno · Sabato 31 Ott",route:"Lione → Magenta",rows:[
-  {dir:"tunnel",name:"Traforo del Monte Bianco",via:"🚇 Tunnel · sempre aperto",km:"445 km",dur:"4h 51m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~35 €</b> · Carburante <b>~59 €</b>",tot:"~150,70 €",
+  {dir:"tunnel",name:"Traforo del Monte Bianco",via:"🚇 Tunnel · sempre aperto",km:"445 km",dur:"4h 51m",det:"Traforo <b>56,40 €</b> · Pedaggi <b>~35 €</b> · Carburante <b>~59 €</b><br>🌙 <b>Chiuso di notte 22:00–6:00</b> (lun–gio, fino a dicembre) · sabato di giorno aperto",tot:"~150,70 €",
    map:`${GMD}&origin=${encodeURIComponent("Lione, Francia")}&destination=${encodeURIComponent("Magenta, MI")}&waypoints=${encodeURIComponent("Tunnel du Mont-Blanc")}`,
    note:"passaggio sotto il Monte Bianco. Il ritorno più veloce e affidabile."},
   {dir:"valico",name:"Passo del Monginevro",via:"⛰️ Valico · gratuito",km:"461 km",dur:"6h 09m",det:"Pedaggi <b>~25 €</b> · Carburante <b>~61 €</b>",tot:"~86,50 €",
@@ -1122,7 +1124,9 @@ document.getElementById('trip').innerHTML = TRIP.map(g => `
       </div>`).join('')}
   </div>`).join('') + `
   <div class="tips">
-    <div>🚇 <b>Trafori</b> aperti tutto l'anno: ~56,40 €, si paga anche con carta. ⛰️ <b>Valichi</b> gratis ma più lenti e a fine ottobre può nevicare: gomme invernali o catene.</div>
+    <div>🌙 <b>Monte Bianco chiuso di notte</b> fino a dicembre: <b>22:00–6:00</b>, lun–gio (es. notti 28–29 e 29–30 ott). Per questo la sera Maps propone il Gran San Bernardo. Sabato 31 di giorno è aperto. Calendario: tunnelmb.net.</div>
+    <div>🎫 <b>Fréjus andata e ritorno</b>: 70,40 € (valido 7 giorni) invece di 2 × 56,40 €, se rientrate dallo stesso traforo.</div>
+    <div>🚇 <b>Trafori</b>: ~56,40 € a tratta, si paga anche con carta. ⛰️ <b>Valichi</b> gratis ma più lenti e a fine ottobre può nevicare: gomme invernali o catene.</div>
     <div>💶 <b>Andata + ritorno</b>: tunnel+tunnel ~310,50 € · misto ~246–255 € · valico+valico ~190,70 €.</div>
     <div>🕐 <b>Orari</b>: in hotel alle 17:00 del 29 · il 31 si riparte dalle Halles verso le 11:30.</div>
     <div>🟢 <b>Crit'Air</b> obbligatorio a Lione (ZFE 24/7, multa 68 €).</div>
@@ -1231,6 +1235,25 @@ function mapLinks(s) {
     drive: `${b}${l}&travelmode=driving`
   };
 }
+/* "Tu sei qui" = posizione GPS reale nel momento del tocco.
+   La scheda si apre subito (niente blocco popup), poi riceve le coordinate. */
+function hereNow(ev) {
+  if (ev) ev.preventDefault();
+  const fallback = 'https://www.google.com/maps/@?api=1&map_action=map';
+  const w = window.open('about:blank', '_blank');
+  const go = url => { if (w) w.location.href = url; else location.href = url; };
+  if (!navigator.geolocation) { go(fallback); return; }
+  toast('📡 Cerco la tua posizione…');
+  navigator.geolocation.getCurrentPosition(
+    p => go('https://www.google.com/maps/search/?api=1&query=' + p.coords.latitude.toFixed(6) + ',' + p.coords.longitude.toFixed(6)),
+    () => { toast('GPS non disponibile: apro Maps sulla tua posizione'); go(fallback); },
+    { enableHighAccuracy: true, timeout: 8000, maximumAge: 30000 });
+}
+/* "Portami qui": percorso dalla posizione reale all'arrivo della tappa (Maps usa la posizione attuale se manca l'origine) */
+function takeMeLink(s) {
+  const mode = DAYS[dayIdx].car ? 'driving' : 'walking';
+  return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(s.dest) + '&travelmode=' + mode;
+}
 /* Giro a piedi sul posto: sequenza di punti dentro il luogo della tappa */
 function loopLink(g) {
   return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(g.from) +
@@ -1280,7 +1303,7 @@ function render() {
   const short = x => (x || '').split(',')[0];
   const hasPoi = q => pois.some(p => p.q === q);   /* stesso luogo = una sola riga */
   const poiRows = [
-    s.orig && !onsite && !hasPoi(s.orig) ? { i: '🚩', n: short(s.orig), d: 'tu sei qui', q: s.orig, k: 'start' } : null,
+    s.orig && !onsite && !hasPoi(s.orig) ? { i: '🚩', n: short(s.orig), d: 'partenza della tappa', q: s.orig, k: 'start' } : null,
     ...pois,
     s.dest && !onsite && !hasPoi(s.dest) ? { i: '🏁', n: short(s.dest), d: 'arrivo', q: s.dest, k: 'end' } : null
   ].filter(Boolean);
@@ -1312,9 +1335,12 @@ function render() {
                ? `<a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>`
                : `<a class="map-btn map-transit" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>
              <a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚕 Taxi</a>`}
-             <a class="map-btn map-here" href="${poiLink(s.orig)}" target="_blank" rel="noopener">📍 Tu sei qui</a>`}
+             <a class="map-btn map-here" href="#" onclick="hereNow(event)" aria-label="Mostra la mia posizione reale sulla mappa">📍 Tu sei qui</a>`}
       </div>
-      ${s.loop ? `<div class="loop-wrap"><a class="map-btn map-loop" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a></div>` : ''}
+      <div class="loop-wrap">
+        <a class="map-btn map-take" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 Portami qui</a>
+        ${s.loop ? `<a class="map-btn map-loop" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a>` : ''}
+      </div>
       ${poiRows.length ? `<button class="poi-open-btn" onclick="togglePois()">${poisOpen[dayIdx + ':' + idx] ? '▴ Chiudi i punti di interesse' : '📍 Apri i punti di interesse della tappa'}</button>` : ''}
       ${poisOpen[dayIdx + ':' + idx] && poiRows.length ? `<div class="poi-list">${poiRows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 solo a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>` : ''}
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
