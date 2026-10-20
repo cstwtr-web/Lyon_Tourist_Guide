@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#e8f2ef">
-<title>Lyon_Guide · 29–31 Ott</title>
+<title>Lyon_Guide · semplice · 29–31 Ott</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
@@ -284,6 +284,17 @@
     box-shadow: var(--shadow-sm);
   }
   .map-btn:active { transform: scale(.95); }
+  /* Versione semplice: "Altri modi" a griglia, pulsante principale nella zona pollice */
+  .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; max-width: 440px; margin: 8px auto 0; }
+  .more-grid .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
+  .row2 { display: flex; gap: 8px; width: 100%; max-width: 440px; margin: 14px auto 0; }
+  .row2 .poi-open-btn { margin: 0; min-height: 48px; font-size: 13px; }
+  .pbtn.go { flex: 1; background: var(--green); color: #06281c; font-size: 15px; height: 58px; font-weight: 900; box-shadow: 0 8px 24px #2ee6a855; }
+  .pbtn.go small { font-size: 10.5px; }
+  .step.past { opacity: .55; }
+  .sec-h { max-width: 480px; margin: 22px auto 4px; font-size: 13px; font-weight: 900; color: var(--txt-bg); letter-spacing: .4px; text-transform: uppercase; }
+  .g-pois { margin: 4px 0 14px; }
+
   .loop-wrap { display: flex; gap: 6px; width: 100%; max-width: 440px; margin: 6px auto 0; }
   .loop-wrap .map-take { flex: 0 0 34%; }
   .loop-wrap .map-take:only-child { flex: 1 1 auto; }
@@ -338,6 +349,11 @@
   body.phase-night .poi .flag {
     color: var(--green-text); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25);
   }
+  /* la scheda Scopri è sempre chiara: testo scuro anche di sera */
+  body[class] .g-pois .poi-list { margin-top: 8px; background: #f3f8f6; border: 1px solid #cfe2dc; }
+  body[class] .g-pois .poi { border-bottom-color: rgba(23,50,59,.08); }
+  body[class] .g-pois .poi .pt b { color: #17323b; font-size: 13.5px; }
+  body[class] .g-pois .poi .pt small { color: #3d5f63; font-size: 11.5px; }
 
   .sos-block {
     background: #fff5f5; border: 1.5px solid #ef9a9a; border-radius: 16px;
@@ -742,7 +758,6 @@
 <div class="sky day" id="sky"></div>
 
 <div class="topbar">
-  <button class="tbtn" id="svcBtn" aria-label="Apri pannello servizio" title="Servizio">⚙️</button>
   <div class="daystrip" id="daystrip" role="tablist" aria-label="Seleziona giorno"></div>
   <span class="clock" id="clock" aria-live="polite">--:--</span>
 </div>
@@ -759,11 +774,10 @@
 <div class="overlay" id="guideOverlay" role="dialog" aria-modal="true" aria-label="Guida della tappa" hidden></div>
 
 <nav aria-label="Navigazione principale">
-  <a href="#" data-nav="tripPage"><span class="ni">🚗</span>Viaggio</a>
   <a href="#" class="on" data-nav="nowPage"><span class="ni">📍</span>Adesso</a>
-  <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Giorno</a>
+  <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Programma</a>
   <a href="#" data-nav="foodPage"><span class="ni">🍽️</span>Mangiare</a>
-  <a href="#" data-nav="infoPage"><span class="ni">🆘</span>Info</a>
+  <a href="#" data-nav="infoPage"><span class="ni">🆘</span>SOS · Info</a>
 </nav>
 
 <script>
@@ -1129,7 +1143,7 @@ document.getElementById('trip').innerHTML = TRIP.map(g => `
     <div>🚇 <b>Trafori</b>: ~56,40 € a tratta, si paga anche con carta. ⛰️ <b>Valichi</b> gratis ma più lenti e a fine ottobre può nevicare: gomme invernali o catene.</div>
     <div>💶 <b>Andata + ritorno</b>: tunnel+tunnel ~310,50 € · misto ~246–255 € · valico+valico ~190,70 €.</div>
     <div>🕐 <b>Orari</b>: in hotel alle 17:00 del 29 · il 31 si riparte dalle Halles verso le 11:30.</div>
-    <div>🟢 <b>Crit'Air</b> obbligatorio a Lione (ZFE 24/7, multa 68 €).</div>
+    
   </div>`;
 
 let memFB = {};
@@ -1163,20 +1177,17 @@ const now = new Date();
 const todayIdx = (now.getMonth() === 9 && now.getDate() >= 29 && now.getDate() <= 31) ? now.getDate() - 29 : -1;
 let dayIdx = todayIdx < 0 ? 0 : todayIdx;
 let steps = DAYS[dayIdx].steps;
-/* Tappa da mostrare per un giorno: oggi → quella dell'orario attuale (saltando le già fatte);
-   altri giorni → la prima non ancora fatta */
+/* Tappa da mostrare: oggi → quella dell'orario attuale; altri giorni → la prima.
+   Niente spunte: la guida segue l'orologio da sola. */
 function pickIdx(d) {
   const st = DAYS[d].steps;
-  if (d === todayIdx) {
-    const n = new Date(), mins = n.getHours() * 60 + n.getMinutes();
-    let i = 0;
-    st.forEach((s, k) => { const [h, mi] = s.time.split(':').map(Number); if (h * 60 + mi <= mins) i = k; });
-    while (i < st.length && state[d + ':' + i]) i++;
-    return i;
-  }
-  const f = st.findIndex((_, k) => !state[d + ':' + k]);
-  return f < 0 ? st.length : f;
+  if (d !== todayIdx) return 0;
+  const n = new Date(), mins = n.getHours() * 60 + n.getMinutes();
+  let i = 0;
+  st.forEach((s, k) => { const [h, mi] = s.time.split(':').map(Number); if (h * 60 + mi <= mins) i = k; });
+  return i;
 }
+let lastManual = 0;   /* se l'utente sfoglia a mano, per 10 minuti l'orologio non lo "riporta indietro" */
 let idx = pickIdx(dayIdx);
 let undoStack = Object.keys(state);
 
@@ -1220,8 +1231,8 @@ function phaseLabel() {
   const diff = (hh * 60 + mm) - (n.getHours() * 60 + n.getMinutes());
   if (diff > 60) return `tra ${Math.floor(diff / 60)}h${String(diff % 60).padStart(2, '0')}`;
   if (diff > 0) return `tra ${diff} min`;
-  if (diff > -60) return `in ritardo di ${-diff} min · niente panico`;
-  return 'flessibile';
+  const nx = steps[idx + 1];
+  return nx ? `in corso · poi alle ${nx.time}` : 'in corso · ultima tappa';
 }
 
 function mapLinks(s) {
@@ -1310,72 +1321,60 @@ function renderDayStrip() {
   ).join('');
 }
 
-function render() {
-  renderDayStrip();
-  renderDayPage();
-  const s = steps[idx];
-  if (!s) {
-    view.innerHTML = `
-      <div class="alldone">
-        <div class="emoji">🎉</div>
-        <h2>Giornata completata!</h2>
-        <p><b>${DAYS[dayIdx].name}</b> è tutto spuntato.<br>Tocca un altro giorno in alto oppure 🗓️ Giorno / ⚙️ Servizio.</p>
-        <button class="tbtn on" style="min-height:48px;padding:12px 22px" onclick="openSheet()">⚙️ Apri servizio</button>
-      </div>`;
-    const pad = document.getElementById('pad-fixed');
-    if (pad) { pad.innerHTML = ''; pad.style.display = 'none'; }
-    return;
-  }
-  const isDone = !!state[dayIdx + ':' + idx];
-  const guideData = GUIDES[dayIdx + ':' + idx];
-  const pois = POIS[dayIdx + ':' + idx] || [];
-  /* Tappa "sul posto": origine = destinazione → niente percorso, solo il punto */
+/* Punti di interesse della tappa: una riga = un punto fisico */
+function poiRowsFor(s, key) {
+  const pois = POIS[key] || [];
   const onsite = s.orig && s.dest && s.orig === s.dest;
   const short = x => (x || '').split(',')[0];
-  const hasPoi = q => pois.some(p => p.q === q);   /* stesso luogo = una sola riga */
-  const poiRows = [
+  const hasPoi = q => pois.some(p => p.q === q);
+  return [
     s.orig && !onsite && !hasPoi(s.orig) ? { i: '🚩', n: short(s.orig), d: 'partenza della tappa', q: s.orig, k: 'start' } : null,
     ...pois,
     s.dest && !onsite && !hasPoi(s.dest) ? { i: '🏁', n: short(s.dest), d: 'arrivo', q: s.dest, k: 'end' } : null
   ].filter(Boolean);
+}
+function poiListHTML(rows) {
+  return `<div class="poi-list">${rows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>`;
+}
+
+let moreOpen = false;
+function toggleMore() { moreOpen = !moreOpen; render(); }
+
+function render() {
+  renderDayStrip();
+  renderDayPage();
+  const s = steps[idx];
+  const onsite = s.orig && s.dest && s.orig === s.dest;
   const m = mapLinks(s);
-  const doneBtn = isDone
-    ? `<button class="pbtn undo" onclick="toggleDone()" aria-label="Deseleziona tappa">DESELEZIONA ✕<small>annulla spunta</small></button>`
-    : `<button class="pbtn done" onclick="toggleDone()" aria-label="Segna come fatto">FATTO ✓<small>avanti →</small></button>`;
+  const car = DAYS[dayIdx].car;
 
   view.innerHTML = `
     <div class="kicker">${dayIdx === todayIdx ? 'Adesso' : 'Programma'} · ${DAYS[dayIdx].date}<span class="phase" id="phase"></span></div>
-    <div class="stepno">Tappa ${idx + 1} di ${steps.length} · ${s.dur}${isDone ? ' · <span class="badge-done">✓ completata</span>' : ''}</div>
+    <div class="stepno">Tappa ${idx + 1} di ${steps.length} · ${s.dur}</div>
     <div class="bigcard">
       <div class="cardhead">
         <div class="emoji" aria-hidden="true">${s.emoji}</div>
         <div class="title">${s.title}</div>
       </div>
       <div class="meta">${s.meta}</div>
-      ${s.desc ? `
-        <div class="guide-box">
-          <div class="guide-title">📖 Cosa sapere</div>
-          <div class="guide-text">${s.desc}</div>${guideData ? `<button class="guide-open-btn" onclick="openGuide()">📖 Apri guida completa →</button>` : ''}
-        </div>
-      ` : ''}
-      <div class="map-actions">
-        ${onsite
-          ? `<a class="map-btn map-point" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Il punto sulla mappa</a>
-             <a class="map-btn map-here" href="#" onclick="hereNow(event)" aria-label="Mostra la mia posizione reale sulla mappa">📍 Tu sei qui</a>`
-          : `<a class="map-btn map-walk" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>
-             ${DAYS[dayIdx].car
-               ? `<a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>`
-               : `<a class="map-btn map-transit" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>
-             <a class="map-btn map-drive" href="${m.drive}" target="_blank" rel="noopener">🚕 Taxi</a>`}
-             <a class="map-btn map-here" href="#" onclick="hereNow(event)" aria-label="Mostra la mia posizione reale sulla mappa">📍 Tu sei qui</a>`}
-      </div>
-      <div class="loop-wrap">
-        <a class="map-btn map-take" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 Portami qui</a>
-        ${s.loop ? `<a class="map-btn map-loop" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a>` : ''}
-      </div>
-      ${poiRows.length ? `<button class="poi-open-btn" onclick="togglePois()">${poisOpen[dayIdx + ':' + idx] ? '▴ Chiudi i punti di interesse' : '📍 Apri i punti di interesse della tappa'}</button>` : ''}
-      ${poisOpen[dayIdx + ':' + idx] && poiRows.length ? `<div class="poi-list">${poiRows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 solo a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>` : ''}
+      ${s.desc ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
+      <div class="row2">
+        <button class="poi-open-btn" onclick="openScopri()">📖 Scopri</button>
+        <button class="poi-open-btn" onclick="toggleMore()" aria-expanded="${moreOpen}">${moreOpen ? '▴ Chiudi' : '🧭 Altri modi'}</button>
+      </div>
+      ${moreOpen ? `
+      <div class="more-grid">
+        ${onsite ? '' : `<a class="map-btn" href="${m.walk}" target="_blank" rel="noopener">🚶 Percorso a piedi</a>`}
+        ${onsite ? '' : (car
+          ? `<a class="map-btn" href="${m.drive}" target="_blank" rel="noopener">🚗 In auto</a>`
+          : `<a class="map-btn" href="${m.transit}" target="_blank" rel="noopener">🚇 Con i mezzi</a>`)}
+        <a class="map-btn" href="tel:+33478268181">🚕 Chiama un taxi</a>
+        ${s.tel ? `<a class="map-btn" href="tel:${s.tel}">📞 Chiama il locale</a>` : ''}
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono</a>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 La tappa sulla mappa</a>
+        ${car ? '' : `<button class="map-btn" onclick="openTransit()">🗺️ Pianta metro</button>`}
+      </div>` : ''}
     </div>`;
 
   let padHTML = document.getElementById('pad-fixed');
@@ -1385,18 +1384,54 @@ function render() {
     padHTML.className = 'pad';
     document.body.appendChild(padHTML);
   }
+  /* zona pollice: una sola azione principale */
   padHTML.innerHTML = `
     <div class="pad-inner">
-      <button class="pbtn metro" onclick="openTransit()" aria-label="Pianta dei mezzi pubblici">🚇<small>METRO</small></button>
-      <button class="pbtn nav ${idx === 0 ? 'off' : ''}" onclick="prevS()" aria-label="Tappa precedente">◀<small>PREC</small></button>
-      ${doneBtn}
-      <button class="pbtn nav ${idx >= steps.length - 1 ? 'off' : ''}" onclick="nextS()" aria-label="Tappa successiva">▶<small>NEXT</small></button>
-      <a class="pbtn tel" href="${s.tel ? 'tel:' + s.tel : 'tel:+33478268181'}" aria-label="${s.tel ? 'Chiama' : 'Chiama taxi'}">📞<small>${s.tel ? 'CHIAMA' : 'TAXI'}</small></a>
+      <button class="pbtn nav ${idx === 0 ? 'off' : ''}" onclick="prevS()" aria-label="Tappa precedente">◀<small>PRIMA</small></button>
+      <a class="pbtn go" href="${takeMeLink(s)}" target="_blank" rel="noopener" aria-label="Portami alla tappa dalla mia posizione">🧭 PORTAMI LÌ<small>${car ? 'in auto' : 'a piedi'} dalla tua posizione</small></a>
+      <button class="pbtn nav ${idx >= steps.length - 1 ? 'off' : ''}" onclick="nextS()" aria-label="Tappa successiva">▶<small>DOPO</small></button>
     </div>`;
   tick();
 }
 
+/* "Scopri": guida + punti di interesse + giro sul posto, tutto in un posto */
+function openScopri() {
+  const key = dayIdx + ':' + idx;
+  const s = steps[idx];
+  const g = GUIDES[key] || { intro: s.desc || '', sections: [] };
+  const rows = poiRowsFor(s, key);
+  guideOverlay.innerHTML = `
+    <div class="guide-sheet" onclick="event.stopPropagation()">
+      <div class="guide-hero">
+        <div class="gh-emoji" aria-hidden="true">${g.heroEmoji || s.emoji}</div>
+        <button class="gh-close" onclick="closeGuide()" aria-label="Chiudi">✕</button>
+      </div>
+      <div class="guide-body">
+        <div class="g-sub">${g.subtitle || s.title}</div>
+        <div class="g-title">${g.title || s.emoji + ' ' + s.title}</div>
+        <div class="g-intro">${g.intro}</div>
+        ${rows.length || s.loop ? `<div class="g-sec g-pois">
+          <div class="g-sec-t">📍 Punti di interesse</div>
+          ${s.loop ? `<a class="map-btn" style="margin-top:8px;white-space:normal;min-height:44px" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a>` : ''}
+          ${rows.length ? poiListHTML(rows) : ''}
+        </div>` : ''}
+        ${g.sections.map(sec => `
+          <div class="g-sec">
+            <div class="g-sec-t">${sec.icon}${sec.title}</div>
+            <div class="g-sec-x">${sec.text}</div>
+          </div>`).join('')}
+        ${g.linkTo && GUIDES[g.linkTo] ? `<button class="guide-open-btn" onclick="openGuideKey('${g.linkTo}')">➕ Leggi anche: ${GUIDES[g.linkTo].subtitle}</button>` : ''}
+      </div>
+    </div>`;
+  guideOverlay.hidden = false;
+  guideOverlay.scrollTop = 0;
+}
+
 function tick() {
+  if (dayIdx === todayIdx && Date.now() - lastManual > 10 * 60 * 1000 && !PAGES.nowPage.hidden) {
+    const auto = pickIdx(dayIdx);
+    if (auto !== idx) { idx = auto; moreOpen = false; render(); return; }
+  }
   const ph = document.getElementById('phase');
   if (ph) ph.textContent = '· ' + phaseLabel();
 }
@@ -1410,7 +1445,6 @@ setInterval(updateClock, 15000);
 
 function renderDayPage() {
   const day = DAYS[dayIdx];
-  const done = day.steps.filter((_, i) => state[dayIdx + ':' + i]).length;
   dayView.innerHTML = `
     <div class="day-h">
       <div class="dh-top">
@@ -1420,57 +1454,28 @@ function renderDayPage() {
         </div>
         <span class="dh-time">${day.time}</span>
       </div>
-      <div class="prog">
-        <div class="bar"><i style="width:${done / day.steps.length * 100}%"></i></div>
-        <b>${done}/${day.steps.length}</b>
-      </div>
     </div>
     <div class="steps">
       ${day.steps.map((s, i) => {
-        const k = dayIdx + ':' + i;
-        const isDone = !!state[k];
         const cur = i === idx;
-        const g = GUIDES[k];
-        const hint = cur && !isDone ? '▶ prossima tappa' : (g ? '📖 guida disponibile' : '');
+        const past = dayIdx === todayIdx && i < pickIdx(dayIdx);
         return `
-          <div class="step ${isDone ? 'done' : ''} ${cur ? 'cur' : ''}" data-i="${i}" data-k="${k}" onclick="goStep(${i})" role="button" tabindex="0">
-            <input type="checkbox" class="chk" ${isDone ? 'checked' : ''} data-k="${k}" aria-label="${s.title}" onclick="event.stopPropagation()">
+          <div class="step ${cur ? 'cur' : ''} ${past ? 'past' : ''}" onclick="goStep(${i})" role="button" tabindex="0">
             <div class="st-body">
               <div class="badges">
-                <span class="bdg">${i + 1}/${day.steps.length}</span>
                 <span class="bdg">${s.time}</span>
                 <span class="bdg">${s.dur}</span>
               </div>
-              <div class="st-tit">${s.emoji}${s.title}</div>
-              <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>${hint ? `<div class="st-hint">${hint}</div>` : ''}
+              <div class="st-tit">${s.emoji} ${s.title}</div>
+              <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>${cur ? `<div class="st-hint">▶ ${dayIdx === todayIdx ? 'adesso' : 'mostrata in Adesso'}</div>` : ''}
             </div>
           </div>`;
       }).join('')}
     </div>`;
-  dayView.querySelectorAll('.chk').forEach(c => {
-    c.addEventListener('change', () => {
-      const k = c.dataset.k;
-      const card = c.closest('.step');
-      const si = +card.dataset.i;
-      if (c.checked) {
-        state[k] = true;
-        undoStack.push(k);
-        card.classList.add('done');
-        toast(`✓ ${DAYS[dayIdx].steps[si].title}`);
-      } else {
-        delete state[k];
-        card.classList.remove('done');
-      }
-      save(state);
-      const newIdx = steps.findIndex((_, j) => !state[dayIdx + ':' + j]);
-      idx = newIdx < 0 ? steps.length : newIdx;
-      render();
-    });
-  });
 }
 
 function goStep(i) {
-  idx = i;
+  idx = i; lastManual = Date.now(); moreOpen = false;
   showPage('nowPage');
   render();
   toast(`▶ ${steps[i].title}`);
@@ -1541,13 +1546,13 @@ function toggleDone() {
 }
 function nextS() {
   if (idx < steps.length - 1) {
-    idx++;
+    idx++; lastManual = Date.now(); moreOpen = false;
     render();
   }
 }
 function prevS() {
   if (idx > 0) {
-    idx--;
+    idx--; lastManual = Date.now(); moreOpen = false;
     render();
   }
 }
@@ -1719,7 +1724,6 @@ function resetAll() {
   render();
   toast('Viaggio azzerato');
 }
-document.getElementById('svcBtn').addEventListener('click', openSheet);
 
 document.getElementById('food').innerHTML = FOOD.map(g => `
   <div class="list">
@@ -1826,7 +1830,9 @@ const INFO_HTML = `
       <p class="info-p"><b>Pouvez-vous m'appeler un taxi ?</b> · può chiamarmi un taxi?</p>
     </div>
   </div>`;
-document.getElementById('info').innerHTML = INFO_HTML;
+document.getElementById('info').innerHTML = INFO_HTML +
+  '<div class="sec-h">🚗 Viaggio in auto · andata e ritorno</div>';
+document.getElementById('info').appendChild(document.getElementById('trip'));
 
 const PAGES = {
   nowPage: view,
@@ -1846,6 +1852,7 @@ function showPage(id) {
   if (id === 'dayPage') renderDayPage();
   if (id === 'nowPage') render();
   window.scrollTo({ top: 0 });
+  if (id === 'dayPage') { const c = dayView.querySelector('.step.cur'); if (c) c.scrollIntoView({ block: 'center' }); }
 }
 document.querySelectorAll('nav a').forEach(a => {
   a.addEventListener('click', e => {
@@ -1870,10 +1877,6 @@ document.addEventListener('keydown', e => {
   if (!PAGES.nowPage.hidden) {
     if (e.key === 'ArrowRight') nextS();
     if (e.key === 'ArrowLeft') prevS();
-    if (e.key === ' ') {
-      e.preventDefault();
-      toggleDone();
-    }
   }
   if (e.key === 'Escape') {
     if (!guideOverlay.hidden) closeGuide();
