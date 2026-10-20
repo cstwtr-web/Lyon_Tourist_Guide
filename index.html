@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="theme-color" content="#e8f2ef">
-<title>Lyon_Guide · semplice · 29–31 Ott</title>
+<title>Lyon_Guide · 29–31 Ott</title>
 
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
@@ -285,6 +285,40 @@
   }
   .map-btn:active { transform: scale(.95); }
   /* Versione semplice: "Altri modi" a griglia, pulsante principale nella zona pollice */
+  /* ===== Versione semplice 02: filo, blocchi, opzioni ===== */
+  main#nowPage > * { flex-shrink: 0; }
+  .filo { flex: none; display: flex; align-items: center; justify-content: safe center; scrollbar-width: none; gap: 0; max-width: 480px; margin: 6px auto 4px; overflow-x: auto; padding: 4px 2px; }
+  .fchip { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--line-bg); background: rgba(255,255,255,.55); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+  .fchip.past { opacity: .45; }
+  .fchip.on { width: 44px; height: 44px; font-size: 20px; border: 2.5px solid var(--amber); background: #fff8e6; box-shadow: 0 4px 14px #ffc93c55; }
+  .fline { flex: 1 1 8px; min-width: 4px; max-width: 18px; height: 2px; background: var(--line-bg); }
+  .blk-h { text-align: center; font-size: 12px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; color: var(--txt-bg); opacity: .9; margin: 6px auto 8px; max-width: 440px; }
+  .ft { font-size: 13.5px; margin-bottom: 10px; text-align: center; }
+  .opt-main { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,.75); color: #17323b; border: 2px solid var(--green); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
+  .om-i { font-size: 34px; flex: none; }
+  .om-t { font-size: 17px; font-weight: 900; }
+  .om-s { font-size: 12.5px; color: #3d5f63; margin-top: 2px; line-height: 1.35; }
+  .alt-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; opacity: .75; margin: 12px 0 0; text-align: center; }
+  .pts { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
+  .pts[hidden] { display: none; }
+  .wsheet { text-align: center; margin: 0 0 12px; }
+  .ws-sub { font-size: 14px; font-style: italic; opacity: .9; margin-bottom: 4px; }
+  .ws-row { display: inline-block; font-size: 12.5px; font-weight: 800; background: rgba(255,255,255,.18); border: 1px solid var(--line-bg); border-radius: 99px; padding: 6px 12px; }
+  .wdone { text-align: center; padding: 6px 0 4px; }
+  .wd-i { width: 64px; height: 64px; margin: 0 auto 8px; border-radius: 50%; background: var(--green); color: #06281c; font-size: 34px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
+  .wd-t { font-size: 20px; font-weight: 900; }
+  .wd-s { font-size: 13px; opacity: .85; margin-top: 2px; }
+  .ptb { display: flex; align-items: center; gap: 10px; text-align: left; background: rgba(255,255,255,.12); border: 1.5px solid var(--line-bg); border-radius: 10px; padding: 6px 10px; min-height: 40px; color: inherit; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
+  .ptb .pn { flex: none; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
+  .ptb.past { opacity: .5; }
+  .ptb.on { border-color: var(--amber); background: #fff8e6; color: #17323b; }
+  .ptb.on .pn { background: var(--amber); color: #1a1400; }
+  .cd { font-size: 13px; font-weight: 700; margin: 4px 0 10px; text-align: center; }
+  .cd.soon { background: #fde8e8; color: #991b1b; border-radius: 10px; padding: 8px 10px; }
+  .cd.late { opacity: .7; }
+  .nextline { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line-bg); font-size: 12.5px; font-weight: 700; opacity: .85; }
+  .step.t-go .st-tit { font-size: 14px; }
+  .step.t-walk { border-left: 5px solid var(--green); }
   .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; max-width: 440px; margin: 8px auto 0; }
   .more-grid .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
   .row2 { display: flex; gap: 8px; width: 100%; max-width: 440px; margin: 14px auto 0; }
@@ -809,6 +843,47 @@ const DAYS = [
    {time:"11:30",dur:"🚗 ~4h50 in auto",emoji:"👋",title:"Partenza per Magenta",meta:"Via Traforo del Monte Bianco · ~445 km · ~4h50 + soste",desc:"È tempo di salutare Lione. Opzioni e costi nella scheda 🚗 Viaggio.",tip:"Pranzo: un panino comprato alle Halles da mangiare in viaggio.",orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Magenta, MI, Italia"}]}
 ];
 
+/* ============================================================
+   STRUTTURA A BLOCCHI (versione semplice 02)
+   Ogni giornata = catena di blocchi:
+     go   = TRASFERIMENTO  (come ci arrivo: una scelta consigliata + alternative)
+     walk = PERCORSO GUIDATO a piedi (punti in sequenza, "Arrivato ▶")
+     stop = SOSTA (pasto, riposo, hotel, visita breve)
+   I blocchi rimandano alle tappe di DAYS: nessun contenuto è duplicato.
+   ============================================================ */
+const BLOCKS = [
+  [ {t:'stop', s:0, name:'Arrivo e check-in'},
+    {t:'go',   s:1, rec:'taxi'},
+    {t:'walk', name:'Vieux Lyon e Fourvière', sub:'Il quartiere rinascimentale e la collina che prega', km:'~1', fatica:'quasi tutto in piano · la salita si fa in funicolare', pts:[1,2,3,4,5,6], ptNames:{1:'Place Saint-Jean'}},
+    {t:'stop', s:7, name:'Cena in un bouchon', food:0},
+    {t:'go',   s:8, rec:'taxi'} ],
+  [ {t:'go',   s:0, rec:'metro'},
+    {t:'walk', name:"Presqu'île a piedi", sub:"Dalla piazza più grande d'Europa al cuore della città", km:'~2', fatica:'in piano', pts:[0,1,2], ptNames:{0:'Place Bellecour'}},
+    {t:'go',   s:3, rec:'metro'},
+    {t:'walk', name:"Giro del Parc de la Tête d'Or", sub:"Lago, isola del ricordo, zoo e serre", km:'~2–3', fatica:'in piano · viali larghi', pts:[3], loop:true},
+    {t:'go',   s:4, rec:'walk'},
+    {t:'stop', s:4, name:'Pranzo alle Halles', food:1},
+    {t:'go',   s:5, rec:'metro'},
+    {t:'stop', s:5, name:'Riposo in hotel'},
+    {t:'go',   s:6, rec:'walk'},
+    {t:'stop', s:6, name:'Cena alla Brasserie Georges', food:2},
+    {t:'go',   s:7, rec:'walk'} ],
+  [ {t:'stop', s:0, name:'Check-out e auto'},
+    {t:'go',   s:1, rec:'car'},
+    {t:'stop', s:1, name:'Musée des Confluences'},
+    {t:'go',   s:2, rec:'car'},
+    {t:'stop', s:2, name:'Halles · ultimi acquisti'},
+    {t:'walk', name:'Halles → Incity → Crayon', sub:'Le due torri di Part-Dieu, poi di nuovo all\'auto', km:'~1', fatica:'in piano', pts:[3], loop:true},
+    {t:'go',   s:4, rec:'car'} ]
+];
+/* Scadenze che possono rovinare il giro: mostrate come conto alla rovescia sul punto */
+const CLOSES = {
+  "0:2":["19:00","la traboule chiude"], "0:3":["19:45","la cattedrale chiude"],
+  "0:4":["22:00","ultima funicolare"],  "0:5":["20:00","la basilica chiude"],
+  "0:6":["22:00","ultima funicolare"],  "1:3":["16:30","le serre chiudono"],
+  "1:4":["14:30","i ristoranti delle Halles chiudono"]
+};
+
 const FOOD = [
  {h:"🍽 Cena gio 29 Ott · Vieux Lyon (bouchon, prenotare per 4)",items:[
   {n:"Le Laurencin",p:"15–25 €",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/search/?api=1&query=Le+Laurencin%2C+24+Rue+Saint-Jean%2C+69005+Lyon",w:"https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin"},
@@ -1146,31 +1221,6 @@ document.getElementById('trip').innerHTML = TRIP.map(g => `
     
   </div>`;
 
-let memFB = {};
-let storeOK = true;
-try {
-  localStorage.setItem('__t', '1');
-  localStorage.removeItem('__t');
-} catch (e) {
-  storeOK = false;
-}
-const load = () => {
-  if (!storeOK) return memFB;
-  try {
-    return JSON.parse(localStorage.getItem('lyonGuide15')) || {};
-  } catch (e) {
-    return {};
-  }
-};
-const save = s => {
-  memFB = s;
-  if (storeOK) {
-    try {
-      localStorage.setItem('lyonGuide15', JSON.stringify(s));
-    } catch (e) {}
-  }
-};
-let state = load();
 
 /* Giorno del viaggio: 29/30/31 ottobre → 0/1/2; fuori dal viaggio → -1 (si apre il giorno 1) */
 const now = new Date();
@@ -1179,17 +1229,9 @@ let dayIdx = todayIdx < 0 ? 0 : todayIdx;
 let steps = DAYS[dayIdx].steps;
 /* Tappa da mostrare: oggi → quella dell'orario attuale; altri giorni → la prima.
    Niente spunte: la guida segue l'orologio da sola. */
-function pickIdx(d) {
-  const st = DAYS[d].steps;
-  if (d !== todayIdx) return 0;
-  const n = new Date(), mins = n.getHours() * 60 + n.getMinutes();
-  let i = 0;
-  st.forEach((s, k) => { const [h, mi] = s.time.split(':').map(Number); if (h * 60 + mi <= mins) i = k; });
-  return i;
-}
+
 let lastManual = 0;   /* se l'utente sfoglia a mano, per 10 minuti l'orologio non lo "riporta indietro" */
-let idx = pickIdx(dayIdx);
-let undoStack = Object.keys(state);
+let idx = 0;
 
 function phaseFor(h) {
   if (h >= 5 && h < 9) return 'morning';
@@ -1222,18 +1264,7 @@ function toast(msg) {
   toastTO = setTimeout(() => t.classList.remove('show'), 2400);
 }
 
-function phaseLabel() {
-  const s = steps[idx];
-  if (!s) return '';
-  if (dayIdx !== todayIdx) return `alle ${s.time}`;
-  const n = new Date();
-  const [hh, mm] = s.time.split(':').map(Number);
-  const diff = (hh * 60 + mm) - (n.getHours() * 60 + n.getMinutes());
-  if (diff > 60) return `tra ${Math.floor(diff / 60)}h${String(diff % 60).padStart(2, '0')}`;
-  if (diff > 0) return `tra ${diff} min`;
-  const nx = steps[idx + 1];
-  return nx ? `in corso · poi alle ${nx.time}` : 'in corso · ultima tappa';
-}
+
 
 function mapLinks(s) {
   const b = 'https://www.google.com/maps/dir/?api=1';
@@ -1292,10 +1323,7 @@ function hereNow(ev) {
     { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
 }
 /* "Portami qui": percorso dalla posizione reale all'arrivo della tappa (Maps usa la posizione attuale se manca l'origine) */
-function takeMeLink(s) {
-  const mode = DAYS[dayIdx].car ? 'driving' : 'walking';
-  return 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(s.dest) + '&travelmode=' + mode;
-}
+
 /* Giro a piedi sul posto: sequenza di punti dentro il luogo della tappa */
 function loopLink(g) {
   return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(g.from) +
@@ -1307,12 +1335,7 @@ function poiLink(q) {
   return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
 }
 
-let poisOpen = {};
-function togglePois() {
-  const k = dayIdx + ':' + idx;
-  poisOpen[k] = !poisOpen[k];
-  render();
-}
+
 
 function renderDayStrip() {
   const strip = document.getElementById('daystrip');
@@ -1337,62 +1360,9 @@ function poiListHTML(rows) {
   return `<div class="poi-list">${rows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>`;
 }
 
-let moreOpen = false;
-function toggleMore() { moreOpen = !moreOpen; render(); }
 
-function render() {
-  renderDayStrip();
-  renderDayPage();
-  const s = steps[idx];
-  const onsite = s.orig && s.dest && s.orig === s.dest;
-  const m = mapLinks(s);
-  const car = DAYS[dayIdx].car;
 
-  view.innerHTML = `
-    <div class="kicker">${dayIdx === todayIdx ? 'Adesso' : 'Programma'} · ${DAYS[dayIdx].date}<span class="phase" id="phase"></span></div>
-    <div class="stepno">Tappa ${idx + 1} di ${steps.length} · ${s.dur}</div>
-    <div class="bigcard">
-      <div class="cardhead">
-        <div class="emoji" aria-hidden="true">${s.emoji}</div>
-        <div class="title">${s.title}</div>
-      </div>
-      <div class="meta">${s.meta}</div>
-      ${s.desc ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
-      ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
-      <div class="row2">
-        <button class="poi-open-btn" onclick="openScopri()">📖 Scopri</button>
-        <button class="poi-open-btn" onclick="toggleMore()" aria-expanded="${moreOpen}">${moreOpen ? '▴ Chiudi' : '🧭 Altri modi'}</button>
-      </div>
-      ${moreOpen ? `
-      <div class="more-grid">
-        ${onsite ? '' : `<a class="map-btn" href="${m.walk}" target="_blank" rel="noopener">🚶 Percorso a piedi</a>`}
-        ${onsite ? '' : (car
-          ? `<a class="map-btn" href="${m.drive}" target="_blank" rel="noopener">🚗 In auto</a>`
-          : `<a class="map-btn" href="${m.transit}" target="_blank" rel="noopener">🚇 Con i mezzi</a>`)}
-        <a class="map-btn" href="tel:+33478268181">🚕 Chiama un taxi</a>
-        ${s.tel ? `<a class="map-btn" href="tel:${s.tel}">📞 Chiama il locale</a>` : ''}
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono</a>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 La tappa sulla mappa</a>
-        ${car ? '' : `<button class="map-btn" onclick="openTransit()">🗺️ Pianta metro</button>`}
-      </div>` : ''}
-    </div>`;
 
-  let padHTML = document.getElementById('pad-fixed');
-  if (!padHTML) {
-    padHTML = document.createElement('div');
-    padHTML.id = 'pad-fixed';
-    padHTML.className = 'pad';
-    document.body.appendChild(padHTML);
-  }
-  /* zona pollice: una sola azione principale */
-  padHTML.innerHTML = `
-    <div class="pad-inner">
-      <button class="pbtn nav ${idx === 0 ? 'off' : ''}" onclick="prevS()" aria-label="Tappa precedente">◀<small>PRIMA</small></button>
-      <a class="pbtn go" href="${takeMeLink(s)}" target="_blank" rel="noopener" aria-label="Portami alla tappa dalla mia posizione">🧭 PORTAMI LÌ<small>${car ? 'in auto' : 'a piedi'} dalla tua posizione</small></a>
-      <button class="pbtn nav ${idx >= steps.length - 1 ? 'off' : ''}" onclick="nextS()" aria-label="Tappa successiva">▶<small>DOPO</small></button>
-    </div>`;
-  tick();
-}
 
 /* "Scopri": guida + punti di interesse + giro sul posto, tutto in un posto */
 function openScopri() {
@@ -1427,14 +1397,7 @@ function openScopri() {
   guideOverlay.scrollTop = 0;
 }
 
-function tick() {
-  if (dayIdx === todayIdx && Date.now() - lastManual > 10 * 60 * 1000 && !PAGES.nowPage.hidden) {
-    const auto = pickIdx(dayIdx);
-    if (auto !== idx) { idx = auto; moreOpen = false; render(); return; }
-  }
-  const ph = document.getElementById('phase');
-  if (ph) ph.textContent = '· ' + phaseLabel();
-}
+
 setInterval(tick, 30000);
 function updateClock() {
   const c = document.getElementById('clock');
@@ -1443,47 +1406,11 @@ function updateClock() {
 updateClock();
 setInterval(updateClock, 15000);
 
-function renderDayPage() {
-  const day = DAYS[dayIdx];
-  dayView.innerHTML = `
-    <div class="day-h">
-      <div class="dh-top">
-        <div>
-          <div class="dh-sub">${day.date}</div>
-          <h2>${day.name}</h2>
-        </div>
-        <span class="dh-time">${day.time}</span>
-      </div>
-    </div>
-    <div class="steps">
-      ${day.steps.map((s, i) => {
-        const cur = i === idx;
-        const past = dayIdx === todayIdx && i < pickIdx(dayIdx);
-        return `
-          <div class="step ${cur ? 'cur' : ''} ${past ? 'past' : ''}" onclick="goStep(${i})" role="button" tabindex="0">
-            <div class="st-body">
-              <div class="badges">
-                <span class="bdg">${s.time}</span>
-                <span class="bdg">${s.dur}</span>
-              </div>
-              <div class="st-tit">${s.emoji} ${s.title}</div>
-              <div class="st-sub">${s.meta.replace(/<[^>]+>/g, '')}</div>${cur ? `<div class="st-hint">▶ ${dayIdx === todayIdx ? 'adesso' : 'mostrata in Adesso'}</div>` : ''}
-            </div>
-          </div>`;
-      }).join('')}
-    </div>`;
-}
 
-function goStep(i) {
-  idx = i; lastManual = Date.now(); moreOpen = false;
-  showPage('nowPage');
-  render();
-  toast(`▶ ${steps[i].title}`);
-}
 
-function openGuide() {
-  openGuideKey(dayIdx + ':' + idx);
-}
+
+
+
 function openGuideKey(key) {
   const g = GUIDES[key];
   if (!g) {
@@ -1522,40 +1449,9 @@ function closeGuide() {
 }
 guideOverlay.addEventListener('click', closeGuide);
 
-function toggleDone() {
-  const key = dayIdx + ':' + idx;
-  if (state[key]) {
-    delete state[key];
-    save(state);
-    undoStack = undoStack.filter(k => k !== key);
-    if (navigator.vibrate) navigator.vibrate(20);
-    toast(`↩︎ Deselezionata: ${steps[idx].title}`);
-    render();
-  } else {
-    state[key] = true;
-    save(state);
-    undoStack.push(key);
-    if (navigator.vibrate) navigator.vibrate(30);
-    toast(`✓ ${steps[idx].title}`);
-    idx++;
-    if (idx >= steps.length) {
-      if (navigator.vibrate) navigator.vibrate([40, 60, 40]);
-    }
-    render();
-  }
-}
-function nextS() {
-  if (idx < steps.length - 1) {
-    idx++; lastManual = Date.now(); moreOpen = false;
-    render();
-  }
-}
-function prevS() {
-  if (idx > 0) {
-    idx--; lastManual = Date.now(); moreOpen = false;
-    render();
-  }
-}
+
+
+
 
 function openTransit() {
   const s = steps[idx];
@@ -1609,121 +1505,17 @@ function openTransit() {
   overlay.hidden = false;
 }
 
-function openSheet() {
-  const doneCount = steps.filter((_, i) => state[dayIdx + ':' + i]).length;
-  overlay.innerHTML = `
-    <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sh-top">
-        <b>⚙️ Servizio · ${DAYS[dayIdx].name}</b>
-        <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
-      </div>
-      <div class="sos-block">
-        <div class="sos-t">🚨 Sicurezza · un tocco e chiami</div>
-        <div class="sos-row">
-          <span class="sos-chip">🆘 Emergenza UE<small>polizia · ambulanza · vigili del fuoco</small></span>
-          <a class="a-tel" href="tel:112">📞 112</a>
-        </div>
-        <div class="sos-row">
-          <span class="sos-chip">🚕 Taxi Lyonnais 24/7<small>radiotaxi · sempre attivo</small></span>
-          <a class="a-tel" href="tel:+33478268181">📞 Chiama</a>
-        </div>
-        <div class="sos-row">
-          <span class="sos-chip">🚕 Allo Taxi<small>centrale 24/7</small></span>
-          <a class="a-tel" href="tel:+33472104106">📞 Chiama</a>
-        </div>
-        <div class="sos-row">
-          <span class="sos-chip">🏨 Hôtel Charlemagne<small>23 Cours Charlemagne · Perrache</small></span>
-          <a class="a-tel" href="tel:+33472777000">📞 Chiama</a>
-          <a class="a-map" href="https://maps.google.com/?q=45.746017,4.823900" target="_blank" rel="noopener">📍 GPS</a>
-        </div>
-      </div>
-      <div class="dayswitch">
-        ${DAYS.map((d, i) => `
-          <button class="${i === dayIdx ? 'on' : ''}" onclick="switchDay(${i})">${d.label}</button>
-        `).join('')}
-      </div>
-      <div style="display:flex;justify-content:space-between;font-size:12px;color:var(--mut);font-weight:700;margin-bottom:10px;padding:0 2px">
-        <span>📋 ${doneCount}/${steps.length} completate</span>
-        <span>toccane una per ripartire</span>
-      </div>
-      <div class="slist">
-        ${steps.map((s, i) => {
-          const done = !!state[dayIdx + ':' + i];
-          const cur = i === idx;
-          return `
-            <button class="sitem ${cur ? 'cur' : ''} ${done ? 'done' : ''}" onclick="jumpTo(${i})">
-              <span class="si-st">${done ? '✓' : cur ? '▶' : i + 1}</span>
-              <span class="si-tt">${s.emoji}${s.title}
-                <div class="si-mm">${s.time} ·${s.meta.replace(/<[^>]+>/g, '')}</div>
-              </span>
-            </button>`;
-        }).join('')}
-      </div>
-      <div class="sbtns">
-        <button class="sb-undo" onclick="undoLast()">↩︎ Annulla ultima</button>
-        <button class="sb-day" onclick="resetDay()">♻︎ Azzera giorno</button>
-        <button class="sb-all" onclick="resetAll()">♻︎ Azzera tutto</button>
-      </div>
-      <p class="shint">💡 Le spunte sono condivise con "Adesso".<br>📲 Installa su Home: Safari → Condividi → Aggiungi a Home · Chrome → ⋮ → Aggiungi a schermata Home.</p>
-    </div>`;
-  overlay.hidden = false;
-}
+
 function closeSheet() {
   overlay.hidden = true;
   overlay.innerHTML = '';
 }
 overlay.addEventListener('click', closeSheet);
-function switchDay(i) {
-  dayIdx = i;
-  steps = DAYS[i].steps;
-  idx = pickIdx(i);
-  closeSheet();
-  render();
-  toast(`Giorno ${i + 1} · ${DAYS[i].name}`);
-}
-function jumpTo(i) {
-  idx = i;
-  closeSheet();
-  render();
-  toast(`▶ Ripresa da: ${steps[i].title}`);
-}
-function undoLast() {
-  const key = undoStack.filter(k => k.startsWith(dayIdx + ':')).pop();
-  if (key) {
-    const i = +key.split(':')[1];
-    delete state[key];
-    save(state);
-    undoStack = undoStack.filter(k => k !== key);
-    idx = i;
-    closeSheet();
-    render();
-    toast('↩︎ Ultima spunta annullata');
-    return;
-  }
-  toast('Niente da annullare');
-}
-function resetDay() {
-  if (!confirm(`Azzerare tutte le tappe di "${DAYS[dayIdx].name}"?`)) return;
-  steps.forEach((_, i) => delete state[dayIdx + ':' + i]);
-  undoStack = undoStack.filter(k => !k.startsWith(dayIdx + ':'));
-  save(state);
-  idx = 0;
-  closeSheet();
-  render();
-  toast('Giornata azzerata');
-}
-function resetAll() {
-  if (!confirm('Azzerare l’intero viaggio (tutti i giorni)?')) return;
-  state = {};
-  save(state);
-  undoStack = [];
-  dayIdx = 0;
-  steps = DAYS[0].steps;
-  idx = 0;
-  closeSheet();
-  render();
-  toast('Viaggio azzerato');
-}
+
+
+
+
+
 
 document.getElementById('food').innerHTML = FOOD.map(g => `
   <div class="list">
@@ -1883,6 +1675,329 @@ document.addEventListener('keydown', e => {
     else if (!overlay.hidden) closeSheet();
   }
 });
+
+
+/* ============================================================
+   LOGICA A BLOCCHI · sostituisce render / Programma / navigazione
+   (le funzioni con lo stesso nome dichiarate più sopra restano come riferimento:
+    in JS vale l'ultima dichiarazione)
+   ============================================================ */
+const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
+const fromMin = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
+function durMin(d) {               /* "🚕 ~12 min in taxi" → 12 · "🚗 ~4h50" → 290 */
+  const h = /(\d+)\s*h\s*(\d+)?/.exec(d); if (h) return +h[1] * 60 + (+h[2] || 0);
+  const m = /(\d+)\s*min/.exec(d); return m ? +m[1] : 0;
+}
+const shortName = x => (x || '').split(',')[0];
+const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
+
+let blk = 0, pt = 0;               /* blocco corrente e punto corrente dentro un percorso */
+const B = () => BLOCKS[dayIdx][blk];
+function blockStep(b) { return b.t === 'walk' ? b.pts[0] : b.s; }
+/* orario di inizio di un blocco: se la stessa tappa ha prima un trasferimento, si aggiunge il viaggio */
+function blockTime(d, bi) {
+  const b = BLOCKS[d][bi], si = blockStep(b), st = DAYS[d].steps[si];
+  let t = toMin(st.time);
+  if (b.t !== 'go' && BLOCKS[d].slice(0, bi).some(x => x.t === 'go' && x.s === si)) t += durMin(st.dur);
+  return t;
+}
+function pointTime(d, bi, pi) {
+  const b = BLOCKS[d][bi];
+  return pi === 0 ? blockTime(d, bi) : toMin(DAYS[d].steps[b.pts[pi]].time);
+}
+/* posizione da mostrare: oggi → quella dell'orologio; altri giorni → l'inizio */
+function pickPos(d) {
+  if (d !== todayIdx) return { b: 0, p: 0 };
+  const m = nowMin(); let b = 0;
+  BLOCKS[d].forEach((_, i) => { if (blockTime(d, i) <= m) b = i; });
+  let p = 0; const bb = BLOCKS[d][b];
+  if (bb.t === 'walk') bb.pts.forEach((_, i) => { if (pointTime(d, b, i) <= m) p = i; });
+  return { b, p };
+}
+function syncIdx() { const b = B(); idx = b.t === 'walk' ? b.pts[pt] : b.s; }
+function setPos(p) { blk = p.b; pt = p.p; walkDone = false; syncIdx(); }
+
+/* modo consigliato per un trasferimento */
+const MODES = {
+  taxi:  { i: '🚕', verb: 'Prendi il taxi',        maps: 'driving' },
+  metro: { i: '🚇', verb: 'Vai con i mezzi',       maps: 'transit' },
+  walk:  { i: '🚶', verb: 'Vai a piedi',           maps: 'walking' },
+  car:   { i: '🚗', verb: 'Vai in auto',           maps: 'driving' }
+};
+function routeFromHere(s, mode) {   /* dalla posizione reale (origine omessa = posizione attuale) */
+  let u = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(s.dest) + '&travelmode=' + mode;
+  if (mode === 'walking' && s.via && s.via.length) u += '&waypoints=' + encodeURIComponent(s.via.join('|'));
+  return u;
+}
+function takeMeLink(s) { return routeFromHere(s, DAYS[dayIdx].car || /🚗/.test(s.dur) ? 'driving' : 'walking'); }
+/* tutto il percorso guidato su Maps, solo se è tutto a piedi (la funicolare spezzerebbe il tracciato) */
+function walkRouteLink(b) {
+  if (b.loop) return loopLink(DAYS[dayIdx].steps[b.pts[0]].loop);
+  const st = b.pts.map(i => DAYS[dayIdx].steps[i]);
+  if (st.some((s, k) => k > 0 && !/🚶|sul posto/.test(s.dur))) return null;
+  const wp = [];
+  st.forEach((s, k) => { if (k > 0 && s.via) wp.push(...s.via); if (k > 0 && k < st.length - 1) wp.push(s.dest); });
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(st[0].dest) +
+    '&destination=' + encodeURIComponent(st[st.length - 1].dest) +
+    (wp.length ? '&waypoints=' + encodeURIComponent(wp.slice(0, 9).join('|')) : '') + '&travelmode=walking';
+}
+/* conto alla rovescia sulle chiusure */
+function walkSheet(b) {
+  const d = dayIdx, nb = BLOCKS[d][blk + 1];
+  const mins = nb ? blockTime(d, blk + 1) - blockTime(d, blk) : 0;
+  const dur = mins >= 60 ? `~${Math.floor(mins / 60)} h${mins % 60 >= 15 ? ' ' + String(mins % 60).padStart(2, '0') : ''}` : `~${mins} min`;
+  return `<div class="wsheet">${b.sub ? `<div class="ws-sub">${b.sub}</div>` : ''}
+    <div class="ws-row">⏱️ ${dur} · 📏 ${b.km} km · ⛰️ ${b.fatica}</div></div>`;
+}
+let walkDone = false;   /* schermata "percorso completato" */
+function closesHTML(key) {
+  const c = CLOSES[key]; if (!c || dayIdx !== todayIdx) return c ? `<div class="cd">🕐 ${c[1]} alle <b>${c[0]}</b></div>` : '';
+  const left = toMin(c[0]) - nowMin();
+  if (left < 0) return `<div class="cd late">⛔ ${c[1]} alle ${c[0]}: già passato</div>`;
+  if (left <= 90) return `<div class="cd soon">⏳ ${c[1]} tra <b>${left} min</b> (${c[0]})</div>`;
+  return `<div class="cd">🕐 ${c[1]} alle <b>${c[0]}</b></div>`;
+}
+function phaseLabel() {
+  const d = dayIdx, b = B();
+  const t = b.t === 'walk' ? pointTime(d, blk, pt) : blockTime(d, blk);
+  if (d !== todayIdx) return `alle ${fromMin(t)}`;
+  const diff = t - nowMin();
+  if (diff > 60) return `tra ${Math.floor(diff / 60)}h${String(diff % 60).padStart(2, '0')}`;
+  if (diff > 0) return `tra ${diff} min`;
+  let next = null;
+  if (b.t === 'walk' && pt < b.pts.length - 1) next = pointTime(d, blk, pt + 1);
+  else if (blk < BLOCKS[d].length - 1) next = blockTime(d, blk + 1);
+  return next !== null ? `in corso · poi alle ${fromMin(next)}` : 'in corso · ultima della giornata';
+}
+const TYPE = { go: '🚌', walk: '🚶', stop: '📍' };
+function blockIcon(b) {
+  if (b.t === 'go') return MODES[b.rec].i;
+  if (b.t === 'walk') return '🚶';
+  return DAYS[dayIdx].steps[b.s].emoji;
+}
+function blockTitle(b) {
+  if (b.t === 'go') return 'Verso ' + shortName(DAYS[dayIdx].steps[b.s].dest);
+  return b.name;
+}
+const TYPE_LABEL = { go: 'Trasferimento', walk: 'Percorso guidato', stop: 'Sosta' };
+
+function filoHTML() {   /* il filo della giornata: un pallino per blocco */
+  return `<div class="filo" role="list" aria-label="Il filo della giornata">${BLOCKS[dayIdx].map((b, i) =>
+    `<button class="fchip ${i === blk ? 'on' : ''} ${i < blk ? 'past' : ''} t-${b.t}" onclick="jumpBlock(${i})" role="listitem" aria-label="${TYPE_LABEL[b.t]}: ${blockTitle(b)}">${blockIcon(b)}</button>`
+  ).join('<span class="fline"></span>')}</div>`;
+}
+function nextLabel() {
+  const d = dayIdx, b = B();
+  if (b.t === 'walk' && pt < b.pts.length - 1) {
+    const s = DAYS[d].steps[b.pts[pt + 1]];
+    return `${fromMin(pointTime(d, blk, pt + 1))} · ${s.emoji} ${(b.ptNames || {})[b.pts[pt + 1]] || s.title}`;
+  }
+  const nb = BLOCKS[d][blk + 1];
+  return nb ? `${fromMin(blockTime(d, blk + 1))} · ${blockIcon(nb)} ${TYPE_LABEL[nb.t]}: ${blockTitle(nb)}` : '';
+}
+function foodHTML(g) {
+  const grp = FOOD[g]; if (!grp) return '';
+  return `<div class="g-pois"><div class="poi-list">${grp.items.map(r => `
+    <div class="poi"><span class="pi">🍽️</span><span class="pt"><b>${r.n} · ${r.p}</b><small>${r.a}</small></span>
+    <span class="wrap">${r.tel ? `<a class="go" href="tel:${r.tel}">📞</a>` : ''}<a class="go" href="${r.map}" target="_blank" rel="noopener">🗺️</a></span></div>`).join('')}</div></div>`;
+}
+
+function render() {
+  renderDayStrip();
+  renderDayPage();
+  syncIdx();
+  const d = dayIdx, b = B(), s = DAYS[d].steps[idx], key = d + ':' + idx;
+  const car = DAYS[d].car;
+  const m = mapLinks(s);
+  let body = '', primary = '';
+
+  if (b.t === 'go') {                         /* ===== TRASFERIMENTO ===== */
+    const md = MODES[b.rec];
+    const alt = [
+      b.rec !== 'walk' ? `<a class="map-btn" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>` : '',
+      !car && b.rec !== 'metro' ? `<a class="map-btn" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>` : '',
+      !car && b.rec !== 'taxi' ? `<a class="map-btn" href="tel:+33478268181">🚕 Taxi</a>` : '',
+      car && b.rec !== 'car' ? `<a class="map-btn" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>` : ''
+    ].filter(Boolean).join('');
+    body = `
+      <div class="ft">Da <b>${shortName(s.orig)}</b> → a <b>${shortName(s.dest)}</b></div>
+      <div class="opt-main">
+        <div class="om-i">${md.i}</div>
+        <div><div class="om-t">${md.verb}</div><div class="om-s">${s.meta}</div></div>
+      </div>
+      ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
+      ${alt ? `<div class="alt-h">Oppure</div><div class="more-grid">${alt}</div>` : ''}
+      <div class="more-grid">
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Dove arrivo</a>
+        ${!car ? `<button class="map-btn" onclick="openTransit()">🗺️ Pianta metro</button>` : ''}
+        ${GUIDES[key] ? `<button class="map-btn" onclick="openScopri()">📖 Scopri</button>` : ''}
+      </div>`;
+    primary = b.rec === 'taxi'
+      ? `<a class="pbtn go" href="tel:+33478268181">📞 CHIAMA IL TAXI<small>poi mostra l'indirizzo: ${shortName(s.dest)}</small></a>`
+      : `<a class="pbtn go" href="${routeFromHere(s, md.maps)}" target="_blank" rel="noopener">🧭 PORTAMI LÌ<small>${md.i} dalla tua posizione</small></a>`;
+  }
+
+  if (b.t === 'walk' && walkDone) {           /* ===== PERCORSO COMPLETATO ===== */
+    const nb = BLOCKS[d][blk + 1];
+    body = `
+      <div class="wdone">
+        <div class="wd-i">✓</div>
+        <div class="wd-t">Percorso completato</div>
+        <div class="wd-s">${b.name} · ${b.pts.length > 1 ? b.pts.length + ' punti' : 'giro sul posto'}</div>
+      </div>
+      ${nb ? `<div class="alt-h">Prossimo</div>
+      <div class="opt-main">
+        <div class="om-i">${blockIcon(nb)}</div>
+        <div><div class="om-t">${TYPE_LABEL[nb.t]}: ${blockTitle(nb)}</div>
+        <div class="om-s">alle ${fromMin(blockTime(d, blk + 1))}${nb.t === 'go' ? ' · ' + DAYS[d].steps[nb.s].dur : ''}</div></div>
+      </div>` : '<div class="ft">È l\'ultima tappa della giornata.</div>'}
+      <div class="more-grid"><button class="map-btn" onclick="walkDone=false;render()">↩ Torna all'ultimo punto</button></div>`;
+    primary = nb ? `<button class="pbtn go" onclick="nextS()">▶ VAI AL PROSSIMO<small>${blockIcon(nb)} ${blockTitle(nb)}</small></button>` : '';
+  } else if (b.t === 'walk') {                /* ===== PERCORSO GUIDATO ===== */
+    const names = b.ptNames || {};
+    const full = walkRouteLink(b);
+    const ptName = i => names[b.pts[i]] || DAYS[d].steps[b.pts[i]].title;
+    const hasGo = BLOCKS[d].some(x => x.t === 'go' && x.s === idx);
+    let head = hasGo ? (GUIDES[key] ? GUIDES[key].subtitle : '') : s.meta;
+    if (head === ptName(pt)) head = '';
+    body = `
+      ${pt === 0 ? walkSheet(b) : ''}
+      <div class="pts" ${b.pts.length < 2 ? 'hidden' : ''}>${b.pts.map((si, i) => `
+        <button class="ptb ${i === pt ? 'on' : ''} ${i < pt ? 'past' : ''}" onclick="jumpPoint(${i})">
+          <span class="pn">${i < pt || walkDone ? '✓' : i + 1}</span><span class="pl">${ptName(i)}</span></button>`).join('')}
+      </div>
+      <div class="cardhead"><div class="emoji" aria-hidden="true">${names[idx] && GUIDES[key] ? GUIDES[key].heroEmoji : s.emoji}</div><div class="title">${ptName(pt)}</div></div>
+      <div class="meta">${head}</div>
+      ${closesHTML(key)}
+      ${s.desc && !(pt === 0 && names[idx]) ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
+      ${s.tip && !(pt === 0 && names[idx]) ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
+      <div class="more-grid">
+        <button class="map-btn" onclick="openScopri()">📖 Scopri questo punto</button>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Il punto sulla mappa</a>
+        ${full ? `<a class="map-btn" href="${full}" target="_blank" rel="noopener">🗺️ Tutto il percorso</a>` : ''}
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
+      </div>`;
+    primary = b.loop
+      ? `<a class="pbtn go" href="${loopLink(s.loop)}" target="_blank" rel="noopener">▶ AVVIA IL GIRO<small>${s.loop.label.replace(/^Giro[^:]*:\s*/, '')}</small></a>`
+      : `<a class="pbtn go" href="${pt === 0 && names[idx] ? poiLink(s.dest) : routeFromHere(s, 'walking')}" target="_blank" rel="noopener">🧭 PORTAMI AL PUNTO<small>${pt === 0 && names[idx] ? 'sei all\'inizio del percorso' : (s.via ? 'passando dai punti intermedi' : 'a piedi dalla tua posizione')}</small></a>`;
+  }
+
+  if (b.t === 'stop') {                       /* ===== SOSTA ===== */
+    body = `
+      <div class="cardhead"><div class="emoji" aria-hidden="true">${s.emoji}</div><div class="title">${b.name}</div></div>
+      <div class="meta">${s.meta}</div>
+      ${closesHTML(key)}
+      ${s.desc ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
+      ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
+      ${b.food !== undefined ? foodHTML(b.food) : ''}
+      <div class="more-grid">
+        <button class="map-btn" onclick="openScopri()">📖 Scopri</button>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Sulla mappa</a>
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
+        <a class="map-btn" href="tel:+33478268181">🚕 Taxi</a>
+      </div>`;
+    primary = s.tel && b.food === undefined
+      ? `<a class="pbtn go" href="tel:${s.tel}">📞 CHIAMA<small>${shortName(s.dest)}</small></a>`
+      : `<a class="pbtn go" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 PORTAMI LÌ<small>${car || /🚗/.test(s.dur) ? 'in auto' : 'a piedi'} dalla tua posizione</small></a>`;
+  }
+
+  const nx = nextLabel();
+  view.innerHTML = `
+    <div class="kicker">${d === todayIdx ? 'Adesso' : 'Programma'} · ${DAYS[d].date}<span class="phase" id="phase"></span></div>
+    ${filoHTML()}
+    <div class="blk-h t-${b.t}">${TYPE_LABEL[b.t]} · ${b.t === 'walk' ? b.name + (walkDone ? ' · completato' : b.pts.length > 1 ? ` · punto ${pt + 1} di ${b.pts.length}` : '') : blockTitle(b)}</div>
+    <div class="bigcard">${body}
+      ${nx && !walkDone ? `<div class="nextline">Poi · ${nx}</div>` : ''}
+    </div>`;
+
+  let padHTML = document.getElementById('pad-fixed');
+  if (!padHTML) { padHTML = document.createElement('div'); padHTML.id = 'pad-fixed'; padHTML.className = 'pad'; document.body.appendChild(padHTML); }
+  const atStart = blk === 0 && pt === 0;
+  const atEnd = blk === BLOCKS[d].length - 1 && (b.t !== 'walk' || walkDone);
+  padHTML.innerHTML = `
+    <div class="pad-inner">
+      <button class="pbtn nav ${atStart ? 'off' : ''}" onclick="prevS()" aria-label="Indietro">◀<small>INDIETRO</small></button>
+      ${primary}
+      <button class="pbtn nav ${atEnd ? 'off' : ''}" onclick="nextS()" aria-label="Arrivato, avanti">▶<small>ARRIVATO</small></button>
+    </div>`;
+  const on = view.querySelector('.fchip.on'), filo = view.querySelector('.filo');
+  if (on && filo) filo.scrollLeft = on.offsetLeft - filo.clientWidth / 2 + on.clientWidth / 2;
+  tick();
+}
+
+function tick() {
+  if (dayIdx === todayIdx && Date.now() - lastManual > 10 * 60 * 1000 && !PAGES.nowPage.hidden) {
+    const p = pickPos(dayIdx);
+    if (p.b !== blk || p.p !== pt) { setPos(p); render(); return; }
+  }
+  const ph = document.getElementById('phase');
+  if (ph) ph.textContent = '· ' + phaseLabel();
+}
+
+function nextS() {
+  const b = B(); lastManual = Date.now();
+  if (b.t === 'walk' && pt < b.pts.length - 1) pt++;
+  else if (b.t === 'walk' && !walkDone) walkDone = true;
+  else if (blk < BLOCKS[dayIdx].length - 1) { blk++; pt = 0; walkDone = false; }
+  else return;
+  render(); window.scrollTo({ top: 0 });
+}
+function prevS() {
+  lastManual = Date.now();
+  if (walkDone) { walkDone = false; render(); return; }
+  if (B().t === 'walk' && pt > 0) pt--;
+  else if (blk > 0) { blk--; const b = B(); pt = b.t === 'walk' ? b.pts.length - 1 : 0; }
+  else return;
+  render();
+}
+function jumpBlock(i) { lastManual = Date.now(); blk = i; pt = 0; walkDone = false; render(); }
+function jumpPoint(i) { lastManual = Date.now(); pt = i; walkDone = false; render(); }
+function switchDay(i) {
+  dayIdx = i; steps = DAYS[i].steps;
+  setPos(pickPos(i));
+  closeSheet(); render();
+  toast(`${DAYS[i].date} · ${DAYS[i].name}`);
+}
+function goBlock(i, p) { lastManual = Date.now(); blk = i; pt = p || 0; walkDone = false; showPage('nowPage'); }
+
+/* ===== PROGRAMMA: la giornata come catena di blocchi ===== */
+function dayOverviewLink(d) {
+  const pts = []; BLOCKS[d].forEach(b => { const s = DAYS[d].steps[blockStep(b)]; const q = b.t === 'go' ? s.dest : s.dest; if (pts[pts.length - 1] !== q) pts.push(q); });
+  const first = DAYS[d].steps[0].orig, last = pts.pop();
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(first) + '&destination=' + encodeURIComponent(last) +
+    (pts.length ? '&waypoints=' + encodeURIComponent(pts.filter(q => q !== first).slice(0, 9).join('|')) : '') + '&travelmode=' + (DAYS[d].car ? 'driving' : 'walking');
+}
+function renderDayPage() {
+  const d = dayIdx, day = DAYS[d];
+  const curPos = d === todayIdx ? pickPos(d) : null;
+  dayView.innerHTML = `
+    <div class="day-h"><div class="dh-top">
+      <div><div class="dh-sub">${day.date}</div><h2>${day.name}</h2></div>
+      <span class="dh-time">${day.time}</span></div>
+      <a class="map-btn" style="margin-top:12px;background:rgba(255,255,255,.18);color:#fff" href="${dayOverviewLink(d)}" target="_blank" rel="noopener">🗺️ La giornata sulla mappa (panoramica)</a>
+    </div>
+    <div class="steps">
+      ${BLOCKS[d].map((b, i) => {
+        const cur = i === blk, past = curPos && i < curPos.b;
+        const s = day.steps[blockStep(b)];
+        const sub = b.t === 'go' ? `${MODES[b.rec].i} ${s.dur.replace(/^\S+\s/, '')} · da ${shortName(s.orig)}`
+                  : b.t === 'walk' ? b.pts.map(si => (b.ptNames || {})[si] || day.steps[si].title).join(' → ')
+                  : s.meta.replace(/<[^>]+>/g, '');
+        return `
+          <div class="step t-${b.t} ${cur ? 'cur' : ''} ${past ? 'past' : ''}" onclick="goBlock(${i})" role="button" tabindex="0">
+            <div class="st-body">
+              <div class="badges"><span class="bdg">${fromMin(blockTime(d, i))}</span><span class="bdg">${TYPE_LABEL[b.t]}</span></div>
+              <div class="st-tit">${blockIcon(b)} ${blockTitle(b)}</div>
+              <div class="st-sub">${sub}</div>${cur ? `<div class="st-hint">▶ ${d === todayIdx ? 'adesso' : 'mostrato in Adesso'}</div>` : ''}
+            </div>
+          </div>`;
+      }).join('')}
+    </div>`;
+}
+
+/* posizione iniziale */
+setPos(pickPos(dayIdx));
 
 render();
 </script>
