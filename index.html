@@ -313,6 +313,9 @@
   .late-b small { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0; opacity: .95; margin-top: 2px; }
   .late-b button { margin-top: 8px; background: #fff; color: #b91c1c; border: 0; border-radius: 99px; font: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px; min-height: 40px; cursor: pointer; }
   .ws-dec { font-size: 12.5px; margin-top: 8px; line-height: 1.4; }
+  .ws-maps { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
+  .ws-maps .map-btn { flex: 1 1 0; min-height: 44px; font-size: 12.5px; max-width: 220px; }
+  .ws-note { font-size: 11.5px; opacity: .8; margin-top: 4px; font-style: italic; }
   .ws-dec.over { color: #fff; background: #b45309; border-radius: 10px; padding: 7px 10px; }
   .fchip { position: relative; }
   .fno { position: absolute; right: -4px; bottom: -4px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--green); color: #06281c; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
@@ -875,7 +878,7 @@ const DAYS = [
 const BLOCKS = [
   [ {t:'stop', s:0, name:'Arrivo e check-in'},
     {t:'go',   s:1, rec:'taxi'},
-    {t:'walk', name:'Vieux Lyon e Fourvière', sub:'Il quartiere rinascimentale e la collina che prega', km:'~1', fatica:'quasi tutto in piano · la salita si fa in funicolare', pts:[1,2,3,4,5,6], ptNames:{1:'Place Saint-Jean'}},
+    {t:'walk', name:'Vieux Lyon e Fourvière', sub:'Il quartiere rinascimentale e la collina che prega', km:'~1', fatica:'quasi tutto in piano · la salita si fa in funicolare', note:'Nella vista d\'insieme Maps disegna la salita a piedi: voi prendete la funicolare.', pts:[1,2,3,4,5,6], ptNames:{1:'Place Saint-Jean'}},
     {t:'stop', s:7, name:'Cena in un bouchon', food:0},
     {t:'go',   s:8, rec:'taxi'} ],
   [ {t:'go',   s:0, rec:'metro'},
@@ -898,6 +901,8 @@ const BLOCKS = [
     {t:'go',   s:4, rec:'car'} ]
 ];
 /* Scadenze che possono rovinare il giro: mostrate come conto alla rovescia sul punto */
+/* Link alla "Mia mappa" di Google (cartina con tutti i punti numerati): incollarlo qui dopo averla creata */
+const MYMAP_URL = '';
 const CLOSES = {
   "0:2":["19:00","la traboule chiude"], "0:3":["19:45","la cattedrale chiude"],
   "0:4":["22:00","ultima funicolare"],  "0:5":["20:00","la basilica chiude"],
@@ -1308,7 +1313,7 @@ function hereNow(ev) {
   const panel = body => {
     overlay.innerHTML = `
       <div class="sheet" onclick="event.stopPropagation()">
-        <div class="sh-top"><b>📍 Tu sei qui</b>
+        <div class="sh-top"><b>📍 Dove sono io</b>
           <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
         ${body}
       </div>`;
@@ -1785,6 +1790,18 @@ function routeFromHere(s, mode) {   /* origine omessa = Maps parte dalla posizio
   return u;
 }
 function takeMeLink(s) { return routeFromHere(s, DAYS[dayIdx].car || /🚗/.test(s.dur) ? 'driving' : 'walking'); }
+/* VISTA D'INSIEME del percorso su Maps: tutti i punti in ordine (A, B, C…) con il tracciato a piedi.
+   Serve a vedere il giro, non a navigare: dove c'è la funicolare Maps disegna la salita a piedi. */
+function overviewLink(b) {
+  const d = dayIdx;
+  if (b.loop) return loopLink(DAYS[d].steps[b.pts[0]].loop);
+  const seq = [];
+  b.pts.forEach((si, k) => { const s = DAYS[d].steps[si]; if (k > 0 && s.via) seq.push(...s.via); seq.push(s.dest); });
+  const uniq = seq.filter((q, i) => seq.indexOf(q) === i);
+  const first = uniq[0], last = uniq[uniq.length - 1], wp = uniq.slice(1, -1).slice(0, 9);
+  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(first) + '&destination=' + encodeURIComponent(last) +
+    (wp.length ? '&waypoints=' + encodeURIComponent(wp.join('|')) : '') + '&travelmode=walking';
+}
 /* tutto il percorso su Maps, solo se è tutto a piedi (la funicolare spezzerebbe il tracciato) */
 function walkRouteLink(b) {
   if (b.loop) return loopLink(DAYS[dayIdx].steps[b.pts[0]].loop);
@@ -1827,7 +1844,11 @@ function walkSheet(b) {
     decide = `<div class="ws-dec ${over ? 'over' : ''}">${over ? '⚠️ ' : ''}Se proseguite da qui: fine verso le <b>${fromMin(finish)}</b>${nb ? ` · poi ${blockIcon(nb)} ${blockTitle(nb)} previsto alle ${fromMin(blockTime(d, blk + 1))}` : ''}</div>`;
   }
   return `<div class="wsheet">${pt === 0 && b.sub ? `<div class="ws-sub">${b.sub}</div>` : ''}
-    <div class="ws-row">🕐 ${fromMin(start)} → ${fromMin(end)} · ⏱️ ${fmtDur(end - start)} · 📏 ${b.km} km · ⛰️ ${b.fatica}</div>${decide}</div>`;
+    <div class="ws-row">🕐 ${fromMin(start)} → ${fromMin(end)} · ⏱️ ${fmtDur(end - start)} · 📏 ${b.km} km · ⛰️ ${b.fatica}</div>${decide}
+    <div class="ws-maps">
+      <a class="map-btn" href="${overviewLink(b)}" target="_blank" rel="noopener">🗺️ Vista d'insieme</a>
+      ${MYMAP_URL ? `<a class="map-btn" href="${MYMAP_URL}" target="_blank" rel="noopener">🧭 La cartina del viaggio</a>` : ''}
+    </div>${b.note ? `<div class="ws-note">${b.note}</div>` : ''}</div>`;
 }
 function phaseLabel() {
   if (dayEnd) return 'fine giornata';
@@ -1924,8 +1945,8 @@ function render() {
       ${alt ? `<div class="alt-h">Oppure</div><div class="more-grid">${alt}</div>` : ''}
       <div class="more-grid">
         ${b.rec === 'taxi' || !car ? `<button class="map-btn" onclick="showTaxiCard('${s.dest.replace(/'/g, "\\'")}')">🪧 Mostra al tassista</button>` : ''}
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Dove arrivo</a>
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
         ${!car ? `<button class="map-btn" onclick="openTransit()">🗺️ Pianta metro</button>` : ''}
         ${GUIDES[key] ? `<button class="map-btn" onclick="openScopri()">📖 Scopri</button>` : ''}
       </div>`;
@@ -1955,7 +1976,6 @@ function render() {
 
   else if (b.t === 'walk') {                  /* ===== PERCORSO GUIDATO ===== */
     const names = b.ptNames || {};
-    const full = walkRouteLink(b);
     const ptName = i => names[b.pts[i]] || DAYS[d].steps[b.pts[i]].title;
     const hasGo = BLOCKS[d].some(x => x.t === 'go' && x.s === idx);
     let meta = hasGo ? (GUIDES[key] ? GUIDES[key].subtitle : '') : s.meta;
@@ -1974,9 +1994,8 @@ function render() {
       ${s.tip && !startPt ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
       <div class="more-grid">
         <button class="map-btn" onclick="openScopri()">📖 Scopri questo punto</button>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Il punto sulla mappa</a>
-        ${full ? `<a class="map-btn" href="${full}" target="_blank" rel="noopener">🗺️ Tutto il percorso</a>` : ''}
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${ptName(pt)}</a>
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
       </div>`;
     const fs = FUNI_ST[key];
     primary = b.loop
@@ -2000,8 +2019,8 @@ function render() {
       ${b.food !== undefined ? foodHTML(b.food) : ''}
       <div class="more-grid">
         <button class="map-btn" onclick="openScopri()">📖 Scopri</button>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">🏁 Sulla mappa</a>
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Tu sei qui</a>
+        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
+        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
         <a class="map-btn" href="tel:${TAXI_TEL}">🚕 Taxi</a>
       </div>`;
     primary = b.hotel
