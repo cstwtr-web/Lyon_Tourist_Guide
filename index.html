@@ -19,7 +19,7 @@
   :root {
     --bg: #e8f2ef;
     --txt-bg: #17323b;
-    --mut-bg: #5b7a80;
+    --mut-bg: #3d5f63;
     --line-bg: rgba(23,50,59,.15);
     --card: #ffffff;
     --line: #c3dcd5;
@@ -56,23 +56,23 @@
   body.phase-day {
     --bg: #e8f2ef;
     --txt-bg: #17323b;
-    --mut-bg: #5b7a80;
+    --mut-bg: #3d5f63;
     --line-bg: rgba(23,50,59,.15);
     --amber-text: #e0940f;
     --green-text: #0e9f6e;
   }
   body.phase-evening {
-    --bg: #2e8b81;
+    --bg: #226e66;
     --txt-bg: #eaf7f4;
-    --mut-bg: #b8dcd5;
+    --mut-bg: #d0ebe5;
     --line-bg: rgba(255,255,255,.28);
     --amber-text: #ffd07a;
     --green-text: #8af0c5;
   }
   body.phase-night {
-    --bg: #1f6f6b;
+    --bg: #1c625f;
     --txt-bg: #eaf7f4;
-    --mut-bg: #a8ccc6;
+    --mut-bg: #d0ebe5;
     --line-bg: rgba(255,255,255,.22);
     --amber-text: #ffd07a;
     --green-text: #8af0c5;
@@ -162,7 +162,7 @@
   /* FIX 1: spazio di scorrimento sotto la card — così "Apri guida completa",
      i bottoni mappa e il tip non restano mai coperti dal pad fisso
      (PREC / FATTO / NEXT / TAXI) e dalla barra di navigazione. */
-  main#nowPage { padding-bottom: 220px; }
+  main#nowPage { padding-bottom: 240px; }
   main[hidden] { display: none !important; }
 
   .kicker {
@@ -302,16 +302,16 @@
   .pts { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
   .pts[hidden] { display: none; }
   .pts { flex-direction: row !important; align-items: center; justify-content: center; gap: 0 !important; margin: 4px 0 10px !important; }
-  .pts .ptb { width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; justify-content: center; flex: none; }
+  .pts .ptb { width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%; justify-content: center; flex: none; }
   .pts .ptb .pl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
   .pts .ptb .pn { background: transparent; width: auto; height: auto; font-size: 14px; }
-  .pts .ptb.on { width: 46px; height: 46px; }
+  .pts .ptb.on { width: 50px; height: 50px; }
   .pts .ptb.on .pn { background: transparent; color: #17323b; font-size: 17px; }
   .pline { flex: 1 1 10px; max-width: 22px; height: 2px; background: var(--line-bg); }
   /* Semplice 04: fuori orario, decisione, tasti su due righe */
   .late-b { background: #b91c1c; color: #fff; border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; text-align: center; font-weight: 900; font-size: 15px; letter-spacing: .5px; }
   .late-b small { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0; opacity: .95; margin-top: 2px; }
-  .late-b button { margin-top: 8px; background: #fff; color: #b91c1c; border: 0; border-radius: 99px; font: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px; min-height: 40px; cursor: pointer; }
+  .late-b button { margin-top: 8px; background: #fff; color: #b91c1c; border: 0; border-radius: 99px; font: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px; min-height: 44px; cursor: pointer; }
   .ws-dec { font-size: 12.5px; margin-top: 8px; line-height: 1.4; }
   .ws-maps { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
   .ws-maps .map-btn { flex: 1 1 0; min-height: 44px; font-size: 12.5px; max-width: 220px; }
@@ -347,7 +347,7 @@
   .more-grid .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
   .row2 { display: flex; gap: 8px; width: 100%; max-width: 440px; margin: 14px auto 0; }
   .row2 .poi-open-btn { margin: 0; min-height: 48px; font-size: 13px; }
-  .pbtn.go { flex: 1; background: var(--green); color: #06281c; font-size: 15px; height: 58px; font-weight: 900; box-shadow: 0 8px 24px #2ee6a855; }
+  .pbtn.go { flex: 1; background: var(--green); color: #06281c; font-size: 16px; height: 62px; font-weight: 900; box-shadow: 0 8px 24px #2ee6a855; }
   .pbtn.go small { font-size: 10.5px; }
   .step.past { opacity: .55; }
   .sec-h { max-width: 480px; margin: 22px auto 4px; font-size: 13px; font-weight: 900; color: var(--txt-bg); letter-spacing: .4px; text-transform: uppercase; }
@@ -390,7 +390,7 @@
   .poi .go {
     flex-shrink: 0; font-size: 10px; font-weight: 800; text-decoration: none;
     background: #1d4ed8; color: #fff; padding: 7px 9px; border-radius: 10px;
-    min-height: 34px; display: flex; align-items: center; justify-content: center; white-space: nowrap;
+    min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; white-space: nowrap;
   }
   body.phase-evening .poi-list,
   body.phase-night .poi-list {
@@ -810,6 +810,44 @@
   .ritem.alert .r-name { color: #991b1b; }
   nav a.on { color: var(--amber); }
   nav a:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
+
+  /* ===== GERARCHIA TASTI · 3 livelli (spazio + colore) ===== */
+
+  /* Livello 2 — secondari forti: stesso stile per Vista d'insieme e Scopri */
+  .btn-2 {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    width: 100%; max-width: 440px; margin: 10px auto 0;
+    padding: 11px 14px;
+    background: transparent;
+    border: 2px solid var(--amber);
+    color: var(--txt-bg);
+    font-family: inherit; font-size: 14px; font-weight: 800;
+    border-radius: 12px; min-height: 48px;
+    cursor: pointer; text-decoration: none;
+    transition: background .15s, transform .1s;
+  }
+  .btn-2:active { transform: scale(.98); background: rgba(255,201,60,.10); }
+  .btn-2:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
+  body.phase-evening .btn-2,
+  body.phase-night .btn-2 { border-color: var(--amber-text); }
+
+  /* Livello 3 — terziari: piccoli, neutri, centrati */
+  .btn-3-row {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
+    margin: 10px auto 20px; max-width: 440px;   /* 20px: stacco dalla zona dei tasti principali */
+  }
+  .btn-3 {
+    flex: 1 1 auto; min-width: 100px;
+    display: flex; align-items: center; justify-content: center; gap: 4px;
+    padding: 8px 12px; background: transparent; border: 1px solid var(--line-bg);
+    color: var(--mut-bg); font-family: inherit; font-size: 12.5px; font-weight: 700;
+    border-radius: 10px; min-height: 44px; text-align: center;
+    cursor: pointer; text-decoration: none;
+  }
+  .btn-3:active { background: rgba(15,90,80,.06); }
+  .btn-3:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+  body.phase-evening .btn-3,
+  body.phase-night .btn-3 { color: var(--mut-bg); }
 </style>
 </head>
 <body class="phase-day">
@@ -1489,7 +1527,7 @@ function openTransit() {
         <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
       </div>
       <div class="tmap-wrap">
-      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione (mapa-metro.com)" onerror="this.style.display='none';document.getElementById('tmap-fallback').style.display='block'">
+      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione (mapa-metro.com)" onerror="this.style.display='none';var f=document.getElementById('tmap-fallback');if(f)f.style.display='block'">
       <div id="tmap-fallback" style="display:none">
       <svg viewBox="0 0 340 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mini pianta mezzi: Metro A, Metro D, funicolare F2, tram T1" style="display:block;width:100%;height:auto">
         <rect width="340" height="360" rx="14" fill="#ffffff"/>
@@ -1721,8 +1759,8 @@ const TOLERANCE = 15;              /* minuti di ritardo prima del "FUORI ORARIO"
 const HOTEL_TEL = '+33472777000', TAXI_TEL = '+33478268181';
 /* stazioni della funicolare: il punto "funicolare" porta alla stazione, non su per la collina a piedi */
 const FUNI_ST = {
-  "0:4": ["Funiculaire de Lyon, Cathédrale Saint-Jean-Baptiste, 69005 Lyon", "stazione Vieux Lyon · F2"],
-  "0:6": ["Funiculaire Fourvière, Place de Fourvière, 69005 Lyon", "stazione Fourvière · F2"]
+  "0:4": ["Funiculaire de Lyon, Cathédrale Saint-Jean-Baptiste, 69005 Lyon", "stazione F2 · si sale in funicolare", "Funicolare Vieux Lyon"],
+  "0:6": ["Funiculaire Fourvière, Place de Fourvière, 69005 Lyon", "stazione F2 · si scende in funicolare", "Funicolare Fourvière"]
 };
 
 let blk = 0, pt = 0;               /* scheda corrente e punto corrente dentro un percorso */
@@ -1845,10 +1883,9 @@ function walkSheet(b) {
   }
   return `<div class="wsheet">${pt === 0 && b.sub ? `<div class="ws-sub">${b.sub}</div>` : ''}
     <div class="ws-row">🕐 ${fromMin(start)} → ${fromMin(end)} · ⏱️ ${fmtDur(end - start)} · 📏 ${b.km} km · ⛰️ ${b.fatica}</div>${decide}
-    <div class="ws-maps">
-      <a class="map-btn" href="${overviewLink(b)}" target="_blank" rel="noopener">🗺️ Vista d'insieme</a>
-      ${MYMAP_URL ? `<a class="map-btn" href="${MYMAP_URL}" target="_blank" rel="noopener">🧭 La cartina del viaggio</a>` : ''}
-    </div>${b.note ? `<div class="ws-note">${b.note}</div>` : ''}</div>`;
+    <a class="btn-2" href="${overviewLink(b)}" target="_blank" rel="noopener">🗺️ Vista d'insieme</a>
+    ${MYMAP_URL ? `<a class="btn-2" href="${MYMAP_URL}" target="_blank" rel="noopener">🧭 La cartina del viaggio</a>` : ''}
+    ${b.note ? `<div class="ws-note">${b.note}</div>` : ''}</div>`;
 }
 function phaseLabel() {
   if (dayEnd) return 'fine giornata';
@@ -1943,12 +1980,12 @@ function render() {
       </div>
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
       ${alt ? `<div class="alt-h">Oppure</div><div class="more-grid">${alt}</div>` : ''}
-      <div class="more-grid">
-        ${b.rec === 'taxi' || !car ? `<button class="map-btn" onclick="showTaxiCard('${s.dest.replace(/'/g, "\\'")}')">🪧 Mostra al tassista</button>` : ''}
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
-        ${!car ? `<button class="map-btn" onclick="openTransit()">🗺️ Pianta metro</button>` : ''}
-        ${GUIDES[key] ? `<button class="map-btn" onclick="openScopri()">📖 Scopri</button>` : ''}
+      ${GUIDES[key] ? `<button class="btn-2" onclick="openScopri()">📖 Scopri · ${shortName(s.dest)}</button>` : ''}
+      <div class="btn-3-row">
+        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
+        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
+        ${b.rec === 'taxi' || !car ? `<button class="btn-3" onclick="showTaxiCard('${s.dest.replace(/'/g, "\\'")}')">🪧 Mostra al tassista</button>` : ''}
+        ${!car ? `<button class="btn-3" onclick="openTransit()">🗺️ Pianta metro</button>` : ''}
       </div>`;
     primary = b.rec === 'taxi'
       ? `<a class="pbtn go" href="tel:${TAXI_TEL}">📞 CHIAMA IL TAXI<small>per ${shortName(s.dest)}</small></a>`
@@ -1992,16 +2029,16 @@ function render() {
       ${closesHTML(key)}
       ${s.desc && !startPt ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
       ${s.tip && !startPt ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
-      <div class="more-grid">
-        <button class="map-btn" onclick="openScopri()">📖 Scopri questo punto</button>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${ptName(pt)}</a>
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
+      <button class="btn-2" onclick="openScopri()">📖 Scopri questo punto</button>
+      <div class="btn-3-row">
+        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
+        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${ptName(pt)}</a>
       </div>`;
     const fs = FUNI_ST[key];
     primary = b.loop
       ? `<a class="pbtn go" href="${loopLink(s.loop)}" target="_blank" rel="noopener">▶ AVVIA IL GIRO<small>${s.loop.label.replace(/^Giro[^:]*:\s*/, '')}</small></a>`
       : fs
-      ? `<a class="pbtn go" href="${poiLink(fs[0])}" target="_blank" rel="noopener">🚡 VAI ALLA FUNICOLARE<small>${fs[1]}</small></a>`
+      ? `<a class="pbtn go" href="${poiLink(fs[0])}" target="_blank" rel="noopener">🧭 PORTAMI A · ${fs[2]}<small>${fs[1]}</small></a>`
       : startPt
       ? `<a class="pbtn go" href="${routeFromHere(s, 'walking')}" target="_blank" rel="noopener">🧭 PORTAMI A · ${ptName(pt)}<small>l'inizio del percorso</small></a>`
       : `<a class="pbtn go" href="${routeFromHere(s, 'walking')}" target="_blank" rel="noopener">🧭 PORTAMI A · ${ptName(pt)}<small>${s.via ? 'passando dai punti intermedi' : 'a piedi dalla tua posizione'}</small></a>`;
@@ -2017,11 +2054,11 @@ function render() {
       ${s.desc ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
       ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
       ${b.food !== undefined ? foodHTML(b.food) : ''}
-      <div class="more-grid">
-        <button class="map-btn" onclick="openScopri()">📖 Scopri</button>
-        <a class="map-btn" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
-        <a class="map-btn" href="#" onclick="hereNow(event)">📍 Dove sono io</a>
-        <a class="map-btn" href="tel:${TAXI_TEL}">🚕 Taxi</a>
+      <button class="btn-2" onclick="openScopri()">📖 Scopri</button>
+      <div class="btn-3-row">
+        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
+        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
+        <a class="btn-3" href="tel:${TAXI_TEL}">🚕 Taxi</a>
       </div>`;
     primary = b.hotel
       ? `<a class="pbtn go" href="tel:${HOTEL_TEL}">📞 CHIAMA L'HOTEL<small>${nb ? `${b.rest ? 'ripartenza' : 'si parte'} alle ${fromMin(blockTime(d, blk + 1))}` : 'Hôtel Charlemagne'}</small></a>`
@@ -2102,7 +2139,7 @@ function renderDayPage() {
     <div class="day-h"><div class="dh-top">
       <div><div class="dh-sub">${day.date}</div><h2>${day.name}</h2></div>
       <span class="dh-time">${day.time}</span></div>
-      <a class="map-btn" style="margin-top:12px;background:rgba(255,255,255,.18);color:#fff" href="${dayOverviewLink(d)}" target="_blank" rel="noopener">🗺️ La giornata sulla mappa (panoramica)</a>
+      <a class="btn-2" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.7);color:#fff" href="${dayOverviewLink(d)}" target="_blank" rel="noopener">🗺️ La giornata sulla mappa</a>
     </div>
     <div class="steps">
       ${BLOCKS[d].map((b, i) => {
