@@ -1,15 +1,19 @@
 {
-  "name": "Lyon_Guide",
+  "id": "./",
+  "name": "Lyon_Guide · Lione 29–31 ottobre",
   "short_name": "Lyon_Guide",
+  "description": "Guida di viaggio per Lione che funziona anche offline: capitoli, punti numerati, piante e ristoranti.",
+  "lang": "it",
+  "dir": "ltr",
   "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
-  "background_color": "#e8f2ef",
-  "theme_color": "#e8f2ef",
+  "orientation": "portrait",
+  "background_color": "#eef5f2",
+  "theme_color": "#eef5f2",
   "icons": [
-    {
-      "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E",
-      "sizes": "512x512",
-      "type": "image/svg+xml"
-    }
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ]
 }
