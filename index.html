@@ -3,969 +3,417 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#e8f2ef">
+<meta name="theme-color" content="#eef5f2">
 <title>Lyon_Guide · 29–31 Ott</title>
-
 <link rel="manifest" href="manifest.json">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='115' fill='%23e8f2ef'/%3E%3Cpath d='M256 64C142 64 64 142 64 256c0 154 192 288 192 288s192-134 192-288C448 142 370 64 256 64z' fill='%23ffc93c'/%3E%3Ccircle cx='256' cy='256' r='80' fill='%232ee6a8'/%3E%3C/svg%3E">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Lyon_Guide">
 <meta name="application-name" content="Lyon_Guide">
-
+<!--
+  Lyon_Guide · versione "libro"
+  Un solo file, nessuna dipendenza, funziona offline (anche da file://).
+  I punti numerati 1–17 sono la chiave di lettura: la pagina N porta al punto N.
+  Dati in cima allo script (HOTEL, P, CH, FOOD, GUIDES, TRIP, INFO_HTML), poi stato e render().
+  Coordinate dei punti: approssimate (±50 m), servono alla pianta schematica e al pallino GPS.
+-->
 <style>
-  :root {
-    --bg: #e8f2ef;
-    --txt-bg: #17323b;
-    --mut-bg: #3d5f63;
-    --line-bg: rgba(23,50,59,.15);
-    --card: #ffffff;
-    --line: #c3dcd5;
-    --txt: #17323b;
-    --mut: #5b7a80;
-    --amber: #e0940f;
-    --amber-text: #e0940f;
-    --green: #0e9f6e;
-    --green-text: #0e9f6e;
-    --blue: #2563eb;
-    --red: #dc4c4c;
+  :root{
+    --bg:#eef5f2; --card:#fff; --ink:#17323b; --mut:#5b7a80; --line:#c3dcd5; --line2:#e2ece9;
+    --amber:#e0940f; --amber-t:#8a5a00; --green:#0e9f6e; --green-l:#c8eedd; --blue:#1d4ed8; --gps:#2563eb;
+    --red-bg:#fde8e8; --red:#8f1d1d; --tip:#fff6dc; --paper:#fffdf7; --violet:#7c3aed;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:var(--bg);color:var(--ink);font-family:-apple-system,'Segoe UI',Roboto,sans-serif;font-size:16px;
+    -webkit-text-size-adjust:100%;padding-top:calc(60px + env(safe-area-inset-top));padding-bottom:calc(64px + env(safe-area-inset-bottom))}
+  a{color:inherit}
+  button{font-family:inherit;color:inherit}
+  @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.01ms!important;scroll-behavior:auto!important}}
+  :focus-visible{outline:3px solid var(--amber);outline-offset:2px}
 
-    /* Design tokens */
-    --radius-sm: 10px;
-    --radius-md: 16px;
-    --radius-lg: 22px;
-    --radius-pill: 99px;
-    --shadow-sm: 0 2px 8px rgba(0,0,0,.06);
-    --shadow-md: 0 4px 16px rgba(0,0,0,.10);
-    --shadow-lg: 0 -8px 24px rgba(0,0,0,.18);
-    --shadow: var(--shadow-md);
+  /* ---- barra in alto: i capitoli ---- */
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:30;display:flex;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 12px 8px;background:rgba(238,245,242,.96);backdrop-filter:blur(10px);border-bottom:1px solid var(--line2)}
+  .dchip{flex:1;min-height:44px;border-radius:99px;background:#fff;border:1px solid var(--line);color:var(--mut);font-weight:800;font-size:13px;line-height:1.05;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer}
+  .dchip small{font-size:10px;font-weight:700;opacity:.85}
+  .dchip.on{background:var(--amber);border-color:var(--amber);color:#fff}
 
-    --radius: 16px;
-  }
+  main{max-width:520px;margin:0 auto;padding:10px 14px 190px}
+  main.nopad{padding-bottom:30px}
 
-  body.phase-morning {
-    --bg: #d4e8e3;
-    --txt-bg: #17323b;
-    --mut-bg: #3d5f63;
-    --line-bg: rgba(23,50,59,.18);
-    --amber-text: #b87800;
-    --green-text: #0a7f56;
-  }
-  body.phase-day {
-    --bg: #e8f2ef;
-    --txt-bg: #17323b;
-    --mut-bg: #3d5f63;
-    --line-bg: rgba(23,50,59,.15);
-    --amber-text: #e0940f;
-    --green-text: #0e9f6e;
-  }
-  body.phase-evening {
-    --bg: #226e66;
-    --txt-bg: #eaf7f4;
-    --mut-bg: #d0ebe5;
-    --line-bg: rgba(255,255,255,.28);
-    --amber-text: #ffd07a;
-    --green-text: #8af0c5;
-  }
-  body.phase-night {
-    --bg: #1c625f;
-    --txt-bg: #eaf7f4;
-    --mut-bg: #d0ebe5;
-    --line-bg: rgba(255,255,255,.22);
-    --amber-text: #ffd07a;
-    --green-text: #8af0c5;
-  }
+  /* ---- navigazione in basso ---- */
+  nav.bnav{position:fixed;left:0;right:0;bottom:0;z-index:40;background:#fff;border-top:1px solid var(--line);display:flex;padding-bottom:env(safe-area-inset-bottom)}
+  nav.bnav button{flex:1;background:none;border:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:58px;font-size:10.5px;font-weight:800;color:var(--mut);cursor:pointer}
+  nav.bnav button span{font-size:19px}
+  nav.bnav button.on{color:#b87800}
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html, body { height: 100%; }
-  body {
-    background-color: var(--bg);
-    color: var(--txt-bg);
-    font-family: -apple-system, 'Segoe UI', Roboto, sans-serif;
-    overflow: hidden;
-    user-select: none;
-    -webkit-user-select: none;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom));
-    transition: background-color 1.4s ease, color 1.4s ease;
-  }
+  /* ---- zona pollice: azione principale + sfoglia ---- */
+  .pad{position:fixed;left:0;right:0;bottom:calc(58px + env(safe-area-inset-bottom));z-index:35;padding:14px 14px 10px;background:linear-gradient(rgba(238,245,242,0),var(--bg) 24%)}
+  .pad.paper{background:linear-gradient(rgba(255,253,247,0),var(--paper) 24%)}
+  .pad-in{max-width:520px;margin:0 auto;display:flex;flex-direction:column;gap:8px}
+  .pb{display:block;width:100%;border:0;border-radius:16px;font-weight:900;text-align:center;padding:12px 8px;font-size:15.5px;background:var(--green);color:#fff;box-shadow:0 4px 12px rgba(14,159,110,.3);text-decoration:none;cursor:pointer;min-height:52px}
+  .pb small{display:block;font-size:11px;font-weight:700;opacity:.92;margin-top:2px}
+  .pb.dark{background:var(--ink);box-shadow:none}
+  .pr{display:flex;gap:8px}
+  .ps{flex:1;border-radius:14px;text-align:center;padding:9px 6px;font-weight:800;font-size:14px;background:#fff;color:var(--ink);border:1px solid var(--line);cursor:pointer;min-height:48px}
+  .ps small{display:block;font-size:10.5px;font-weight:700;color:var(--mut);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ps.off{opacity:.35;pointer-events:none}
 
-  @media (prefers-reduced-motion: reduce) {
-    *, *::before, *::after {
-      animation-duration: 0.01ms !important;
-      transition-duration: 0.01ms !important;
-    }
-  }
+  /* ---- testate ---- */
+  .kick{font-size:11px;font-weight:900;letter-spacing:.12em;color:#b87800;text-transform:uppercase;margin:4px 0 6px}
+  .tt{display:flex;gap:10px;align-items:center;margin:2px 0 8px}
+  .num{flex:none;width:42px;height:42px;border-radius:50%;background:var(--green);color:#fff;font-weight:900;font-size:19px;display:flex;align-items:center;justify-content:center;box-shadow:0 0 0 4px var(--green-l)}
+  .num.grey{background:#9fb3b3;box-shadow:0 0 0 4px #e3eaea}
+  .num.hotel{background:var(--ink);box-shadow:0 0 0 4px #d6e2e6;font-size:20px}
+  .tt .n{font-size:23px;font-weight:900;line-height:1.12}
+  .tt .n small{display:block;font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mut);text-transform:uppercase;margin-bottom:2px}
+  .story{font-size:15px;line-height:1.5;margin-bottom:10px}
+  .story b{color:var(--amber-t)}
 
-  .kicker, .kicker .phase, .stepno, .stepno .badge-done, .meta, .meta b,
-  .alldone p, .guide-box, .guide-text, .guide-open-btn,
-  .guide-title, .tip, .ttable td, .ttable .t-name,
-  .ttable .t-det, .ttable .t-det b, .ttable .t-tot, .trip-note {
-    transition: background-color 1.4s ease, color 1.4s ease, border-color 1.4s ease;
-  }
+  /* ---- schede ---- */
+  .card{background:var(--card);border:1px solid #d4e6e0;border-radius:16px;padding:11px 12px;margin-bottom:9px}
+  .card h4{font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--mut);margin-bottom:6px;font-weight:900}
+  .pills{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+  .pill{font-size:12.5px;font-weight:800;padding:6px 10px;border-radius:99px;background:#fff;border:1px solid var(--line)}
+  .pill.red{background:var(--red-bg);border-color:#f3c4c4;color:var(--red)}
+  .warn{background:var(--red-bg);color:var(--red);border-radius:12px;padding:9px 11px;font-size:13.5px;font-weight:700;margin-bottom:9px;line-height:1.4}
+  .tip{background:var(--tip);border-radius:12px;padding:9px 11px;font-size:13.5px;margin-bottom:9px;line-height:1.45}
+  .est{font-size:13px;color:#3d5f63;line-height:1.45}
+  .est b{color:var(--ink)}
+  .bar{height:7px;border-radius:99px;background:var(--line2);overflow:hidden;margin:2px 0 6px}
+  .bar i{display:block;height:100%;background:var(--green);border-radius:99px}
 
-  .sky {
-    position: fixed; inset: 0; z-index: 0; pointer-events: none;
-    transition: background 1.4s ease;
-  }
-  .sky.morning { background: radial-gradient(120% 90% at 50% -10%, rgba(255,245,220,.35), transparent 55%); }
-  .sky.day     { background: radial-gradient(120% 90% at 50% -10%, rgba(220,240,255,.25), transparent 55%); }
-  .sky.evening { background: radial-gradient(120% 90% at 50% -10%, rgba(255,200,150,.12), transparent 55%); }
-  .sky.night   { background: radial-gradient(120% 90% at 50% -10%, rgba(150,170,220,.08), transparent 55%); }
+  .see{list-style:none}
+  .see li{display:flex;gap:9px;font-size:14px;line-height:1.35;padding:6px 0;align-items:flex-start;border-top:1px solid var(--line2)}
+  .see li:first-child{border-top:0}
+  .see li .i{flex:none;width:22px;text-align:center;font-size:16px}
+  .see li .s{color:var(--mut)}
+  .see li.tap{cursor:pointer}
+  .see li .chev{margin-left:auto;color:#9fb3b3;font-weight:900;padding-left:6px;font-size:18px;line-height:1}
+  .see li .k{flex:none;width:24px;height:24px;border-radius:50%;background:var(--ink);color:#fff;font-size:11.5px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .see li .k.done{background:#9fb3b3}.see li .k.cur{background:var(--green)}.see li .k.nx{background:var(--amber)}
+  .see li .t{margin-left:auto;font-size:12px;font-weight:800;color:var(--mut);white-space:nowrap;padding-left:6px}
+  .how{list-style:none;counter-reset:h}
+  .how li{counter-increment:h;display:flex;gap:9px;font-size:14px;line-height:1.4;padding:5px 0}
+  .how li::before{content:counter(h);flex:none;width:22px;height:22px;border-radius:7px;background:var(--violet);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;margin-top:1px}
+  .leggi{display:flex;width:100%;align-items:center;gap:10px;margin-top:9px;padding:10px 12px;border-radius:12px;background:var(--ink);color:#fff;border:0;text-align:left;cursor:pointer;min-height:52px}
+  .leggi .bk{font-size:24px;line-height:1}
+  .leggi b{font-size:15px;font-weight:900;display:block}
+  .leggi small{font-size:11.5px;opacity:.82;font-weight:700}
+  .leggi .ar{margin-left:auto;font-size:20px;font-weight:900;color:#ffd07a}
+  details.ese{background:#fff;border:1px solid #d4e6e0;border-radius:14px;margin-bottom:9px}
+  details.ese summary{list-style:none;cursor:pointer;padding:12px;font-weight:800;font-size:14px;min-height:44px}
+  details.ese summary::-webkit-details-marker{display:none}
+  details.ese summary::after{content:"＋";float:right;color:var(--mut)}
+  details.ese[open] summary::after{content:"－"}
+  details.ese div{padding:0 12px 12px;font-size:13.5px;line-height:1.55}
+  .btn3{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 9px}
+  .btn3 a,.btn3 button{flex:1 1 auto;min-width:96px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:4px;padding:8px 10px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:13px;font-weight:800;text-decoration:none;color:var(--ink);cursor:pointer}
 
-  .topbar {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 30;
-    display: flex; justify-content: space-between; align-items: center; gap: 6px;
-    padding: calc(10px + env(safe-area-inset-top)) 12px 8px;
-  }
-  .tbtn {
-    background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 18px; padding: 0; border-radius: 10px;
-    width: 52px; height: 44px; flex: none; cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .tbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  .tbtn.on { color: var(--amber); border-color: var(--amber); }
-  .clock {
-    font-size: 12px; font-weight: 800; color: var(--mut);
-    font-variant-numeric: tabular-nums;
-    background: #ffffffcc; padding: 0; border-radius: 10px;
-    border: 1.5px solid var(--line); width: 52px; height: 44px; flex: none;
-    display: flex; align-items: center; justify-content: center;
-  }
+  /* ---- pianta ---- */
+  .map{position:relative;border-radius:14px;overflow:hidden;background:#eef1e8;border:1px solid #d4e6e0;margin-bottom:5px}
+  .map svg{display:block;width:100%;height:auto}
+  .map .mbtn{position:absolute;top:8px;font-size:12px;font-weight:800;background:#fff;color:var(--ink);padding:0 10px;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.18);border:0;min-height:36px;cursor:pointer}
+  .map .full{right:8px}.map .gpsb{left:8px}
+  .map .gpsb.on{background:var(--gps);color:#fff}
+  .mtools{display:flex;gap:6px;margin:0 0 5px}
+  .mtools .mt{flex:1;min-height:40px;border-radius:10px;border:1px solid var(--line);background:#fff;font-size:12.5px;font-weight:800;color:var(--ink);cursor:pointer}
+  .mtools .mt.on{background:var(--gps);border-color:var(--gps);color:#fff}
+  .mleg{display:flex;flex-wrap:wrap;gap:3px 10px;font-size:11px;font-weight:700;color:var(--mut);margin:0 2px 9px}
+  .mleg i{display:inline-block;width:10px;height:10px;border-radius:50%;vertical-align:-1px;margin-right:3px}
+  .mleg .gtxt{color:var(--gps);font-weight:800}
+  .mk{cursor:pointer}
 
-  .daystrip {
-    flex: 1; min-width: 0;
-    display: flex; justify-content: center; gap: 6px;
-  }
-  .daystrip button {
-    background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 12px; padding: 0 6px; border-radius: 99px;
-    flex: 1 1 0; max-width: 84px; min-width: 0; height: 44px; white-space: nowrap; cursor: pointer;
-    transition: background .2s, border-color .2s, color .2s, box-shadow .2s, transform .12s;
-  }
-  .daystrip button:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  .daystrip button.on {
-    background: var(--amber); border-color: var(--amber); color: #1a1400;
-    box-shadow: 0 4px 14px #ffc93c44;
-  }
-  .daystrip button:active { transform: scale(.96); }
+  /* ---- lettura ---- */
+  body.reading{background:var(--paper)}
+  .rd-h{position:sticky;top:calc(60px + env(safe-area-inset-top));z-index:5;background:var(--paper);margin:-10px -14px 0;padding:10px 14px 8px;border-bottom:1px solid #eadfc8}
+  .rd-h .tt{margin:0}
+  .rd-h .tt .n{font-size:20px}
+  .chips{display:flex;gap:6px;margin-top:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+  .chips::-webkit-scrollbar{display:none}
+  .chips button{flex:none;font-size:12px;font-weight:800;padding:0 11px;min-height:36px;border-radius:99px;background:#fff;border:1px solid #e3d6b8;white-space:nowrap;color:#5b4a1f;cursor:pointer}
+  .chips button.on{background:var(--amber);border-color:var(--amber);color:#fff}
+  .rd{padding:14px 4px 0;color:#2a2a24}
+  .rd h3{font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:#b87800;margin:18px 0 6px;font-weight:900;scroll-margin-top:150px}
+  .rd h3:first-child{margin-top:4px}
+  .rd .tx{font-family:Georgia,'Times New Roman',serif;font-size:17px;line-height:1.6}
+  .rd .tx b{font-family:-apple-system,'Segoe UI',Roboto,sans-serif;font-size:15px}
+  .rd .tx a{color:#1d4ed8}
+  .rd .lead2{font-family:Georgia,serif;font-size:18px;font-style:italic;color:#3d3a2e;line-height:1.55}
+  .rd .hl{background:#fff1c9;border-left:4px solid var(--amber);margin:0 -18px;padding:6px 18px 10px}
 
-  main {
-    position: relative; z-index: 10; height: 100%;
-    display: flex; flex-direction: column;
-    padding: calc(84px + env(safe-area-inset-top)) 18px 0;
-    overflow-y: auto; -webkit-overflow-scrolling: touch;
-  }
-  main.foodpage { padding-top: calc(12px + env(safe-area-inset-top)); }
-  /* FIX 1: spazio di scorrimento sotto la card — così "Apri guida completa",
-     i bottoni mappa e il tip non restano mai coperti dal pad fisso
-     (PREC / FATTO / NEXT / TAXI) e dalla barra di navigazione. */
-  main#nowPage { padding-bottom: 240px; }
-  main[hidden] { display: none !important; }
+  /* ---- sommario / indice / mangiare ---- */
+  .chap{display:block;width:100%;text-align:left;background:#fff;border:1px solid #d4e6e0;border-radius:16px;padding:11px 12px;margin-bottom:9px;cursor:pointer}
+  .chap.on{border:2px solid var(--amber)}
+  .chap .top{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+  .chap .top b{font-size:16px}
+  .chap .top span{font-size:11.5px;font-weight:800;color:var(--mut);white-space:nowrap}
+  .chap p{font-size:13px;line-height:1.45;margin:4px 0 7px;color:#3d5f63}
+  .nums{display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  .nums span{width:25px;height:25px;border-radius:50%;background:var(--ink);color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .nums span.done{background:#9fb3b3}.nums span.cur{background:var(--green)}
+  .nums em{font-style:normal;font-size:11.5px;font-weight:700;color:var(--mut);margin-left:3px}
+  .todo{list-style:none}
+  .todo li{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-top:1px solid var(--line2);font-size:13.5px;line-height:1.4}
+  .todo li:first-child{border-top:0}
+  .todo .st{flex:none;font-size:11px;font-weight:900;padding:3px 8px;border-radius:99px;background:var(--red-bg);color:var(--red);white-space:nowrap}
+  .todo .st.ok{background:#e1f6ec;color:#0a7f56}
+  .reset{display:flex;width:100%;text-align:left;align-items:center;gap:11px;background:#fff;border:1.5px dashed #c99a4a;border-radius:14px;padding:12px;margin:14px 0 9px;cursor:pointer}
+  .reset .ic{font-size:24px;font-weight:900;color:#b87800}
+  .reset b{font-size:14.5px;font-weight:900;display:block}
+  .reset small{font-size:12px;color:var(--mut);line-height:1.4;display:block}
+  .search{width:100%;background:#fff;border:1px solid var(--line);border-radius:12px;padding:11px 12px;font-size:16px;margin-bottom:8px;font-family:inherit;color:var(--ink)}
+  .seg{display:flex;background:#fff;border:1px solid var(--line);border-radius:12px;padding:3px;margin-bottom:9px}
+  .seg button{flex:1;border:0;background:none;border-radius:9px;min-height:38px;font-weight:800;font-size:13px;color:var(--mut);cursor:pointer}
+  .seg button.on{background:var(--ink);color:#fff}
+  .idx{list-style:none}
+  .idx li{display:flex;align-items:center;gap:9px;padding:8px 0;border-top:1px solid var(--line2);font-size:13.5px}
+  .idx li:first-child{border-top:0}
+  .idx .k{flex:none;width:30px;height:30px;border-radius:50%;background:var(--ink);color:#fff;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;border:0;cursor:pointer}
+  .idx .k.o{background:#fff;color:var(--mut);border:1.5px dashed #9fb3b3;cursor:default}
+  .idx .k.st{background:#fff4dc;color:#8a5a00;border:1.5px solid #e0b25a;cursor:default}
+  .idx .k.ht{background:#d6e2e6;color:var(--ink);cursor:default}
+  .idx .nm{flex:1;line-height:1.3;min-width:0}
+  .idx .nm b{font-weight:800}
+  .idx .nm small{display:block;font-size:11.5px;color:var(--mut)}
+  .ib{flex:none;width:40px;height:40px;border-radius:10px;background:var(--blue);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;text-decoration:none;border:0;cursor:pointer}
+  .ib.rd{background:var(--ink)}
+  .ib.star{background:#fff;border:1.5px solid var(--line);color:#c3cfcf;font-size:18px}
+  .ib.star.on{background:var(--amber);border-color:var(--amber);color:#fff}
+  .sec-t{font-size:11.5px;font-weight:900;color:#b87800;letter-spacing:.1em;text-transform:uppercase;margin:14px 2px 6px}
+  .rest{border-top:1px solid var(--line2);padding:9px 0}
+  .rest:first-of-type{border-top:0}
+  .rest.mine{background:#e9f8f1;margin:0 -8px;padding:9px 8px;border-radius:10px;border-top:0}
+  .rest .rt{display:flex;gap:9px;align-items:flex-start}
+  .rest .lt{flex:none;width:26px;height:26px;border-radius:50%;background:#fff4dc;color:#8a5a00;border:1.5px solid #e0b25a;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .rest.mine .lt{background:var(--amber);border-color:var(--amber);color:#fff}
+  .rest .rn{flex:1;line-height:1.35;font-size:14px;min-width:0}
+  .rest .rn b{font-weight:800}
+  .rest .rn small{display:block;color:var(--mut);font-size:12px}
+  .rest .rb{display:flex;gap:6px;margin:7px 0 0 35px;flex-wrap:wrap}
+  .rest .rb a,.rest .rb button{min-height:40px;padding:0 11px;border-radius:10px;font-size:12.5px;font-weight:800;display:flex;align-items:center;gap:4px;text-decoration:none;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}
+  .rest .rb .tel{background:var(--blue);border-color:var(--blue);color:#fff}
+  .rest .rb .stb.on{background:var(--amber);border-color:var(--amber);color:#fff}
+  .bk-st{display:inline-block;font-size:10.5px;font-weight:900;padding:2px 7px;border-radius:99px;margin-left:4px;vertical-align:1px}
+  .bk-st.no{background:var(--red-bg);color:var(--red)}
+  .bk-st.ok{background:#e1f6ec;color:#0a7f56}
 
-  .kicker {
-    text-align: center; font-size: 11px; font-weight: 800;
-    letter-spacing: 1.8px; text-transform: uppercase;
-    color: var(--amber-text); margin-bottom: 6px;
-  }
-  .kicker .phase {
-    display: inline-block; margin-left: 8px; color: var(--mut-bg);
-    letter-spacing: .4px; text-transform: none; font-weight: 700;
-  }
-  .stepno {
-    text-align: center; font-size: 12px; color: var(--mut-bg);
-    font-weight: 700; font-variant-numeric: tabular-nums; margin-bottom: 14px;
-  }
-  .stepno .badge-done { color: var(--green-text); font-weight: 800; }
+  /* ---- SOS / Info (contenuti della versione precedente) ---- */
+  .list{margin-bottom:14px}
+  .list-h,.sec-h{font-size:12px;font-weight:900;color:#b87800;letter-spacing:.08em;text-transform:uppercase;margin:12px 2px 7px}
+  .ritem{background:#fff;border:1px solid #d4e6e0;border-radius:14px;padding:11px 12px;margin-bottom:8px}
+  .ritem.alert{background:var(--red-bg);border-color:#f3c4c4}
+  .ritem.alert .r-name{color:var(--red)}
+  .r-top{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+  .r-name{font-weight:800;font-size:14.5px}
+  .r-price{font-weight:900;font-size:14px;color:#0a7f56;white-space:nowrap}
+  .r-addr{font-size:13px;color:var(--mut);line-height:1.45;margin-top:3px}
+  .r-btns{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px}
+  .r-btns a{min-height:42px;padding:0 12px;border-radius:10px;font-size:13px;font-weight:800;display:flex;align-items:center;text-decoration:none;color:#fff;background:var(--blue)}
+  .r-btns a.b-map{background:#0f766e}.r-btns a.b-web{background:#475569}
+  .info-p{font-size:13.5px;line-height:1.5;margin:0}
+  .info-p+.info-p{margin-top:7px}
+  .tips{background:var(--tip);border-radius:14px;padding:11px 12px;font-size:13.5px;line-height:1.5;margin-bottom:12px}
+  .tips div+div{margin-top:7px}
+  .taxi-card{font-size:25px;font-weight:900;line-height:1.3;text-align:center;padding:18px 10px;border:3px dashed var(--line);border-radius:14px;margin-bottom:12px;background:#fff}
+  .taxi-card small{display:block;font-size:14px;font-weight:700;color:var(--mut);margin-top:6px}
 
-  .bigcard {
-    flex: 1; display: flex; flex-direction: column; justify-content: flex-start;
-    max-width: 480px; margin: 0 auto; width: 100%; padding-bottom: 24px;
-  }
-  .emoji {
-    font-size: 56px; text-align: center; margin-bottom: 10px;
-    filter: drop-shadow(0 6px 18px #0006);
-    animation: float 3.6s ease-in-out infinite;
-  }
-  /* FIX 2: emoji in linea con il titolo (a sinistra della scritta),
-     card più compatta: più contenuti visibili senza scorrere. */
-  .cardhead {
-    display: flex; align-items: center; justify-content: center;
-    gap: 10px; margin-bottom: 10px;
-  }
-  .cardhead .emoji { font-size: 40px; margin-bottom: 0; flex: none; }
-  .cardhead .title { margin-bottom: 0; }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-7px); }
-  }
-  .title {
-    font-size: clamp(22px, 6.2vw, 28px); font-weight: 900;
-    text-align: center; line-height: 1.18; margin-bottom: 10px;
-  }
-  .meta {
-    text-align: center; font-size: 14px; color: var(--mut-bg); margin-bottom: 8px; line-height: 1.4;
-  }
-  .meta b { color: var(--txt-bg); }
-  .poi-open-btn {
-    display: block; width: 100%; max-width: 440px; margin: 14px auto 0; padding: 11px 14px;
-    background: rgba(15,90,80,.05); border: 1.5px solid var(--line-bg); color: var(--txt-bg);
-    font-family: inherit; font-size: 12.5px; font-weight: 800; border-radius: 10px;
-    text-align: center; min-height: 44px; transition: transform .1s;
-  }
-  .poi-open-btn:active { transform: scale(.98); }
-  .poi-open-btn:focus-visible { outline: 3px solid #fff; outline-offset: 2px; }
-  body.phase-evening .poi-open-btn,
-  body.phase-night .poi-open-btn { background: rgba(0,0,0,.15); }
-
-  .guide-box {
-    margin: 0 auto 16px; max-width: 440px;
-    background: rgba(15,90,80,.05); border-left: 3px solid var(--amber-text);
-    padding: 14px 16px; border-radius: 0 16px 16px 0;
-    text-align: left; box-shadow: var(--shadow); width: 100%;
-  }
-  body.phase-evening .guide-box,
-  body.phase-night .guide-box {
-    background: rgba(0,0,0,.22); box-shadow: 0 4px 16px rgba(0,0,0,.25);
-  }
-  .guide-title {
-    font-size: 11px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1.4px; color: var(--amber-text);
-    margin-bottom: 8px; display: flex; align-items: center; gap: 5px;
-  }
-  .guide-text {
-    font-size: 14px; line-height: 1.55; color: var(--txt-bg);
-    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
-  }
-  body.phase-evening .guide-text,
-  body.phase-night .guide-text { color: #dceeea; }
-  .guide-open-btn {
-    display: block; width: 100%; margin-top: 12px; padding: 12px 14px;
-    background: linear-gradient(135deg, rgba(255,201,60,.18), rgba(255,201,60,.06));
-    border: 1.5px solid rgba(255,201,60,.4);
-    color: var(--amber-text); font-size: 13px; font-weight: 800;
-    letter-spacing: .2px; border-radius: 10px; cursor: pointer;
-    text-align: center; transition: transform .12s, background .15s;
-  }
-  .guide-open-btn:active { transform: scale(.97); background: rgba(255,201,60,.28); }
-  .guide-open-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-
-  .tip {
-    margin: 14px auto 0; max-width: 400px;
-    background: #ffc93c14; border: 1px solid #ffc93c33; color: #8a5b00;
-    font-size: 13px; padding: 12px 14px; border-radius: 16px;
-    line-height: 1.45; text-align: center;
-  }
-  body.phase-evening .tip,
-  body.phase-night .tip {
-    background: rgba(255,201,60,.12); border-color: rgba(255,201,60,.35); color: #ffe4a3;
-  }
-  .warn { background: #ff6b6b14; border-color: #ff6b6b44; color: #c06a6a; }
-  body.phase-evening .tip.warn,
-  body.phase-night .tip.warn {
-    background: rgba(255,107,107,.14); border-color: rgba(255,107,107,.38); color: #ffbcbc;
-  }
-
-  .map-actions {
-    display: flex; justify-content: center; gap: 6px; margin: 14px auto 0;
-    width: 100%; max-width: 440px; flex-wrap: nowrap;
-  }
-  /* Bottoni mappa unificati: stile neutro, icona+label differenziano il mezzo */
-  .map-btn {
-    display: flex; align-items: center; justify-content: center; gap: 4px; text-decoration: none;
-    font-size: 11px; font-weight: 800; padding: 9px 4px; border-radius: 10px;
-    background: rgba(15,90,80,.05); border: 1.5px solid var(--line-bg);
-    color: var(--txt-bg);
-    transition: transform .1s, background .2s;
-    min-height: 40px; white-space: nowrap;
-    flex: 1 1 0; min-width: 0;
-    box-shadow: var(--shadow-sm);
-  }
-  .map-btn:active { transform: scale(.95); }
-  /* Versione semplice: "Altri modi" a griglia, pulsante principale nella zona pollice */
-  /* ===== Versione semplice 02: filo, blocchi, opzioni ===== */
-  main#nowPage > * { flex-shrink: 0; }
-  .filo { flex: none; display: flex; align-items: center; justify-content: safe center; scrollbar-width: none; gap: 0; max-width: 480px; margin: 6px auto 4px; overflow-x: auto; padding: 4px 2px; }
-  .fchip { flex: none; width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid var(--line-bg); background: rgba(255,255,255,.55); font-size: 15px; display: flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
-  .fchip.past { opacity: .45; }
-  .fchip.on { width: 44px; height: 44px; font-size: 20px; border: 2.5px solid var(--amber); background: #fff8e6; box-shadow: 0 4px 14px #ffc93c55; }
-  .fline { flex: 1 1 8px; min-width: 4px; max-width: 18px; height: 2px; background: var(--line-bg); }
-  .blk-h { text-align: center; font-size: 12px; font-weight: 900; letter-spacing: .5px; text-transform: uppercase; color: var(--txt-bg); opacity: .9; margin: 6px auto 8px; max-width: 440px; }
-  .ft { font-size: 13.5px; margin-bottom: 10px; text-align: center; }
-  .opt-main { display: flex; gap: 12px; align-items: center; background: rgba(255,255,255,.75); color: #17323b; border: 2px solid var(--green); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; }
-  .om-i { font-size: 34px; flex: none; }
-  .om-t { font-size: 17px; font-weight: 900; }
-  .om-s { font-size: 12.5px; color: #3d5f63; margin-top: 2px; line-height: 1.35; }
-  .alt-h { font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: .5px; opacity: .75; margin: 12px 0 0; text-align: center; }
-  .pts { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px; }
-  .pts[hidden] { display: none; }
-  .pts { flex-direction: row !important; align-items: center; justify-content: center; gap: 0 !important; margin: 4px 0 10px !important; }
-  .pts .ptb { width: 44px; height: 44px; min-height: 44px; padding: 0; border-radius: 50%; justify-content: center; flex: none; }
-  .pts .ptb .pl { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
-  .pts .ptb .pn { background: transparent; width: auto; height: auto; font-size: 14px; }
-  .pts .ptb.on { width: 50px; height: 50px; }
-  .pts .ptb.on .pn { background: transparent; color: #17323b; font-size: 17px; }
-  .pline { flex: 1 1 10px; max-width: 22px; height: 2px; background: var(--line-bg); }
-  /* Semplice 04: fuori orario, decisione, tasti su due righe */
-  .late-b { background: #b91c1c; color: #fff; border-radius: 12px; padding: 10px 12px; margin: 0 0 12px; text-align: center; font-weight: 900; font-size: 15px; letter-spacing: .5px; }
-  .late-b small { display: block; font-size: 12px; font-weight: 700; letter-spacing: 0; opacity: .95; margin-top: 2px; }
-  .late-b button { margin-top: 8px; background: #fff; color: #b91c1c; border: 0; border-radius: 99px; font: inherit; font-size: 12.5px; font-weight: 800; padding: 8px 14px; min-height: 44px; cursor: pointer; }
-  .ws-dec { font-size: 12.5px; margin-top: 8px; line-height: 1.4; }
-  .ws-maps { display: flex; gap: 6px; justify-content: center; margin-top: 8px; }
-  .ws-maps .map-btn { flex: 1 1 0; min-height: 44px; font-size: 12.5px; max-width: 220px; }
-  .ws-note { font-size: 11.5px; opacity: .8; margin-top: 4px; font-style: italic; }
-  .ws-dec.over { color: #fff; background: #b45309; border-radius: 10px; padding: 7px 10px; }
-  .fchip { position: relative; }
-  .fno { position: absolute; right: -4px; bottom: -4px; min-width: 16px; height: 16px; border-radius: 8px; background: var(--green); color: #06281c; font-size: 10px; font-weight: 900; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
-  .pad-inner.v2 { flex-direction: column; gap: 8px; }
-  .pad-row { display: flex; gap: 8px; width: 100%; }
-  .pad-row .pbtn.go { flex: 1; }
-  .pbtn.step { flex: 1 1 0; height: 46px; flex-direction: row; font-size: 14px; font-weight: 800; background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut); border-radius: 14px; }
-  .pbtn.step.off { opacity: .3; pointer-events: none; }
-  body.phase-evening .pbtn.step, body.phase-night .pbtn.step { background: rgba(0,0,0,.25); border-color: var(--line-bg); color: var(--txt-bg); }
-  .wsheet { text-align: center; margin: 0 0 12px; }
-  .ws-sub { font-size: 14px; font-style: italic; opacity: .9; margin-bottom: 4px; }
-  .ws-row { display: inline-block; font-size: 12.5px; font-weight: 800; background: rgba(255,255,255,.18); border: 1px solid var(--line-bg); border-radius: 99px; padding: 6px 12px; }
-  .wdone { text-align: center; padding: 6px 0 4px; }
-  .wd-i { width: 64px; height: 64px; margin: 0 auto 8px; border-radius: 50%; background: var(--green); color: #06281c; font-size: 34px; font-weight: 900; display: flex; align-items: center; justify-content: center; }
-  .wd-t { font-size: 20px; font-weight: 900; }
-  .wd-s { font-size: 13px; opacity: .85; margin-top: 2px; }
-  .ptb { display: flex; align-items: center; gap: 10px; text-align: left; background: rgba(255,255,255,.12); border: 1.5px solid var(--line-bg); border-radius: 10px; padding: 6px 10px; min-height: 40px; color: inherit; font: inherit; font-size: 13px; font-weight: 700; cursor: pointer; }
-  .ptb .pn { flex: none; width: 24px; height: 24px; border-radius: 50%; background: rgba(255,255,255,.25); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900; }
-  .ptb.past { opacity: .5; }
-  .ptb.on { border-color: var(--amber); background: #fff8e6; color: #17323b; }
-  .ptb.on .pn { background: var(--amber); color: #1a1400; }
-  .cd { font-size: 13px; font-weight: 700; margin: 4px 0 10px; text-align: center; }
-  .cd.soon { background: #fde8e8; color: #991b1b; border-radius: 10px; padding: 8px 10px; }
-  .cd.late { opacity: .7; }
-  .nextline { margin-top: 14px; padding-top: 10px; border-top: 1px dashed var(--line-bg); font-size: 12.5px; font-weight: 700; opacity: .85; }
-  .step.t-go .st-tit { font-size: 14px; }
-  .step.t-walk { border-left: 5px solid var(--green); }
-  .more-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; width: 100%; max-width: 440px; margin: 8px auto 0; }
-  .more-grid .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
-  .row2 { display: flex; gap: 8px; width: 100%; max-width: 440px; margin: 14px auto 0; }
-  .row2 .poi-open-btn { margin: 0; min-height: 48px; font-size: 13px; }
-  .pbtn.go { flex: 1; background: var(--green); color: #06281c; font-size: 16px; height: 62px; font-weight: 900; box-shadow: 0 8px 24px #2ee6a855; }
-  .pbtn.go small { font-size: 10.5px; }
-  .step.past { opacity: .55; }
-  .sec-h { max-width: 480px; margin: 22px auto 4px; font-size: 13px; font-weight: 900; color: var(--txt-bg); letter-spacing: .4px; text-transform: uppercase; }
-  .g-pois { margin: 4px 0 14px; }
-
-  .loop-wrap { display: flex; gap: 6px; width: 100%; max-width: 440px; margin: 6px auto 0; }
-  .loop-wrap .map-take { flex: 0 0 34%; }
-  .loop-wrap .map-take:only-child { flex: 1 1 auto; }
-  .loop-wrap .map-btn { white-space: normal; min-height: 44px; font-size: 12px; }
-  .map-btn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  body.phase-evening .map-btn,
-  body.phase-night .map-btn {
-    background: rgba(0,0,0,.20);
-    color: var(--txt-bg);
-  }
-
-  .poi-list {
-    max-width: 440px; margin: 8px auto 14px; width: 100%;
-    background: rgba(255,255,255,.55); border: 1px solid var(--line);
-    border-radius: 16px; overflow: hidden; box-shadow: var(--shadow);
-  }
-  .poi {
-    display: flex; align-items: center; gap: 8px;
-    padding: 8px 9px; border-bottom: 1px solid rgba(23,50,59,.08);
-  }
-  .poi:last-child { border-bottom: none; }
-  .poi.start { border-left: 4px solid var(--green-text); }
-  .poi.end { border-left: 4px solid var(--amber-text); }
-  .poi .pi {
-    font-size: 16px; width: 22px; text-align: center; flex-shrink: 0;
-  }
-  .poi .pt { flex: 1; min-width: 0; }
-  .poi .pt b { display: block; font-size: 12.5px; font-weight: 700; color: var(--txt); line-height: 1.25; }
-  .poi .pt small { display: block; font-size: 9.5px; color: #6b8589; margin-top: 1px; line-height: 1.3; }
-  .poi .wrap { display: flex; flex-direction: column; gap: 3px; align-items: flex-end; flex-shrink: 0; }
-  .poi .flag {
-    font-size: 9px; font-weight: 800; color: #0a7f56; white-space: nowrap;
-    background: #0e9f6e1a; border: 1px solid #0e9f6e55; border-radius: 10px; padding: 2px 6px;
-  }
-  .poi .go {
-    flex-shrink: 0; font-size: 10px; font-weight: 800; text-decoration: none;
-    background: #1d4ed8; color: #fff; padding: 7px 9px; border-radius: 10px;
-    min-height: 44px; min-width: 44px; display: flex; align-items: center; justify-content: center; white-space: nowrap;
-  }
-  body.phase-evening .poi-list,
-  body.phase-night .poi-list {
-    background: rgba(0,0,0,.2); border-color: var(--line-bg);
-    box-shadow: 0 4px 16px rgba(0,0,0,.25);
-  }
-  body.phase-evening .poi,
-  body.phase-night .poi { border-bottom-color: rgba(255,255,255,.1); }
-  body.phase-evening .poi .pt b,
-  body.phase-night .poi .pt b { color: #eaf7f4; }
-  body.phase-evening .poi .pt small,
-  body.phase-night .poi .pt small { color: #b8dcd5; }
-  body.phase-evening .poi .flag,
-  body.phase-night .poi .flag {
-    color: var(--green-text); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.25);
-  }
-  /* la scheda Scopri è sempre chiara: testo scuro anche di sera */
-  body[class] .g-pois .poi-list { margin-top: 8px; background: #f3f8f6; border: 1px solid #cfe2dc; }
-  body[class] .g-pois .poi { border-bottom-color: rgba(23,50,59,.08); }
-  body[class] .g-pois .poi .pt b { color: #17323b; font-size: 13.5px; }
-  body[class] .g-pois .poi .pt small { color: #3d5f63; font-size: 11.5px; }
-
-  .sos-block {
-    background: #fff5f5; border: 1.5px solid #ef9a9a; border-radius: 16px;
-    padding: 12px 13px; margin-bottom: 14px;
-  }
-  .sos-block .sos-t {
-    font-size: 11px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1px; color: #b71c1c; margin-bottom: 9px;
-  }
-  .sos-row {
-    display: flex; align-items: center; justify-content: space-between;
-    gap: 8px; padding: 7px 0;
-  }
-  .sos-chip {
-    display: flex; align-items: center; gap: 8px; font-size: 13px;
-    font-weight: 800; color: #7f1d1d; min-width: 0;
-  }
-  .sos-chip small { display: block; font-size: 10.5px; font-weight: 700; color: #a36a6a; }
-  .sos-row a {
-    text-decoration: none; font-size: 11.5px; font-weight: 800;
-    padding: 9px 12px; border-radius: 10px; min-height: 38px;
-    display: flex; align-items: center; white-space: nowrap;
-  }
-  .sos-row .a-tel { background: #b91c1c; color: #fff; }
-  .sos-row .a-map { background: #1d4ed8; color: #fff; margin-left: 6px; }
-
-  .pad {
-    position: fixed; bottom: calc(64px + env(safe-area-inset-bottom)); left: 0; right: 0; z-index: 15;
-    background: linear-gradient(to top, var(--bg) 65%, transparent);
-    display: flex; align-items: center; justify-content: center;
-    padding: 14px 16px; transition: background 1.4s ease;
-  }
-  .pad-inner {
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    width: 100%; max-width: 480px;
-  }
-  .pbtn {
-    border: none; border-radius: 16px; font-weight: 800;
-    display: flex; flex-direction: column; align-items: center; justify-content: center;
-    gap: 2px; text-decoration: none; cursor: pointer;
-  }
-  .pbtn small { font-size: 9.5px; font-weight: 800; opacity: .85; letter-spacing: .2px; }
-  .pbtn:active { transform: scale(.93); }
-  .pbtn:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  .pbtn.nav {
-    width: 46px; height: 58px; background: #ffffffdd;
-    border: 1.5px solid var(--line); color: var(--mut); font-size: 16px;
-  }
-  .pbtn.nav.off { opacity: .28; pointer-events: none; }
-  .pbtn.metro {
-    width: 50px; height: 58px; background: #ffffffdd; color: var(--mut);
-    font-size: 18px; border: 1.5px solid var(--line);
-  }
-  .pbtn.tel {
-    width: 50px; height: 58px; background: #ffffffdd; color: var(--mut);
-    font-size: 18px; border: 1.5px solid var(--line);
-  }
-  body.phase-evening .pbtn.nav,
-  body.phase-evening .pbtn.metro,
-  body.phase-evening .pbtn.tel,
-  body.phase-night .pbtn.nav,
-  body.phase-night .pbtn.metro,
-  body.phase-night .pbtn.tel {
-    background: rgba(0,0,0,.25);
-    border-color: var(--line-bg);
-    color: var(--txt-bg);
-  }
-  .pbtn.done {
-    flex: 1; background: var(--green); color: #06281c; font-size: 13.5px; height: 58px;
-    font-weight: 900;
-    box-shadow: 0 8px 24px #2ee6a855; animation: pulse 2.2s infinite;
-  }
-  .pbtn.done small { font-size: 10.5px; }
-  @keyframes pulse {
-    0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.015); }
-  }
-  .pbtn.done:active { animation: none; }
-  .pbtn.undo {
-    flex: 1; background: #f9e0e0; color: #b03030; font-size: 12.5px; height: 58px;
-    border: 1.5px solid #d98080; box-shadow: none; animation: none;
-  }
-  .pbtn.undo small { font-size: 10.5px; color: #c06a6a; }
-
-  .alldone {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    justify-content: center; text-align: center; gap: 16px; padding: 20px;
-  }
-  .alldone .emoji { animation: none; font-size: 72px; }
-  .alldone h2 { font-size: 24px; font-weight: 900; }
-  .alldone p { color: var(--mut-bg); font-size: 15px; max-width: 300px; line-height: 1.45; }
-
-  .day-h {
-    margin: 12px auto 10px;
-    background: linear-gradient(135deg, #0f766e, #14b8a6);
-    border-radius: 16px; padding: 16px; width: 100%; max-width: 480px;
-  }
-  .day-h .dh-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; }
-  .day-h h2 { font-size: 17px; font-weight: 900; color: #fff; }
-  .day-h .dh-sub {
-    font-size: 11.5px; color: #eafff7; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .4px;
-  }
-  .dh-time {
-    font-size: 11.5px; font-weight: 800; background: rgba(0,0,0,.35);
-    color: #eafff7; padding: 7px 11px; border-radius: 999px;
-    white-space: nowrap; font-variant-numeric: tabular-nums;
-  }
-  .prog { display: flex; align-items: center; gap: 10px; margin-top: 12px; }
-  .prog .bar {
-    flex: 1; height: 8px; background: rgba(0,0,0,.35);
-    border-radius: 99px; overflow: hidden;
-  }
-  .prog .bar i {
-    display: block; height: 100%; background: var(--green);
-    width: 0; transition: width .35s ease;
-  }
-  .prog b { font-size: 12px; color: #eafff7; font-variant-numeric: tabular-nums; }
-
-  .steps {
-    padding: 0 0 24px; display: flex; flex-direction: column; gap: 10px;
-    width: 100%; max-width: 480px; margin: 0 auto;
-  }
-  .step {
-    background: var(--card); border: 1.5px solid var(--line);
-    border-radius: 16px; padding: 14px; display: flex; gap: 12px;
-    cursor: pointer; color: var(--txt); transition: border-color .2s, background .2s;
-  }
-  .step:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  .step.done { opacity: .48; }
-  .step.done .st-tit { text-decoration: line-through; }
-  .step.cur { border-color: var(--amber); border-width: 2.5px; background: #fff8e6; color: #17323b; }
-  .step.cur .st-sub, .step.cur .st-hint { color: #3d5f63; }
-  .chk {
-    appearance: none; -webkit-appearance: none;
-    width: 32px; height: 32px; min-width: 32px;
-    border: 2px solid var(--line); border-radius: 10px;
-    margin-top: 2px; position: relative; cursor: pointer;
-  }
-  .chk:checked { background: var(--green); border-color: var(--green); }
-  .chk:checked::after {
-    content: '✓'; position: absolute; color: #06281c;
-    font-size: 18px; font-weight: 900; inset: 0;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .st-body { flex: 1; min-width: 0; }
-  .badges { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
-  .bdg {
-    font-size: 10.5px; font-weight: 800; background: #cfe6df;
-    color: var(--mut); padding: 4px 9px; border-radius: 10px;
-    font-variant-numeric: tabular-nums;
-  }
-  .st-tit { font-size: 15.5px; font-weight: 800; }
-  .st-sub { font-size: 12.5px; color: var(--mut); margin: 4px 0 8px; line-height: 1.35; }
-  .st-hint { font-size: 11.5px; color: #5b7a80; font-weight: 700; }
-
-  .list {
-    margin: 12px auto; background: var(--card); border: 1px solid var(--line);
-    border-radius: 16px; overflow: hidden; width: 100%; max-width: 480px; color: var(--txt);
-  }
-  .list-h {
-    background: #cfe6df; padding: 13px 15px; font-size: 13.5px;
-    font-weight: 800; color: var(--amber); border-bottom: 1px solid var(--line);
-  }
-  .ritem { padding: 15px; border-bottom: 1px solid var(--line); }
-  .ritem:last-child { border-bottom: none; }
-  .r-top { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
-  .r-name { font-size: 15.5px; font-weight: 800; }
-  .r-price { font-size: 12.5px; font-weight: 800; color: var(--green); white-space: nowrap; }
-  .r-addr { font-size: 12.5px; color: var(--mut); margin: 4px 0 10px; }
-  .r-btns { display: flex; gap: 8px; flex-wrap: wrap; }
-  .r-btns a {
-    display: flex; align-items: center; justify-content: center; gap: 5px;
-    font-size: 12.5px; font-weight: 800; padding: 11px 14px; border-radius: 10px;
-    text-decoration: none; min-height: 44px;
-  }
-  .b-tel { background: #065f46; color: #ffffff; }
-  .b-map { background: #1d4ed8; color: #fff; }
-  .b-web { background: #cfe6df; color: var(--mut); }
-
-  .tips {
-    margin: 14px auto; padding: 15px; background: #ffc93c14;
-    border: 1px solid #ffc93c33; border-radius: 16px; font-size: 13px;
-    color: var(--txt); display: flex; flex-direction: column; gap: 8px;
-    width: 100%; max-width: 480px;
-  }
-  .tips b { color: var(--amber-text); }
-  body.phase-evening .tips,
-  body.phase-night .tips {
-    color: #ffe4a3;
-  }
-
-  .toast {
-    position: fixed; top: calc(64px + env(safe-area-inset-top)); left: 50%;
-    transform: translateX(-50%) translateY(-16px);
-    background: #cfe6df; border: 1px solid var(--line); color: var(--txt);
-    font-size: 13px; font-weight: 700; padding: 11px 18px; border-radius: 99px;
-    opacity: 0; transition: all .3s; z-index: 90; pointer-events: none;
-    white-space: nowrap; max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
-  }
-  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
-
-  .overlay {
-    position: fixed; inset: 0; background: #0a1f1dcc; backdrop-filter: blur(5px);
-    z-index: 70; display: flex; align-items: flex-end; justify-content: center;
-  }
-  .overlay[hidden] { display: none !important; }
-  .sheet {
-    width: 100%; max-width: 560px; margin: 0 auto; background: #f7fbfa;
-    border: 1px solid var(--line); border-bottom: none;
-    border-radius: 22px 22px 0 0; padding: 18px 16px calc(18px + env(safe-area-inset-bottom));
-    max-height: 82vh; display: flex; flex-direction: column; color: var(--txt);
-  }
-  .sh-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; }
-  .sh-top b { font-size: 15.5px; font-weight: 800; color: var(--amber); }
-  .sh-close {
-    background: #cfe6df; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 14px; width: 40px; height: 40px; border-radius: 10px;
-  }
-  .dayswitch { display: flex; gap: 8px; justify-content: center; margin-bottom: 14px; flex-wrap: wrap; }
-  .dayswitch button {
-    background: #ffffffdd; border: 1.5px solid var(--line); color: var(--mut);
-    font-weight: 800; font-size: 12.5px; padding: 10px 15px; border-radius: 99px; min-height: 42px;
-  }
-  .dayswitch button.on { background: var(--amber); border-color: var(--amber); color: #1a1400; }
-  .slist {
-    flex: 1; overflow-y: auto; display: flex; flex-direction: column;
-    gap: 7px; margin-bottom: 14px; padding-right: 2px;
-  }
-  .sitem {
-    display: flex; gap: 12px; align-items: center; background: #ffffffdd;
-    border: 1.5px solid var(--line); border-radius: 16px; padding: 13px;
-    text-align: left; color: var(--txt); width: 100%; cursor: pointer;
-  }
-  .sitem.cur { border-color: var(--amber); background: #ffc93c14; }
-  .sitem.done { opacity: .5; }
-  .sitem .si-st {
-    width: 30px; height: 30px; min-width: 30px; border-radius: 10px;
-    background: #cfe6df; display: flex; align-items: center; justify-content: center;
-    font-size: 13px; font-weight: 800;
-  }
-  .sitem.done .si-st { background: var(--green); color: #06281c; }
-  .sitem.cur .si-st { background: var(--amber); color: #1a1400; }
-  .sitem .si-tt { flex: 1; font-size: 13.5px; font-weight: 800; }
-  .sitem .si-mm { font-size: 11px; color: var(--mut); font-weight: 700; margin-top: 2px; }
-  .sbtns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
-  .sbtns button {
-    border-radius: 10px; font-weight: 800; font-size: 11.5px;
-    padding: 13px 6px; min-height: 48px; cursor: pointer;
-  }
-  .sb-undo { background: #cfe6df; border: 1.5px solid var(--line); color: var(--mut); }
-  .sb-day { background: #f6ecd4; border: 1.5px solid #d9b96a; color: #7a5c00; }
-  .sb-all { background: #f9e0e0; border: 1.5px solid #d98080; color: #b03030; }
-  .shint { font-size: 11px; color: var(--mut); text-align: center; margin-top: 12px; line-height: 1.5; }
-
-  /* Pianta mezzi: immagine grande scrollabile, con fallback offline */
-  .tmap-wrap {
-    flex: 1; overflow: auto; -webkit-overflow-scrolling: touch;
-    min-height: 0; text-align: center; border-radius: 10px;
-  }
-  .tmap-img { display: block; width: 100%; border: 1px solid var(--line); border-radius: 10px; background: #fff; }
-  #tmap-fallback svg { width: 100%; height: auto; display: block; }
-
-  /* Guide sheet impostata a 94vh per il massimo spazio verticale */
-  .guide-sheet {
-    width: 100%; max-width: 560px; margin: auto auto 0 auto; background: #f7fbfa;
-    border: 1px solid var(--line); border-bottom: none; border-radius: 22px 22px 0 0;
-    height: 94vh; max-height: 94vh;
-    display: flex; flex-direction: column; overflow: hidden; color: var(--txt);
-    box-shadow: 0 -10px 30px rgba(0,0,0,0.25);
-  }
-  .guide-hero {
-    position: relative; height: 130px;
-    background: linear-gradient(135deg, #bfe3dc 0%, #d3efe9 55%, #e8f2ef 100%);
-    display: flex; align-items: center; justify-content: center; overflow: hidden; flex-shrink: 0;
-  }
-  .gh-emoji {
-    font-size: 64px; filter: drop-shadow(0 8px 22px #0008);
-    animation: float 3.6s ease-in-out infinite;
-  }
-  .guide-hero::after {
-    content: ''; position: absolute; inset: 0; z-index: 2;
-    background: linear-gradient(to bottom, transparent 40%, #f7fbfa 100%);
-    pointer-events: none;
-  }
-  .gh-close {
-    position: absolute; top: 10px; right: 10px; z-index: 3;
-    background: #ffffffee; border: 1.5px solid var(--line); color: #17323b;
-    font-weight: 800; font-size: 15px; width: 38px; height: 38px;
-    border-radius: 10px; backdrop-filter: blur(4px); cursor: pointer;
-  }
-  .guide-body {
-    flex: 1; 
-    overflow-y: scroll;
-    -webkit-overflow-scrolling: touch;
-    overscroll-behavior: contain;
-    padding: 10px 20px 48px 20px;
-  }
-  .g-sub {
-    font-size: 11px; color: var(--amber); font-weight: 800;
-    text-transform: uppercase; letter-spacing: 1.6px; margin-bottom: 6px;
-  }
-  .g-title { font-size: 21px; font-weight: 900; line-height: 1.2; margin-bottom: 14px; color: var(--txt); }
-  .g-intro {
-    font-size: 14.5px; line-height: 1.55; color: var(--txt);
-    padding: 13px 15px; background: rgba(15,90,80,.06);
-    border-radius: 10px; border-left: 3px solid var(--amber); margin-bottom: 18px;
-  }
-  .g-sec { margin-bottom: 18px; }
-  .g-sec-t {
-    font-size: 11.5px; font-weight: 800; text-transform: uppercase;
-    letter-spacing: 1.1px; color: var(--amber); margin-bottom: 7px;
-    display: flex; align-items: center; gap: 6px;
-  }
-  .g-sec-x { font-size: 14px; line-height: 1.6; color: var(--txt); }
-  .g-sec-x b { color: var(--txt); font-weight: 800; }
-  .g-sec-x i { color: var(--mut); }
-  .g-sec-x a { color: var(--amber); text-decoration: underline; }
-  .g-sec-x a:active { opacity: .7; }
-
-  .trip-hero {
-    margin: 12px auto 10px;
-    background: linear-gradient(135deg, #0f766e, #14b8a6);
-    border-radius: 16px; padding: 16px; width: 100%; max-width: 480px;
-  }
-  .trip-hero h2 { font-size: 17px; font-weight: 900; color: #fff; }
-  .trip-hero .th-sub {
-    font-size: 11.5px; color: #eafff7; font-weight: 700;
-    text-transform: uppercase; letter-spacing: .4px;
-  }
-  .th-tag {
-    display: inline-block; font-size: 10.5px; font-weight: 800;
-    background: rgba(0,0,0,.35); color: #eafff7; padding: 5px 10px;
-    border-radius: 99px; margin-top: 9px;
-  }
-
-  table.ttable {
-    width: 100%; max-width: 480px; margin: 0 auto 6px;
-    border-collapse: collapse; font-size: 12px; table-layout: fixed;
-  }
-  .ttable th {
-    background: #cfe6df; color: var(--amber); font-size: 10px;
-    text-transform: uppercase; letter-spacing: .4px; padding: 9px 6px;
-    text-align: left; border-bottom: 1px solid var(--line); white-space: nowrap;
-    font-weight: 800;
-  }
-  .ttable td {
-    padding: 11px 6px; border-bottom: 1px solid var(--line-bg);
-    color: var(--txt-bg); vertical-align: middle;
-    white-space: nowrap; font-variant-numeric: tabular-nums;
-    overflow: hidden; text-overflow: ellipsis;
-  }
-  .ttable tr:last-child td { border-bottom: none; }
-  .ttable th:first-child, .ttable td:first-child { width: 42%; padding-left: 10px; }
-  .ttable .t-chip {
-    display: inline-block; font-size: 10px; font-weight: 800;
-    padding: 4px 9px; border-radius: 99px; margin: 1px 0 5px;
-  }
-  .ttable .t-chip.t-tun { background: #d7f2e8; color: #0b6b4f; }
-  .ttable .t-chip.t-val { background: #fbe9cf; color: #8a5b00; }
-  .ttable .t-name { font-weight: 800; color: var(--txt-bg); font-size: 13px; white-space: normal; line-height: 1.3; }
-  .ttable .t-det { font-size: 10.5px; color: var(--mut-bg); white-space: normal; line-height: 1.4; margin-top: 3px; }
-  .ttable .t-det b { color: var(--txt-bg); }
-  .ttable .t-tot { font-weight: 800; color: var(--amber-text); }
-  .ttable .t-btn {
-    display: flex; align-items: center; justify-content: center; gap: 4px;
-    background: #1d4ed8; color: #fff; font-size: 11px; font-weight: 800;
-    padding: 9px 6px; border-radius: 10px; text-decoration: none; min-height: 40px;
-  }
-
-  .trip-note {
-    font-size: 12px; color: var(--mut-bg); line-height: 1.5;
-    margin: 0 auto 12px; max-width: 480px; width: 100%; padding: 0 2px;
-  }
-
-  nav {
-    position: fixed; left: 0; right: 0; bottom: 0; z-index: 50;
-    background: rgba(244,250,248,.97); backdrop-filter: blur(12px);
-    border-top: 1px solid var(--line); display: flex;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  nav a {
-    flex: 1; display: flex; flex-direction: column; align-items: center;
-    gap: 3px; padding: 10px 2px 9px; font-size: 10.5px; font-weight: 800;
-    color: var(--mut); text-decoration: none; min-height: 58px;
-  }
-  nav a .ni { font-size: 20px; }
-  .taxi-card {
-    font-size: 24px; font-weight: 900; line-height: 1.3; text-align: center;
-    padding: 18px 10px; border: 3px dashed var(--line); border-radius: 14px; margin-bottom: 12px;
-  }
-  .taxi-card small { display: block; font-size: 14px; font-weight: 700; color: var(--mut); margin-top: 6px; }
-  .info-p { font-size: 13.5px; line-height: 1.5; margin: 0; }
-  .info-p + .info-p { margin-top: 8px; }
-  .ritem.alert { background: #fde8e8; }
-  .ritem.alert .r-name { color: #991b1b; }
-  nav a.on { color: var(--amber); }
-  nav a:focus-visible { outline: 3px solid var(--amber); outline-offset: -3px; }
-
-  /* ===== GERARCHIA TASTI · 3 livelli (spazio + colore) ===== */
-
-  /* Livello 2 — secondari forti: stesso stile per Vista d'insieme e Scopri */
-  .btn-2 {
-    display: flex; align-items: center; justify-content: center; gap: 6px;
-    width: 100%; max-width: 440px; margin: 10px auto 0;
-    padding: 11px 14px;
-    background: transparent;
-    border: 2px solid var(--amber);
-    color: var(--txt-bg);
-    font-family: inherit; font-size: 14px; font-weight: 800;
-    border-radius: 12px; min-height: 48px;
-    cursor: pointer; text-decoration: none;
-    transition: background .15s, transform .1s;
-  }
-  .btn-2:active { transform: scale(.98); background: rgba(255,201,60,.10); }
-  .btn-2:focus-visible { outline: 3px solid var(--amber); outline-offset: 2px; }
-  body.phase-evening .btn-2,
-  body.phase-night .btn-2 { border-color: var(--amber-text); }
-
-  /* Livello 3 — terziari: piccoli, neutri, centrati */
-  .btn-3-row {
-    display: flex; flex-wrap: wrap; justify-content: center; gap: 6px;
-    margin: 10px auto 20px; max-width: 440px;   /* 20px: stacco dalla zona dei tasti principali */
-  }
-  .btn-3 {
-    flex: 1 1 auto; min-width: 100px;
-    display: flex; align-items: center; justify-content: center; gap: 4px;
-    padding: 8px 12px; background: transparent; border: 1px solid var(--line-bg);
-    color: var(--mut-bg); font-family: inherit; font-size: 12.5px; font-weight: 700;
-    border-radius: 10px; min-height: 44px; text-align: center;
-    cursor: pointer; text-decoration: none;
-  }
-  .btn-3:active { background: rgba(15,90,80,.06); }
-  .btn-3:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
-  body.phase-evening .btn-3,
-  body.phase-night .btn-3 { color: var(--mut-bg); }
+  /* ---- pannelli, toast ---- */
+  .overlay{position:fixed;inset:0;z-index:60;background:rgba(10,25,30,.55);display:flex;align-items:flex-end;justify-content:center}
+  .overlay[hidden]{display:none}
+  .sheet{background:var(--bg);width:100%;max-width:560px;max-height:92vh;overflow:auto;border-radius:20px 20px 0 0;padding:14px 14px calc(18px + env(safe-area-inset-bottom))}
+  .sh-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:16px}
+  .sh-close{width:44px;height:44px;border-radius:12px;border:1px solid var(--line);background:#fff;font-size:18px;cursor:pointer}
+  .toast{position:fixed;left:14px;right:14px;bottom:calc(222px + env(safe-area-inset-bottom));z-index:70;max-width:520px;margin:0 auto;background:var(--ink);color:#fff;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:10px;font-size:13.5px;line-height:1.35;box-shadow:0 8px 24px rgba(0,0,0,.25);opacity:0;transform:translateY(10px);transition:opacity .2s,transform .2s;pointer-events:none}
+  .toast.show{opacity:1;transform:none;pointer-events:auto}
+  .toast button{margin-left:auto;background:none;border:0;color:#ffd07a;font-weight:900;font-size:13.5px;min-height:40px;padding:0 6px;cursor:pointer}
+  .done-h{display:flex;align-items:center;gap:10px;margin:2px 0 9px}
+  .done-h .ck{width:42px;height:42px;border-radius:50%;background:#9fb3b3;color:#fff;font-size:20px;font-weight:900;display:flex;align-items:center;justify-content:center}
+  .done-h b{font-size:22px;font-weight:900;display:block;line-height:1.1}
+  .done-h small{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--mut);text-transform:uppercase}
+  .next-cap{background:var(--ink);color:#fff;border-radius:16px;padding:11px 12px;margin-bottom:9px}
+  .next-cap h4{color:#ffd07a;font-size:11px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px}
+  .next-cap .nums span{background:#fff;color:var(--ink)}
+  .next-cap p{font-size:13px;line-height:1.5;opacity:.93;margin-top:6px}
+  .foot{font-size:11.5px;color:var(--mut);line-height:1.5;margin-top:10px;text-align:center}
 </style>
 </head>
-<body class="phase-day">
-<div class="sky day" id="sky"></div>
-
-<div class="topbar">
-  <div class="daystrip" id="daystrip" role="tablist" aria-label="Seleziona giorno"></div>
-  <span class="clock" id="clock" aria-live="polite">--:--</span>
-</div>
-
-<main id="nowPage" role="main"></main>
-<main id="dayPage" hidden></main>
-<main id="foodPage" hidden><div id="food"></div></main>
-<main id="tripPage" hidden><div id="trip"></div></main>
-<main id="infoPage" hidden><div id="info"></div></main>
-
-
-<div class="toast" id="toast" role="status" aria-live="polite"></div>
-<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Pannello" hidden></div>
-<div class="overlay" id="guideOverlay" role="dialog" aria-modal="true" aria-label="Guida della tappa" hidden></div>
-
-<nav aria-label="Navigazione principale">
-  <a href="#" class="on" data-nav="nowPage"><span class="ni">📍</span>Adesso</a>
-  <a href="#" data-nav="dayPage"><span class="ni">🗓️</span>Programma</a>
-  <a href="#" data-nav="foodPage"><span class="ni">🍽️</span>Mangiare</a>
-  <a href="#" data-nav="infoPage"><span class="ni">🆘</span>SOS · Info</a>
+<body>
+<div class="topbar" id="topbar" role="tablist" aria-label="Capitoli"></div>
+<main id="main" role="main"></main>
+<div class="pad" id="pad" hidden><div class="pad-in" id="padIn"></div></div>
+<nav class="bnav" aria-label="Navigazione principale">
+  <button data-v="guida" aria-label="Guida"><span>📖</span>Guida</button>
+  <button data-v="sommario" aria-label="Sommario"><span>🗓️</span>Sommario</button>
+  <button data-v="indice" aria-label="Indice dei luoghi"><span>🔢</span>Indice</button>
+  <button data-v="mangiare" aria-label="Mangiare"><span>🍽️</span>Mangiare</button>
+  <button data-v="sos" aria-label="SOS e informazioni"><span>🆘</span>SOS</button>
 </nav>
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-label="Pannello" hidden></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 
 <script>
-const DAYS = [
- { id:1, label:"29 Ott", date:"Giovedì 29 Ott", name:"Fourvière + Vieux Lyon", time:"17:00 → 22:30", steps:[
-   {time:"17:00",dur:"🚗 arrivo in auto",emoji:"🏨",title:"Arrivo, parcheggio e check-in",meta:"Hôtel Charlemagne · <b>23 Cours Charlemagne</b> · check-in dalle 15:00 · parcheggio custodito a 150 m, <b>21 €/giorno</b> su prenotazione",desc:"Lasciate l'auto: fino a sabato vi muovete a piedi, in metro e in taxi. Al banco servono <b>documento con foto</b> e <b>carta di credito</b>.",tip:"⚠️ Tutta Lione è ZFE: senza bollino <b>Crit'Air</b> sul parabrezza la multa è 68 €, anche da parcheggiati. Dettagli in 🆘 Info.",warn:true,orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
-   {time:"18:30",dur:"🚕 ~12 min in taxi",emoji:"🚕",title:"Parti in taxi da hotel",meta:"Hotel Charlemagne → <b>Place Saint-Jean</b> · ~12 min · ~15–25 € · 1 taxi = max 4 persone",desc:"Ci si sposta verso la <b>Città Vecchia</b> (Vieux Lyon), il più grande quartiere rinascimentale d'Europa, tutelato dall'UNESCO.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Place Saint-Jean, 69005 Lyon"},
-   {time:"18:45",dur:"🚶 2 min a piedi",emoji:"🚪",title:"La Longue Traboule",meta:"Ingresso <b>54 Rue Saint-Jean</b> → uscita 27 Rue du Bœuf · aperta 7:00–19:00",desc:"Il traboule più lungo di Lione: cinque cortili e quattro edifici rinascimentali in fila, un passaggio coperto che esiste solo in questa città.",tip:"⚠️ Entra SUBITO: chiude alle 19:00. La cattedrale si visita dopo (fino alle 19:45).",warn:true,orig:"Place Saint-Jean, 69005 Lyon",dest:"Longue Traboule, 54 Rue Saint-Jean, 69005 Lyon"},
-   {time:"19:05",dur:"🚶 2 min a piedi",emoji:"⛪",title:"Cattedrale Saint-Jean",meta:"Aperta fino alle 19:45 (giorni feriali) · orologio astronomico · gratis",desc:"Uno dei migliori esempi europei di transizione dal romanico al gotico, con uno dei più antichi orologi astronomici d'Europa.",tip:"Lo spettacolino dell'orologio è alle 12/14/15/16: stasera guarda solo il meccanismo.",orig:"27 Rue du Bœuf, 69005 Lyon",dest:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon"},
-   {time:"19:35",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare su Fourvière",meta:"Place Saint-Jean → <b>Basilica</b> · ~5 min · ticket TCL <b>2,10 €</b> (vale 1h: copre anche la discesa)",desc:"Saliamo sulla 'Collina che prega'. La funicolare F2 (in servizio dal <b>1900</b>) parte dalla stazione Vieux Lyon, accanto alla Cattedrale.",tip:"⚠️ Ultima corsa F2 verso le 22:00. Verifica su tcl.fr che non sia in manutenzione.",orig:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",dest:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"},
-   {time:"19:45",dur:"📍 sul posto",emoji:"🌃",title:"Panorama notturno + Basilica",meta:"Città illuminata · basilica aperta fino alle 20:00 · gratis",desc:"La <b>Basilica di Fourvière</b> (1872-1896, Pierre Bossan) mescola neobizantino, gotico e romanico. Il sole tramonta alle <b>17:32</b>: a quest'ora dalla terrazza vedi il tappeto di luci della città.",tip:"Le Alpi si vedono solo di giorno. L'esplanade accanto alla basilica resta il punto foto migliore, anche di notte. La basilica chiude alle 20:00.",loop:{label:"Giro: basilica → esplanade → teatri romani",from:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",via:["Esplanade de Fourvière, Place de Fourvière, 69005 Lyon"],to:"Théâtres romains de Fourvière, 6 Rue de l'Antiquaille, 69005 Lyon"},orig:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",dest:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"},
-   {time:"20:15",dur:"🚡 ~5 min in funicolare",emoji:"🚡",title:"Funicolare giù a Saint-Jean",meta:"Fourvière → <b>Place Saint-Jean</b> · ~5 min",desc:"Scendi con la F2 (ogni ~10 min).",orig:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",dest:"Place Saint-Jean, 69005 Lyon"},
-   {time:"20:30",dur:"🚶 3 min a piedi",emoji:"🍽️",title:"Cena bouchon",meta:"Vieux Lyon · <b>prenotate per 4</b> · 15–40 €",desc:"I <b>Bouchons</b> sono le storiche trattorie lionesi. Qui si gusta la vera cucina di Lione: andouillette, quenelle, saucisson chaud.",tip:"Scelte e numeri nella scheda 🍽️ Mangiare.",orig:"Place Saint-Jean, 69005 Lyon",dest:"Rue Saint-Jean, 69005 Lyon"},
-   {time:"22:00",dur:"🚕 ~10 min in taxi",emoji:"🚕",title:"Taxi di rientro",meta:"→ Hôtel Charlemagne · ~10 min · ~15–25 €",desc:"Rientro comodo verso l'hotel.",tip:"A piedi sono ~2,5 km in piano (~30 min): col freddo e dopo cena, meglio il taxi.",orig:"Rue Saint-Jean, 69005 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"}]},
- { id:2, label:"30 Ott", date:"Venerdì 30 Ott", name:"Tour città + Cena", time:"09:00 → 23:00", steps:[
-   {time:"09:00",dur:"🚇 ~15 min in metro",emoji:"🚇",title:"Metro verso Bellecour",meta:"Hotel → <b>Place Bellecour</b> · Metro A da Perrache (2 fermate) · ~15 min",desc:"Ti muovi verso <b>Place Bellecour</b> (~62.000 m²), la più grande piazza pedonale d'Europa.",tip:"🎫 Oggi fate 4 corse: il <b>Ticket 24h (7,10 €)</b> conviene sui biglietti singoli (2,10 €).",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Place Bellecour, 69002 Lyon"},
-   {time:"09:30",dur:"🚶 ~15 min a piedi",emoji:"⛲",title:"Bellecour → Terreaux",meta:"Passeggiata ~15 min · Fontana Bartholdi + Hôtel de Ville",desc:"Attraversando il centro arrivi a <b>Place des Terreaux</b>, il cuore di Lione.",tip:"🖼️ Il Museo di Belle Arti (8 €) qui accanto: oggi venerdì 10:30–18:00.",via:["Statue équestre de Louis XIV, Place Bellecour, 69002 Lyon","Statue de Saint-Exupéry et du Petit Prince, Place Bellecour, 69002 Lyon","Place des Jacobins, 69002 Lyon","Rue de la République, 69002 Lyon","Opéra de Lyon, 1 Place de la Comédie, 69001 Lyon"],orig:"Place Bellecour, 69002 Lyon",dest:"Place des Terreaux, 69001 Lyon"},
-   {time:"10:15",dur:"🚶 ~10 min a piedi",emoji:"🎨",title:"Mur des Lyonnais",meta:"Muro dipinto: Claudio, Lumière, Saint-Exupéry · ~10 min a piedi · gratis",desc:"Un muro dipinto di <b>800 m²</b> con <b>~30 lionesi celebri</b> che celebrano 2000 anni di storia di Lione.",orig:"Place des Terreaux, 69001 Lyon",dest:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon"},
-   {time:"11:00",dur:"🚇 ~30 min metro + piedi",emoji:"🌳",title:"Parc de la Tête d'Or",meta:"Metro A Hôtel de Ville → <b>Masséna</b> + ~10 min a piedi · gratis · serre <b>9:00–16:30</b> · parco fino alle 20:30",desc:"Creato nel <b>1857</b>, è il più grande parco urbano di Lione: <b>105 ettari</b> con un lago di 16.",loop:{label:"Giro del parco: lago → isola → zoo → serre",from:"Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon",via:["Lac du Parc de la Tête d'Or, 69006 Lyon","Île du Souvenir, Parc de la Tête d'Or, 69006 Lyon","Zoo de Lyon, Parc de la Tête d'Or, 69006 Lyon"],to:"Grandes Serres du Parc de la Tête d'Or, 69006 Lyon"},orig:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon",dest:"Parc de la Tête d'Or, Place Général Leclerc, 69006 Lyon"},
-   {time:"12:30",dur:"🚶 ~25 min a piedi",emoji:"🧀",title:"Pranzo alle Halles Bocuse",meta:"102 Cours Lafayette · ~25 min a piedi o 🚌 bus C3 (fermata <b>Halles Paul Bocuse</b>) · ristoranti <b>11:30–14:30</b>",desc:"Il tempio della gastronomia lionese, intitolato a <b>Paul Bocuse</b>.",tip:"Provate la quenelle da Giraudet e il saucisson brioché da Sibilia.",tel:"+33478623405",orig:"Parc de la Tête d'Or, Place Général Leclerc, 69006 Lyon",dest:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
-   {time:"15:00",dur:"🚇 ~25 min metro o taxi",emoji:"😴",title:"Riposo in hotel",meta:"Metro (Part-Dieu → Perrache, 2 cambi) o taxi ~15 min · batterie ricaricate per la sera",desc:"Una meritata pausa in hotel.",orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
-   {time:"19:30",dur:"🚶 ~7 min a piedi",emoji:"🍺",title:"Cena: Brasserie Georges",meta:"~500 m dall'hotel · dal 1836 · Art Déco · 30–50 € · <b>prenotazione solo online</b>",desc:"La <b>Brasserie Georges</b> (dal 1836) è un'istituzione lionese.",tip:"Prenotate online su brasseriegeorges.com: il telefono risponde solo lun–ven 9–18. Se piena: alternative in 🍽️ Mangiare.",tel:"+33472565454",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Brasserie Georges, 30 Cours de Verdun Perrache, 69002 Lyon"},
-   {time:"22:00",dur:"🚶 ~7 min a piedi",emoji:"🚶",title:"Rientro a piedi",meta:"~500 m attraverso Perrache · due passi digestivi",desc:"Quattro passi digestivi per tornare in hotel, dall'altra parte della stazione di Perrache.",via:["Gare de Lyon-Perrache, 69002 Lyon"],orig:"Brasserie Georges, 30 Cours de Verdun Perrache, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"}]},
- { id:3, label:"31 Ott", date:"Sabato 31 Ott", name:"Giro in auto + rientro", time:"09:00 → 11:30", car:true, steps:[
-   {time:"09:00",dur:"🚶 2 min a piedi",emoji:"🧳",title:"Check-out e auto",meta:"Check-out <b>entro le 11:00</b> · auto al parcheggio custodito (150 m) · si parte già carichi",desc:"Si lascia l'hotel subito: il giro finisce alle Halles e da lì si parte per casa, senza tornare indietro.",tip:"Controllate camera, caricabatterie e documenti: non si ripassa dall'hotel.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon"},
-   {time:"09:15",dur:"🚗 ~10 min in auto",emoji:"🏛️",title:"Musée des Confluences",meta:"Vista esterna + punta della confluenza · museo 10:30–18:30 · <b>12 €</b>",desc:"Architettura futuristica di <b>Coop Himmelb(l)au</b> (2014), proprio dove il Rodano e la Saona si incontrano.",orig:"Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon",dest:"Musée des Confluences, 86 Quai Perrache, 69002 Lyon"},
-   {time:"10:15",dur:"🚗 ~20 min in auto",emoji:"🧺",title:"Halles Bocuse · ultimi acquisti",meta:"Parking LPA Halles (ingresso <b>Rue Garibaldi</b>) · sabato 7:30–19:30",desc:"Ultimi acquisti: salumi e formaggi sottovuoto da portare a casa.",orig:"Musée des Confluences, 86 Quai Perrache, 69002 Lyon",dest:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
-   {time:"11:00",dur:"🚶 ~5 min a piedi",emoji:"🏙️",title:"Tour Incity",meta:"Angolo Cours Lafayette / Rue Garibaldi · solo esterno · gratis",desc:"Il grattacielo più alto di Lione (<b>200 m</b> con l'antenna), completato nel <b>2015</b>. Poco più in là, la 'matita' Tour Part-Dieu.",loop:{label:"Giro: Incity → Crayon → ritorno all'auto",from:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",via:["Tour Incity, 116 Cours Lafayette, 69003 Lyon","Tour Part-Dieu, 129 Rue Servient, 69003 Lyon"],to:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Tour Incity, 116 Cours Lafayette, 69003 Lyon"},
-   {time:"11:30",dur:"🚗 ~4h50 in auto",emoji:"👋",title:"Partenza per Magenta",meta:"Via Traforo del Monte Bianco · ~445 km · ~4h50 + soste",desc:"È tempo di salutare Lione. Opzioni e costi nella scheda 🚗 Viaggio.",tip:"Pranzo: un panino comprato alle Halles da mangiare in viaggio.",orig:"Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",dest:"Magenta, MI, Italia"}]}
+/* =====================================================================
+   DATI
+   ===================================================================== */
+const HOTEL = { name: "Hôtel Charlemagne", addr: "23 Cours Charlemagne, 69002 Lyon", q: "Hôtel Charlemagne, 23 Cours Charlemagne, 69002 Lyon", ll: [45.7466, 4.8256], tel: "+33472777000" };
+const TAXI = [["Taxi Lyonnais", "+33478268181"], ["Allo Taxi", "+33472104106"]];
+
+/* Punti numerati: la chiave di lettura di tutta la guida.
+   g = scheda di lettura (GUIDES) · see = "Qui vedrai" (sec = paragrafo della lettura) · close = chiusura nel giorno del viaggio */
+const P = {
+  1: { name: "Place Saint-Jean", type: "piazza", ll: [45.7609, 4.8279], addr: "Place Saint-Jean, 69005 Lyon", q: "Place Saint-Jean, 69005 Lyon",
+       visit: 10, cost: "gratis", hours: "sempre aperta", g: "0:1",
+       see: [{ i: "⛪", t: "La facciata gotica della Cattedrale", s: "si visita al 3" },
+             { i: "🎶", t: "La Manécanterie", s: "XI sec., a destra della cattedrale", sec: "La Manécanterie" },
+             { i: "⛰️", t: "La Basilica", s: "bianca, in alto sulla collina · ci arrivi al 5" }] },
+  2: { name: "La Longue Traboule", short: "Traboule", type: "passaggio", ll: [45.7631, 4.8270], addr: "54 Rue Saint-Jean ↔ 27 Rue du Bœuf", q: "Longue Traboule, 54 Rue Saint-Jean, 69005 Lyon",
+       visit: 10, cost: "gratis", hours: "tutti i giorni 7:00–19:00", close: { 1: "19:00" }, g: "0:2",
+       see: [{ i: "🚪", t: "Il portone", s: "54 Rue Saint-Jean (o 27 Rue du Bœuf)", sec: "Come entrare" },
+             { i: "🏛️", t: "Cinque cortili, quattro palazzi", s: "rinascimentali, in fila", sec: "Quanti sono" },
+             { i: "🐂", t: "L'uscita in Rue du Bœuf", s: "davanti alla facciata del Cinquecento", sec: "Consiglio" }],
+       warn: "Chiude alle <b>19:00</b>: per questo è la prima. Se arrivate tardi, saltatela e andate al 3." },
+  3: { name: "Cattedrale Saint-Jean", short: "Cattedrale", type: "chiesa", ll: [45.76075, 4.8270], addr: "Place Saint-Jean, 69005 Lyon", q: "Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",
+       visit: 20, cost: "gratis", hours: "lun–ven 8:15–19:45 · sab–dom 8:15–19:00", close: { 1: "19:45" }, g: "0:3",
+       see: [{ i: "⏰", t: "L'orologio astronomico", s: "si anima alle 12, 14, 15, 16: stasera è fermo", sec: "Cosa guardare nell'orologio" },
+             { i: "🌹", t: "Il rosone", s: "sopra il portale centrale", sec: "Consiglio" },
+             { i: "🏗️", t: "Romanico e gotico", s: "tre secoli di cantiere in un edificio", sec: "Tre secoli di cantiere" }] },
+  4: { name: "Funicolare per Fourvière", short: "Funicolare", type: "transito", ll: [45.7601, 4.8262], addr: "Stazione Vieux Lyon – Cathédrale Saint-Jean", q: "Gare Vieux Lyon Cathédrale Saint-Jean, 69005 Lyon",
+       visit: 5, cost: "2,10 € (TCL)", hours: "corse ogni 5–10 min · ultime in serata", g: "0:4",
+       how: ["Biglietto TCL alla macchinetta: <b>2,10 €</b>, vale 1 ora: <b>copre anche la discesa</b>.",
+             "Dalla stazione partono due funicolari: prendete la <b>F2 Fourvière</b>, non la F1 Saint-Just.",
+             "Convalidate e salite: ~5 min, quasi tutta in galleria. Si scende accanto alla basilica."] },
+  5: { name: "Basilica di Fourvière", short: "Basilica", type: "chiesa", ll: [45.7623, 4.8225], addr: "8 Place de Fourvière, 69005 Lyon", q: "Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",
+       visit: 30, cost: "gratis", hours: "basilica 7:00–20:00 · cancelli fino alle 23:00", close: { 1: "20:00" }, g: "0:5",
+       see: [{ i: "⛪", t: "I mosaici dorati", s: "dentro la basilica · chiude alle 20:00", sec: "La collina che prega" },
+             { i: "🌃", t: "L'esplanade", s: "Lione illuminata, accanto alla basilica", sec: "La vista" },
+             { i: "🗼", t: "La Tour Métallique", s: "85,90 m · solo da fuori", sec: "La Tour Métallique" }],
+       tip: "Prima la basilica (chiude alle 20:00), poi l'esplanade, che resta aperta." },
+  6: { meal: "gio", name: "Cena in un bouchon", short: "Cena", type: "cena", ll: [45.7625, 4.8273], addr: "Vieux Lyon", q: "Rue Saint-Jean, 69005 Lyon",
+       visit: 90, cost: "15–45 €", g: "0:7" },
+  7: { name: "Place Bellecour", short: "Bellecour", type: "piazza", ll: [45.7578, 4.8320], addr: "Place Bellecour, 69002 Lyon", q: "Statue équestre de Louis XIV, Place Bellecour, 69002 Lyon",
+       visit: 15, cost: "gratis", hours: "sempre aperta", g: "1:0",
+       see: [{ i: "🐎", t: "Luigi XIV · il km zero", s: "da qui si misurano le distanze" },
+             { i: "✈️", t: "Saint-Exupéry e il Piccolo Principe", s: "sulla colonna bianca, lato Saona", sec: "Saint-Exupéry e il Piccolo Principe" }],
+       tip: "Il padiglione dell'Office du tourisme in piazza è stato incendiato il 17 ottobre durante una manifestazione: per informazioni usate visiterlyon.com." },
+  8: { name: "Place des Jacobins", short: "Jacobins", type: "piazza", ll: [45.7605, 4.8336], addr: "Place des Jacobins, 69002 Lyon", q: "Place des Jacobins, 69002 Lyon",
+       visit: 5, cost: "gratis", hours: "sempre aperta",
+       see: [{ i: "⛲", t: "La fontana dei Jacobins", s: "al centro della piazza" },
+             { i: "🛍️", t: "Rue de la République", s: "la via pedonale ottocentesca che porta al 9" }] },
+  9: { name: "Opéra de Lyon", short: "Opéra", type: "teatro", ll: [45.7677, 4.8361], addr: "1 Place de la Comédie, 69001 Lyon", q: "Opéra de Lyon, 1 Place de la Comédie, 69001 Lyon",
+       visit: 5, cost: "gratis (da fuori)", hours: "si guarda da fuori", g: "1:1",
+       see: [{ i: "🎭", t: "La volta di vetro di Jean Nouvel", s: "1993, sopra il teatro del 1831", sec: "L'Opéra di Jean Nouvel" }] },
+  10: { name: "Place des Terreaux", short: "Terreaux", type: "piazza", ll: [45.7673, 4.8335], addr: "Place des Terreaux, 69001 Lyon", q: "Fontaine Bartholdi, Place des Terreaux, 69001 Lyon",
+       visit: 15, cost: "gratis", hours: "sempre aperta", g: "1:1",
+       see: [{ i: "⛲", t: "La Fontana Bartholdi", s: "pensata per Bordeaux", sec: "Una fontana nata per Bordeaux" },
+             { i: "🏛️", t: "L'Hôtel de Ville", s: "il municipio, sul lato est" },
+             { i: "🖼️", t: "Musée des Beaux-Arts", s: "~8 € · venerdì aperto (chiuso il martedì)" }] },
+  11: { name: "Fresque des Lyonnais", short: "Fresque", type: "murale", ll: [45.7679, 4.8277], addr: "2 Rue de la Martinière, 69001 Lyon", q: "Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon",
+       visit: 10, cost: "gratis", hours: "sempre visibile", g: "1:2",
+       see: [{ i: "🎨", t: "800 m² di trompe-l'œil", s: "~30 lionesi celebri", sec: "Il trompe-l'œil" },
+             { i: "🔎", t: "Cercate Saint-Exupéry e i Lumière", s: "e l'imperatore Claudio" }] },
+  12: { name: "Parc de la Tête d'Or", short: "Parco", type: "parco", ll: [45.7712, 4.8503], addr: "Place Général Leclerc, 69006 Lyon", q: "Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon",
+       visit: 60, cost: "gratis", hours: "parco 6:30–20:30 · serre 9:00–16:30 · isola 11:00–17:00", close: { 2: "16:30" }, closeTxt: "le serre chiudono", g: "1:3",
+       see: [{ i: "🏞️", t: "Il lago", s: "16 ettari, scavato a mano", sec: "Un lago scavato a mano" },
+             { i: "🪖", t: "Île du Souvenir", s: "monumento di Tony Garnier · 11:00–17:00", sec: "L'isola del ricordo" },
+             { i: "🦒", t: "Lo zoo gratuito", s: "giraffe nella pianura africana", sec: "Lo zoo gratuito" },
+             { i: "🌴", t: "Le Grandes Serres", s: "9:00–16:30" }],
+       loop: { from: "Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon", via: ["Lac du Parc de la Tête d'Or, 69006 Lyon", "Île du Souvenir, Parc de la Tête d'Or, 69006 Lyon", "Zoo de Lyon, Parc de la Tête d'Or, 69006 Lyon"], to: "Grandes Serres du Parc de la Tête d'Or, 69006 Lyon" } },
+  13: { meal: "venp", name: "Halles Paul Bocuse", short: "Halles", type: "mercato", ll: [45.7629, 4.8507], addr: "102 Cours Lafayette, 69003 Lyon", q: "Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",
+       visit: 75, cost: "15–30 €", hours: "banchi lun–sab 7:30–19:30 · ristoranti 11:30–14:30", close: { 2: "14:30" }, closeTxt: "i ristoranti chiudono", g: "1:4", g3: "2:2", tel: "+33478623405", visit3: 30,
+       see3: [{ i: "🧀", t: "Charcuterie Sibilia", s: "saucisson e rosette sottovuoto da portare a casa" },
+              { i: "🥟", t: "Giraudet", s: "quenelle sottovuoto" },
+              { i: "🥪", t: "Un panino per il viaggio", s: "si pranza in auto" }] },
+  14: { meal: "venc", name: "Cena · Brasserie Georges", short: "Cena", type: "cena", ll: [45.7503, 4.8268], addr: "30 Cours de Verdun Perrache, 69002 Lyon", q: "Brasserie Georges, 30 Cours de Verdun Perrache, 69002 Lyon",
+       visit: 90, cost: "25–50 €", g: "1:6" },
+  15: { name: "Musée des Confluences", short: "Confluences", type: "museo", ll: [45.7326, 4.8181], addr: "86 Quai Perrache, 69002 Lyon", q: "Musée des Confluences, 86 Quai Perrache, 69002 Lyon",
+       visit: 30, cost: "esterno gratis · museo 12 €", hours: "museo 10:30–18:30", g: "2:1",
+       see: [{ i: "🏛️", t: "Cristallo, nuvola, zoccolo", s: "Coop Himmelb(l)au, 2014", sec: "Cristallo, nuvola, zoccolo" },
+             { i: "🌊", t: "La punta della confluenza", s: "dove il Rodano incontra la Saona", sec: "La confluenza" }] },
+  16: { name: "Tour Incity", short: "Incity", type: "grattacielo", ll: [45.7614, 4.8540], addr: "116 Cours Lafayette, 69003 Lyon", q: "Tour Incity, 116 Cours Lafayette, 69003 Lyon",
+       visit: 10, cost: "gratis (da fuori)", hours: "solo esterno", g: "2:3",
+       see: [{ i: "🏙️", t: "La 'Gomma'", s: "200 m con la guglia, il più alto di Lione", sec: "La matita e la gomma" }] },
+  17: { name: "Tour Part-Dieu · il Crayon", short: "Crayon", type: "grattacielo", ll: [45.7609, 4.8561], addr: "129 Rue Servient, 69003 Lyon", q: "Tour Part-Dieu, 129 Rue Servient, 69003 Lyon",
+       visit: 10, cost: "gratis (da fuori)", hours: "solo esterno", g: "2:3",
+       see: [{ i: "✏️", t: "La 'Matita'", s: "165 m, anni '70", sec: "La matita e la gomma" }] }
+};
+/* luoghi che si vedono ma non si visitano (cerchio tratteggiato) */
+const SEEN = [
+  { name: "Teatri romani di Fourvière", from: 5, ll: [45.7597, 4.8199], note: "si vedono dal 5 · chiusi la sera", q: "Théâtres romains de Fourvière, 6 Rue de l'Antiquaille, 69005 Lyon" },
+  { name: "Tour Métallique", from: 5, ll: [45.7629, 4.8213], note: "si vede dal 5 · solo da fuori", q: "Tour métallique de Fourvière, 69005 Lyon" },
+  { name: "Manécanterie", from: 1, ll: [45.7609, 4.8268], note: "si vede dal 1", q: "Manécanterie, Place Saint-Jean, 69005 Lyon" },
+  { name: "Rue de la République", from: 8, ll: null, note: "si percorre tra l'8 e il 9", q: "Rue de la République, 69002 Lyon" },
+  { name: "Gare de Perrache", from: 14, ll: [45.7488, 4.8262], note: "si attraversa tra hotel e il 14", q: "Gare de Lyon-Perrache, 69002 Lyon" }
 ];
 
-/* ============================================================
-   STRUTTURA A BLOCCHI (versione semplice 02)
-   Ogni giornata = catena di blocchi:
-     go   = TRASFERIMENTO  (come ci arrivo: una scelta consigliata + alternative)
-     walk = PERCORSO GUIDATO a piedi (punti in sequenza, "Arrivato ▶")
-     stop = SOSTA (pasto, riposo, hotel, visita breve)
-   I blocchi rimandano alle tappe di DAYS: nessun contenuto è duplicato.
-   ============================================================ */
-const BLOCKS = [
-  [ {t:'stop', s:0, name:'Arrivo e check-in'},
-    {t:'go',   s:1, rec:'taxi'},
-    {t:'walk', name:'Vieux Lyon e Fourvière', sub:'Il quartiere rinascimentale e la collina che prega', km:'~1', fatica:'quasi tutto in piano · la salita si fa in funicolare', note:'Nella vista d\'insieme Maps disegna la salita a piedi: voi prendete la funicolare.', pts:[1,2,3,4,5,6], ptNames:{1:'Place Saint-Jean'}},
-    {t:'stop', s:7, name:'Cena in un bouchon', food:0},
-    {t:'go',   s:8, rec:'taxi'} ],
-  [ {t:'go',   s:0, rec:'metro'},
-    {t:'walk', name:"Presqu'île a piedi", sub:"Dalla piazza più grande d'Europa al cuore della città", km:'~2', fatica:'in piano', pts:[0,1,2], ptNames:{0:'Place Bellecour', 1:'Place des Terreaux'}},
-    {t:'go',   s:3, rec:'metro'},
-    {t:'walk', name:"Giro del Parc de la Tête d'Or", sub:"Lago, isola del ricordo, zoo e serre", km:'~2–3', fatica:'in piano · viali larghi', pts:[3], loop:true},
-    {t:'go',   s:4, rec:'walk'},
-    {t:'stop', s:4, name:'Pranzo alle Halles', food:1},
-    {t:'go',   s:5, rec:'metro'},
-    {t:'stop', s:5, name:'Riposo in hotel', hotel:true, rest:true},
-    {t:'go',   s:6, rec:'walk'},
-    {t:'stop', s:6, name:'Cena alla Brasserie Georges', food:2},
-    {t:'go',   s:7, rec:'walk'} ],
-  [ {t:'stop', s:0, name:'Check-out e auto', hotel:true},
-    {t:'go',   s:1, rec:'car'},
-    {t:'stop', s:1, name:'Musée des Confluences'},
-    {t:'go',   s:2, rec:'car'},
-    {t:'stop', s:2, name:'Halles · ultimi acquisti'},
-    {t:'walk', name:'Halles → Incity → Crayon', sub:'Le due torri di Part-Dieu, poi di nuovo all\'auto', km:'~1', fatica:'in piano', pts:[3], loop:true},
-    {t:'go',   s:4, rec:'car'} ]
+/* Capitoli = giorni. Ogni parte è una sequenza di punti; "go" = come si arriva al punto (mezzo, minuti realistici). */
+const CH = [
+  { n: 1, chip: "Gio 29", date: "Giovedì 29 ottobre", iso: "2026-10-29", title: "Vieux Lyon e Fourvière", when: "sera",
+    story: "Lasciate l'auto, <b>taxi nella Città Vecchia</b>, traboule e cattedrale prima che chiudano, <b>funicolare fino alla basilica</b> per Lione illuminata, cena in un bouchon, taxi in hotel.",
+    before: "17:00 arrivo in hotel e check-in (dalle 15:00) · auto nel parcheggio custodito (150 m, 21 €/giorno, su prenotazione).",
+    warn: "La traboule (2) chiude alle 19:00 e la cattedrale (3) alle 19:45: partite dall'hotel <b>non più tardi delle 18:30</b>.",
+    parts: [{ name: "Il giro", km: "~1", steps: [
+      { p: 1, go: { m: "taxi", min: 12, txt: "taxi dall'hotel · ~15–25 € · 1 taxi = max 4 persone", from: "hotel" } },
+      { p: 2, go: { m: "walk", min: 2 } },
+      { p: 3, go: { m: "walk", min: 3, txt: "dall'uscita in Rue du Bœuf" } },
+      { p: 4, go: { m: "walk", min: 2, txt: "la stazione è accanto alla cattedrale" } },
+      { p: 5, go: { m: "funi", min: 10, txt: "funicolare F2 · ~5 min + attesa" } },
+      { p: 6, go: { m: "funi", min: 13, txt: "funicolare giù (stesso biglietto) + 🚶 3 min" } }] }],
+    end: { home: { m: "taxi", min: 10, txt: "Taxi ~10 min · ~15–25 €", alt: "a piedi ~30 min, 2,5 km in piano" } },
+    todo: ["Prenotare il bouchon (pagina 6 o 🍽️ Mangiare)", "Funicolare: 2,10 € a testa, vale 1 ora (salita e discesa)", "Taxi ~15–25 € a tratta"] },
+  { n: 2, chip: "Ven 30", date: "Venerdì 30 ottobre", iso: "2026-10-30", title: "La città", when: "giornata",
+    story: "<b>Presqu'île a piedi</b> da Bellecour al municipio, il muro dei lionesi, il <b>Parc de la Tête d'Or</b>, pranzo alle <b>Halles</b>, riposo in hotel, cena alla Brasserie Georges.",
+    before: "Colazione, poi metro A da Perrache. 🎫 Oggi fate 4 corse: il <b>ticket 24h (7,10 €)</b> conviene sui singoli (2,10 €).",
+    warn: "Halles: i ristoranti servono <b>11:30–14:30</b>. Serre del parco: chiudono alle <b>16:30</b>.",
+    parts: [
+      { name: "Presqu'île a piedi", km: "~2", steps: [
+        { p: 7, go: { m: "metro", min: 15, txt: "metro A da Perrache, 2 fermate (Bellecour)", from: "hotel" } },
+        { p: 8, go: { m: "walk", min: 6 } },
+        { p: 9, go: { m: "walk", min: 10, txt: "lungo Rue de la République" } },
+        { p: 10, go: { m: "walk", min: 3 } },
+        { p: 11, go: { m: "walk", min: 10, txt: "verso la Saona, Rue de la Martinière" } }] },
+      { name: "Parco e Halles", steps: [
+        { p: 12, go: { m: "metro", min: 30, txt: "metro A Hôtel de Ville → Masséna + ~10 min a piedi" } },
+        { p: 13, go: { m: "walk", min: 25, txt: "a piedi ~25 min o 🚌 bus C3 (fermata Halles Paul Bocuse)" } }] },
+      { pause: true, name: "Riposo in hotel", go: { m: "metro", min: 25, txt: "metro (Part-Dieu → Perrache) o taxi ~15 min" }, rest: "Pomeriggio libero: batterie ricaricate per la sera." },
+      { name: "La sera", steps: [
+        { p: 14, go: { m: "walk", min: 7, txt: "~500 m attraverso la stazione di Perrache", from: "hotel" } }] }],
+    end: { home: { m: "walk", min: 7, txt: "A piedi ~7 min · ~500 m attraverso Perrache", alt: "taxi se piove" } },
+    todo: ["Brasserie Georges: prenotazione online (brasseriegeorges.com)", "Ticket 24h 7,10 € a testa", "Halles: arrivare entro le 13:30"] },
+  { n: 3, chip: "Sab 31", date: "Sabato 31 ottobre", iso: "2026-10-31", title: "Saluti a Lione", when: "mattina", car: true,
+    story: "Check-out e via in auto: le <b>Confluences</b> dove si incontrano i fiumi, ultimi acquisti alle <b>Halles</b>, le due torri di Part-Dieu, poi <b>partenza per Magenta</b>.",
+    before: "Check-out <b>entro le 11:00</b>: si parte già carichi, non si ripassa dall'hotel. Controllate camera, caricabatterie e documenti.",
+    parts: [{ name: "Confluences", steps: [
+      { p: 15, go: { m: "car", min: 10, txt: "auto dal parcheggio custodito (150 m)", from: "hotel" } }] },
+      { name: "Halles e Part-Dieu", steps: [
+      { p: 13, go: { m: "car", min: 20, txt: "Parking LPA Halles, ingresso Rue Garibaldi" } },
+      { p: 16, go: { m: "walk", min: 5 } },
+      { p: 17, go: { m: "walk", min: 5 } }] }],
+    end: { depart: true, txt: "Ritorno all'auto (Parking LPA Halles) 🚶 ~8 min, poi ~445 km · ~4h50 + soste.", alt: "Pranzo: un panino comprato alle Halles da mangiare in viaggio." },
+    todo: ["Check-out entro le 11:00", "Bollino Crit'Air sul parabrezza (ZFE)", "Monte Bianco: aperto di giorno sabato"] }
 ];
-/* Scadenze che possono rovinare il giro: mostrate come conto alla rovescia sul punto */
-/* Link alla "Mia mappa" di Google (cartina con tutti i punti numerati): incollarlo qui dopo averla creata */
-const MYMAP_URL = '';
-const CLOSES = {
-  "0:2":["19:00","la traboule chiude"], "0:3":["19:45","la cattedrale chiude"],
-  "0:4":["22:00","ultima funicolare"],  "0:5":["20:00","la basilica chiude"],
-  "0:6":["22:00","ultima funicolare"],  "1:3":["16:30","le serre chiudono"],
-  "1:4":["14:30","i ristoranti delle Halles chiudono"]
+
+/* Ristoranti: lettera = stellina sulla pianta. ★ = il vostro tavolo (un tocco, resta salvato). */
+const FOOD = {
+  gio: { h: "Cena gio 29 · Vieux Lyon", near: 6, ch: 1, from: 4, fromTxt: "dalla funicolare (4)", items: [
+    { id: "laurencin", n: "Le Laurencin", k: "bouchon · cucina lionese", p: "menu 15–20 €", a: "24 Rue Saint-Jean", ll: [45.7621, 4.8275], hrs: "tutti i giorni 11:30–23:30", tel: "+33478379737", book: "telefono", w: "https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin" },
+    { id: "daniel", n: "Daniel & Denise Saint-Jean", k: "bouchon · segnalato dalla Guida Michelin", p: "menu 43 €", a: "36 Rue Tramassac", ll: [45.7598, 4.8262], hrs: "mar–sab 19:00–22:00", tel: "+33478422462", book: "telefono o sito", w: "https://www.danieletdenise.fr" },
+    { id: "grandmere", n: "Chez Grand-Mère", k: "bouchon · cucina casalinga", p: "menu 26,90 €", a: "11 Rue du Bœuf", ll: [45.7625, 4.8265], hrs: "tutti i giorni (orario serale da confermare)", tel: "+33951613538", book: "telefono", w: "http://www.chezgrandmere.fr" },
+    { id: "notremaison", n: "Notre Maison", k: "bouchon · piccolo, prenotare", p: "menu 35 €", a: "2 Rue de Gadagne", ll: [45.7644, 4.8276], hrs: "cena lun–sab 19:00–22:00", tel: "+33472417848", book: "telefono o sito" },
+    { id: "cave", n: "La Cave des Voyageurs", k: "bar à vin con qualcosa da mangiare · non è un bouchon", p: "10–25 €", a: "7 Place Saint-Paul", ll: [45.7663, 4.8268], hrs: "mar–sab 17:00–1:00", tel: "+33478289228", book: "non serve" }] },
+  venp: { h: "Pranzo ven 30 · banchi delle Halles", near: 13, ch: 2, inside: true, items: [
+    { id: "giraudet", n: "Giraudet", k: "quenelle di luccio · zuppa di cipolle", p: "15–25 €", a: "dentro le Halles", tel: "+33478623405", w: "https://www.giraudet.fr" },
+    { id: "sibilia", n: "Charcuterie Sibilia", k: "dal 1922 · saucisson brioché", p: "10–20 €", a: "dentro le Halles", tel: "+33478622129", w: "https://www.charcuterie-sibilia.com" },
+    { id: "antonin", n: "Chez Antonin", k: "écailler: ostriche e pesce", p: "15–30 €", a: "dentro le Halles", hrs: "écailler 9:00–22:00", tel: "+33478623910" },
+    { id: "leon", n: "Chez Léon", k: "écailler: ostriche e frutti di mare", p: "15–30 €", a: "dentro le Halles", hrs: "écailler 9:00–22:00", tel: "+33478623028" }] },
+  venc: { h: "Cena ven 30 · vicino all'hotel", near: 14, ch: 2, def: "georges", from: "hotel", fromTxt: "dall'hotel", items: [
+    { id: "georges", n: "Brasserie Georges", k: "brasserie dal 1836 · Art Déco · servizio continuo", p: "menu 25–30,50 €", a: "30 Cours de Verdun Perrache", ll: [45.7503, 4.8268], hrs: "venerdì 11:30–0:15", tel: "+33472565454", book: "online (il telefono risponde lun–ven 9–18)", w: "https://www.brasseriegeorges.com" },
+    { id: "heat", n: "HEAT", k: "food court all'aperto · container e food truck", p: "10–20 €", a: "70 Quai Perrache", ll: [45.7437, 4.8199], hrs: "orari da verificare su h-eat.eu", book: "non serve", w: "https://h-eat.eu" }] }
 };
 
-const FOOD = [
- {h:"🍽 Cena gio 29 Ott · Vieux Lyon (bouchon, prenotare per 4)",items:[
-  {n:"Le Laurencin",p:"15–25 €",a:"24 Rue Saint-Jean",tel:"+33478379737",map:"https://www.google.com/maps/search/?api=1&query=Le+Laurencin%2C+24+Rue+Saint-Jean%2C+69005+Lyon",w:"https://www.visiterlyon.com/se-regaler/restaurants-et-gastronomie/cuisine-lyonnaise/le-laurencin"},
-  {n:"Chez Grand-Mère",p:"25–27 €",a:"11 Rue du Bœuf",tel:"+33951613538",map:"https://www.google.com/maps/search/?api=1&query=Chez+Grand-M%C3%A8re%2C+11+Rue+du+B%C5%93uf%2C+69005+Lyon",w:"http://www.chezgrandmere.fr"},
-  {n:"Daniel & Denise",p:"25–40 €",a:"36 Rue Tramassac",tel:"+33478422462",map:"https://www.google.com/maps/search/?api=1&query=Daniel+et+Denise+Saint-Jean%2C+36+Rue+Tramassac%2C+69005+Lyon",w:"https://www.danieletdenise.fr"},
-  {n:"Notre Maison",p:"25–40 €",a:"2 Rue de Gadagne",tel:"+33472417848",map:"https://www.google.com/maps/search/?api=1&query=Notre+Maison%2C+2+Rue+de+Gadagne%2C+69005+Lyon",w:null},
-  {n:"La Cave des Voyageurs",p:"10–25 €",a:"7 Place Saint-Paul",tel:"+33478289228",map:"https://www.google.com/maps/search/?api=1&query=La+Cave+des+Voyageurs%2C+7+Place+Saint-Paul%2C+69005+Lyon",w:null}]},
- {h:"🍽 Pranzo ven 30 Ott · banchi Halles Paul Bocuse",items:[
-  {n:"Chez Antonin",p:"15–30 €",a:"Écailler: ostriche e pesce",tel:"+33478623910",map:"https://www.google.com/maps/search/?api=1&query=Chez+Antonin%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:null},
-  {n:"Giraudet",p:"15–25 €",a:"Quenelle di luccio · zuppa di cipolle",tel:"+33478623405",map:"https://www.google.com/maps/search/?api=1&query=Giraudet%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:"https://www.giraudet.fr"},
-  {n:"Charcuterie Sibilia",p:"10–20 €",a:"Dal 1922 · saucisson brioché",tel:"+33478622129",map:"https://www.google.com/maps/search/?api=1&query=Charcuterie+Sibilia%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:"https://www.charcuterie-sibilia.com"},
-  {n:"Chez Léon",p:"15–30 €",a:"Écailler: ostriche e frutti di mare · dal 1920",tel:"+33478623028",map:"https://www.google.com/maps/search/?api=1&query=Chez+L%C3%A9on%2C+Halles+de+Lyon+Paul+Bocuse%2C+102+Cours+Lafayette%2C+69003+Lyon",w:null}]},
- {h:"🍽 Cena ven 30 Ott · vicino hotel (Perrache/Confluence)",items:[
-  {n:"Brasserie Georges ★",p:"30–50 €",a:"30 Cours de Verdun · ~500 m dall'hotel · prenotazione solo online",tel:"+33472565454",map:"https://www.google.com/maps/search/?api=1&query=Brasserie+Georges%2C+30+Cours+de+Verdun+Perrache%2C+69002+Lyon",w:"https://www.brasseriegeorges.com"},
-  {n:"Les Petites Cantines",p:"10–18 €",a:"74 Rue de la Charité",tel:"+33478383638",map:"https://www.google.com/maps/search/?api=1&query=Les+Petites+Cantines%2C+74+Rue+de+la+Charit%C3%A9%2C+69002+Lyon",w:"https://www.lespetitescantines.org"},
-  {n:"HEAT Food Court",p:"10–20 €",a:"70 Quai Perrache · food hall",tel:null,map:"https://www.google.com/maps/search/?api=1&query=HEAT%2C+70+Quai+Perrache%2C+69002+Lyon",w:"https://h-eat.eu"}]}
-];
-
+/* Schede di lettura (versione precedente, riusate): incollate qui sotto */
 const GUIDES = {
   "0:0":{heroEmoji:"🏨",subtitle:"Arrivo · Hôtel Charlemagne",intro:"Si arriva da Magenta, si lascia l'auto e si ricarica mezz'ora prima della serata nel Vieux Lyon.",sections:[
     {icon:"⚡",title:"In sintesi",text:"⏱️ 30–45 min · 🕐 check-in <b>dalle 15:00</b> · 🅿️ parcheggio custodito a <b>150 m</b>, <b>21 €/giorno</b> su prenotazione · 📶 Wi-Fi gratuito<br>📍 23 Cours Charlemagne, 69002 Lyon (Perrache)"},
@@ -1015,7 +463,7 @@ const GUIDES = {
     {icon:"⚡",title:"In sintesi",text:"⏱️ 15–30 min · 💶 gratis · 🕐 <b>lun–ven 8:15–19:45</b> · sab–dom 8:15–19:00<br>📍 Place Saint-Jean"},
     {icon:"⭐",title:"Non perdere",text:"• L'<b>orologio astronomico</b>, uno dei più antichi d'Europa<br>• Il <b>rosone</b> sopra il portale centrale<br>• Il <b>Giardino Archeologico</b> accanto alla cattedrale (resti delle chiese paleocristiane)"},
     {icon:"📍",title:"Dove sei",text:"<b>Place Saint-Jean</b>, a due passi dall'uscita della traboule. <a href='https://www.google.com/maps/search/?api=1&query=Cath%C3%A9drale+Saint-Jean-Baptiste%2C+8+Place+Saint-Jean%2C+69005+Lyon' target='_blank'>Apri mappa</a>"},
-    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>: la navata è romanica (XII sec.), il coro è gotico (XIV sec.). Aperta <b>8:15–19:45</b> nei giorni feriali, ingresso gratuito. È un luogo di culto: voce bassa durante le funzioni."},
+    {icon:"⛪",title:"La Cattedrale",text:"<b>Uno dei migliori esempi europei di transizione dal romanico al gotico</b>: l'abside e il coro sono romanici (dal 1175), la navata e la facciata gotiche (fino al 1480). Aperta <b>8:15–19:45</b> nei giorni feriali, ingresso gratuito. È un luogo di culto: voce bassa durante le funzioni."},
     {icon:"🕰️",title:"L'orologio astronomico",text:"Citato già nel <b>XV secolo</b>, reinstallato da Hugues Levet nel <b>1598</b>. Si anima solo <b>quattro volte al giorno: 12:00, 14:00, 15:00 e 16:00</b>. Stasera ammira solo il meccanismo."},
     {icon:"👑",title:"Qui è passata la storia",text:"Due <b>concili ecumenici</b> (1245 e 1274), l'incoronazione di papa <b>Giovanni XXII</b> (1316) e il matrimonio di <b>Enrico IV con Maria de' Medici</b> (13 dicembre 1600)."},
     {icon:"🏗️",title:"Tre secoli di cantiere",text:"Iniziata verso il <b>1180</b> e finita nel <b>1480</b>: per questo l'abside è romanica e la facciata gotica. Il Dio Padre in cima al timpano è del 1481."},
@@ -1149,7 +597,7 @@ const GUIDES = {
     {icon:"⭐",title:"Non perdere",text:"• La <b>sala Art Déco</b> (1924)<br>• La <b>birra in loco</b>, prodotta nei tini d'epoca<br>• La <b>facciata neoclassica</b> su Cours de Verdun<br>• Il <b>soufflé</b> o la <b>choucroute</b> (piatti della tradizione)"},
     {icon:"📍",title:"Dove sei",text:"A ~500 metri dall'hotel, sul lato nord della stazione di Perrache. <a href='https://www.google.com/maps/search/?api=1&query=Brasserie+Georges%2C+30+Cours+de+Verdun+Perrache%2C+69002+Lyon' target='_blank'>Apri mappa</a>"},
     {icon:"📖",title:"Da sapere",text:"Fondata nel <b>1836</b> da Georges Hoffherr, birraio alsaziano. Nel <b>1924</b> fu ridecorata in stile <b>Art Déco</b>. È una delle brasserie più grandi d'Europa e produce ancora la sua birra."},
-    {icon:"🍽️",title:"Alternative",text:"Se è piena (capita il venerdì): <b>Les Petites Cantines</b> (74 Rue de la Charité, 10–18 €, no-profit) o <b>HEAT Food Court</b> (70 Quai Perrache, 10–20 €, food hall con 8 cucine). Entrambe a 10 min a piedi."},
+    {icon:"🍽️",title:"Alternative",text:"Se è piena (capita il venerdì): <b>HEAT Food Court</b> (70 Quai Perrache, 10–20 €, food court, orari da verificare su h-eat.eu). ~10 min a piedi."},
     {icon:"⭐",title:"Ospiti illustri",text:"Tra i clienti storici: <b>Verlaine, Jules Verne, Rodin, Édith Piaf, Hemingway</b>."},
     {icon:"🏆",title:"Record da brasserie",text:"Nel <b>1986</b> servì la choucroute più grande del mondo (~1,5 tonnellate), nel <b>1996</b> un'omelette norvegese di <b>34 metri</b>. Oltre <b>700 coperti</b> per servizio."},
     {icon:"🍽️",title:"Cosa ordinare",text:"La <b>salsiccia lionese al pistacchio</b>, la <b>choucroute</b> e, per chiudere, l'<b>omelette norvegese</b>. Birra: quella della casa."},
@@ -1206,45 +654,7 @@ const GUIDES = {
     {icon:"📞",title:"Numeri utili",text:"🚨 <b>Emergenze</b>: 112 · 🏨 <b>Hotel</b> (oggetti dimenticati): <a href='tel:+33472777000'>04 72 77 70 00</a>"}]}
 };
 
-const POIS = {
-  /* una riga = un punto fisico; se il punto coincide con partenza/arrivo, la riga POI li sostituisce */
-  "0:1":[{i:"⛪",n:"Cattedrale Saint-Jean",d:"la facciata gotica · si visita due tappe dopo",q:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",k:"main"},
-         {i:"🎶",n:"Manécanterie",d:"XI sec. · forse l'edificio più antico di Lione dopo quelli romani",q:"Manécanterie de Lyon, 69005 Lyon"},
-         {i:"⛰️",n:"Basilica di Fourvière",d:"bianca sulla collina che sovrasta la piazza",q:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon"}],
-  "0:2":[{i:"🚪",n:"La Longue Traboule · ingresso",d:"5 cortili rinascimentali · aperta 7:00–19:00",q:"Longue Traboule, 54 Rue Saint-Jean, 69005 Lyon",k:"main"},
-         {i:"🐂",n:"27 Rue du Bœuf · l'uscita",d:"sbuchi davanti alla facciata del Cinquecento",q:"27 Rue du Bœuf, 69005 Lyon"}],
-  "0:3":[{i:"⏰",n:"Cattedrale · orologio e rosone",d:"orologio astronomico (si anima 12/14/15/16) · rosone sopra il portale",q:"Cathédrale Saint-Jean-Baptiste, 8 Place Saint-Jean, 69005 Lyon",k:"main"},
-         {i:"🏛️",n:"Giardino archeologico",d:"resti delle chiese paleocristiane, accanto alla cattedrale",q:"Jardin archéologique Saint-Jean, 69005 Lyon"}],
-  "0:4":[{i:"🚡",n:"Funicolare F2 · stazione Vieux Lyon",d:"la 'ficelle' in servizio dal 1900 · ticket TCL 2,10 €",q:"Funiculaire de Lyon, Cathédrale Saint-Jean-Baptiste, 69005 Lyon",k:"main"}],
-  "0:5":[{i:"⛪",n:"Basilique de Fourvière",d:"i mosaici dorati · aperta fino alle 20:00",q:"Basilique Notre-Dame de Fourvière, 8 Place de Fourvière, 69005 Lyon",k:"main"},
-         {i:"🌃",n:"Esplanade di Fourvière",d:"il tappeto di luci della città · accanto alla basilica",q:"Esplanade de Fourvière, Place de Fourvière, 69005 Lyon"},
-         {i:"🗼",n:"Tour Métallique",d:"85,90 m, 1892–1894 · la 'Tour Eiffel' di Lione · solo da fuori",q:"Tour métallique de Fourvière, 69005 Lyon"},
-         {i:"🏛️",n:"Teatri romani",d:"gratis · chiudono alle 19:00 (stasera solo dall'alto)",q:"Théâtres romains de Fourvière, 6 Rue de l'Antiquaille, 69005 Lyon"}],
-  "1:0":[{i:"🐎",n:"Statua di Luigi XIV · il km zero",d:"il 'Cheval de Bronze' del 1825 · da qui si misurano le distanze",q:"Statue équestre de Louis XIV, Place Bellecour, 69002 Lyon",k:"main"},
-         {i:"✈️",n:"Saint-Exupéry e il Piccolo Principe",d:"sulla colonna bianca, lato Saona",q:"Statue de Saint-Exupéry et du Petit Prince, Place Bellecour, 69002 Lyon"}],
-  "1:1":[{i:"⛲",n:"Fontana Bartholdi",d:"21 tonnellate · era stata pensata per Bordeaux",q:"Fontaine Bartholdi, Place des Terreaux, 69001 Lyon",k:"main"},
-         {i:"🖼️",n:"Musée des Beaux-Arts",d:"8 € · venerdì 10:30–18:00 · chiuso il martedì",q:"Musée des Beaux-Arts de Lyon, 20 Place des Terreaux, 69001 Lyon"},
-         {i:"🎭",n:"Opéra de Lyon",d:"la volta di vetro di Jean Nouvel (1993) sul teatro del 1831",q:"Opéra de Lyon, 1 Place de la Comédie, 69001 Lyon"},
-         {i:"⛲",n:"Place des Jacobins",d:"piazza elegante lungo il percorso",q:"Place des Jacobins, 69002 Lyon",walk:true},
-         {i:"🛍️",n:"Rue de la République",d:"via pedonale ottocentesca · la spina della passeggiata",q:"Rue de la République, 69002 Lyon",walk:true}],
-  "1:2":[{i:"🎨",n:"La Fresque des Lyonnais",d:"800 m² · ~30 lionesi illustri · cercate Saint-Exupéry e i Lumière",q:"Fresque des Lyonnais, 2 Rue de la Martinière, 69001 Lyon",k:"main"}],
-  "1:3":[{i:"🏞️",n:"Il lago",d:"16 ettari, scavato a mano nel 1857",q:"Lac du Parc de la Tête d'Or, 69006 Lyon",k:"main"},
-         {i:"🪖",n:"Île du Souvenir",d:"monumento ai caduti di Tony Garnier · 11:00–17:00",q:"Île du Souvenir, Parc de la Tête d'Or, 69006 Lyon"},
-         {i:"🌴",n:"Grandes Serres",d:"piante tropicali · 9:00–16:30",q:"Grandes Serres du Parc de la Tête d'Or, 69006 Lyon"},
-         {i:"🦒",n:"Giardino zoologico",d:"gratuito · giraffe nella pianura africana",q:"Zoo de Lyon, Parc de la Tête d'Or, 69006 Lyon"},
-         {i:"⛲",n:"Porte des Enfants du Rhône",d:"l'ingresso monumentale sul lago",q:"Porte des Enfants du Rhône, Parc de la Tête d'Or, 69006 Lyon"}],
-  "1:4":[{i:"🧀",n:"Sibilia",d:"il banco cult: saucisson brioché e pistacchio",q:"Charcuterie Sibilia, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",k:"main"},
-         {i:"🥟",n:"Giraudet",d:"la regina della quenelle",q:"Giraudet, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
-         {i:"🦪",n:"Chez Antonin",d:"écailler: ostriche e pesce · 9:00–22:00",q:"Chez Antonin, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"}],
-  "1:7":[{i:"🚉",n:"Stazione di Perrache",d:"si attraversa a piedi per tornare in hotel",q:"Gare de Lyon-Perrache, 69002 Lyon",k:"main",walk:true}],
-  "2:2":[{i:"🧀",n:"Sibilia",d:"saucisson e rosette sottovuoto da portare a casa",q:"Charcuterie Sibilia, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon",k:"main"},
-         {i:"🥟",n:"Giraudet",d:"quenelle sottovuoto",q:"Giraudet, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"},
-         {i:"🦪",n:"Chez Antonin",d:"écailler: ostriche e pesce · 9:00–22:00",q:"Chez Antonin, Halles de Lyon Paul Bocuse, 102 Cours Lafayette, 69003 Lyon"}],
-  "2:3":[{i:"🏙️",n:"Tour Incity · 'la Gomma'",d:"200 m con la guglia · il grattacielo più alto di Lione",q:"Tour Incity, 116 Cours Lafayette, 69003 Lyon",k:"main"},
-         {i:"✏️",n:"Le Crayon",d:"la Tour Part-Dieu, 165 m (1972–1976)",q:"Tour Part-Dieu, 129 Rue Servient, 69003 Lyon"}]
-};
-
-
+/* Viaggio in auto (versione precedente) */
 const GMD = "https://www.google.com/maps/dir/?api=1&travelmode=driving";
 const TRIP = [
  {label:"Andata · Giovedì 29 Ott",route:"Magenta → Lione",rows:[
@@ -1263,350 +673,26 @@ const TRIP = [
    note:"l'opzione più economica (~86 €), ma quasi 6h 30."}]}
 ];
 
-document.getElementById('trip').innerHTML = TRIP.map(g => `
-  <div class="list">
-    <div class="list-h">${g.label} · ${g.route}</div>
-    ${g.rows.map(r => `
-      <div class="ritem">
-        <div class="r-top">
-          <span class="r-name">${r.dir === 'tunnel' ? '🚇' : '⛰️'} ${r.name}</span>
-          <span class="r-price">${r.tot}</span>
-        </div>
-        <div class="r-addr">⏱️ ${r.dur} · 🛣️ ${r.km}<br>${r.det}</div>
-        <div class="r-btns"><a class="b-map" href="${r.map}" target="_blank" rel="noopener">🗺️ Percorso</a></div>
-      </div>`).join('')}
-  </div>`).join('') + `
-  <div class="tips">
-    <div>🌙 <b>Monte Bianco chiuso di notte</b> fino a dicembre: <b>22:00–6:00</b>, lun–gio (es. notti 28–29 e 29–30 ott). Per questo la sera Maps propone il Gran San Bernardo. Sabato 31 di giorno è aperto. Calendario: tunnelmb.net.</div>
-    <div>🎫 <b>Fréjus andata e ritorno</b>: 70,40 € (valido 7 giorni) invece di 2 × 56,40 €, se rientrate dallo stesso traforo.</div>
-    <div>🚇 <b>Trafori</b>: ~56,40 € a tratta, si paga anche con carta. ⛰️ <b>Valichi</b> gratis ma più lenti e a fine ottobre può nevicare: gomme invernali o catene.</div>
-    <div>💶 <b>Andata + ritorno</b>: tunnel+tunnel ~310,50 € · misto ~246–255 € · valico+valico ~190,70 €.</div>
-    <div>🕐 <b>Orari</b>: in hotel alle 17:00 del 29 · il 31 si riparte dalle Halles verso le 11:30.</div>
-    
-  </div>`;
-
-
-/* Giorno del viaggio: 29/30/31 ottobre → 0/1/2; fuori dal viaggio → -1 (si apre il giorno 1) */
-const now = new Date();
-const todayIdx = (now.getMonth() === 9 && now.getDate() >= 29 && now.getDate() <= 31) ? now.getDate() - 29 : -1;
-let dayIdx = todayIdx < 0 ? 0 : todayIdx;
-let steps = DAYS[dayIdx].steps;
-/* Tappa da mostrare: oggi → quella dell'orario attuale; altri giorni → la prima.
-   Niente spunte: la guida segue l'orologio da sola. */
-
-let lastManual = 0;   /* se l'utente sfoglia a mano, per 10 minuti l'orologio non lo "riporta indietro" */
-let idx = 0;
-
-function phaseFor(h) {
-  if (h >= 5 && h < 9) return 'morning';
-  if (h >= 9 && h < 17) return 'day';
-  if (h >= 17 && h < 21) return 'evening';
-  return 'night';
+/* =====================================================================
+   LINK MAPPE (punto = PUNTO, spostamento = PERCORSO)
+   ===================================================================== */
+const enc = encodeURIComponent;
+function poiLink(q) { return "https://www.google.com/maps/search/?api=1&query=" + enc(q); }
+function routeLink(dest, mode, via) {
+  let u = "https://www.google.com/maps/dir/?api=1&destination=" + enc(dest) + "&travelmode=" + mode;
+  if (via && via.length) u += "&waypoints=" + enc(via.join("|"));
+  return u;
 }
-function applyPhase() {
-  const h = new Date().getHours();
-  const p = phaseFor(h);
-  document.body.classList.remove('phase-morning', 'phase-day', 'phase-evening', 'phase-night');
-  document.body.classList.add('phase-' + p);
-  const sky = document.getElementById('sky');
-  if (sky) sky.className = 'sky ' + p;
+function loopLink(l) {
+  return "https://www.google.com/maps/dir/?api=1&origin=" + enc(l.from) + "&destination=" + enc(l.to) + "&waypoints=" + enc(l.via.join("|")) + "&travelmode=walking";
 }
-applyPhase();
-setInterval(applyPhase, 60000);
+const MODE = {
+  walk: { i: "🚶", w: "a piedi", maps: "walking" }, metro: { i: "🚇", w: "in metro", maps: "transit" },
+  taxi: { i: "🚕", w: "in taxi", maps: "driving" }, funi: { i: "🚡", w: "in funicolare", maps: "transit" },
+  car: { i: "🚗", w: "in auto", maps: "driving" }
+};
 
-const view = document.getElementById('nowPage');
-const dayView = document.getElementById('dayPage');
-const overlay = document.getElementById('overlay');
-const guideOverlay = document.getElementById('guideOverlay');
-let toastTO;
-
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(toastTO);
-  toastTO = setTimeout(() => t.classList.remove('show'), 2400);
-}
-
-
-
-function mapLinks(s) {
-  const b = 'https://www.google.com/maps/dir/?api=1';
-  const l = `&origin=${encodeURIComponent(s.orig)}&destination=${encodeURIComponent(s.dest)}`;
-  /* punti intermedi solo per il percorso a piedi, nell'ordine in cui si incontrano */
-  const w = s.via && s.via.length ? `&waypoints=${encodeURIComponent(s.via.join('|'))}` : '';
-  return {
-    walk: `${b}${l}${w}&travelmode=walking`,
-    transit: `${b}${l}&travelmode=transit`,
-    drive: `${b}${l}&travelmode=driving`
-  };
-}
-/* "Tu sei qui" = posizione GPS reale nel momento del tocco.
-   La posizione si chiede nella pagina stessa (così il telefono mostra il permesso),
-   poi si apre un pannello con i bottoni: il secondo tocco apre Maps senza blocchi. */
-function hereNow(ev) {
-  if (ev) ev.preventDefault();
-  const s = steps[idx];
-  const mapsHere = 'https://www.google.com/maps/@?api=1&map_action=map';
-  const panel = body => {
-    overlay.innerHTML = `
-      <div class="sheet" onclick="event.stopPropagation()">
-        <div class="sh-top"><b>📍 Dove sono io</b>
-          <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
-        ${body}
-      </div>`;
-    overlay.hidden = false;
-  };
-  if (!navigator.geolocation || !window.isSecureContext) {
-    panel(`<p class="info-p">Questo browser non dà la posizione a questa pagina${window.isSecureContext ? '' : ' (pagina non sicura)'}.</p>
-      <div class="r-btns" style="margin-top:12px"><a class="b-map" href="${mapsHere}" target="_blank" rel="noopener">🗺️ Apri Maps sulla mia posizione</a></div>`);
-    return;
-  }
-  panel(`<p class="info-p">📡 Cerco la tua posizione… se il telefono lo chiede, tocca <b>Consenti</b>.</p>`);
-  navigator.geolocation.getCurrentPosition(
-    p => {
-      const ll = p.coords.latitude.toFixed(6) + ',' + p.coords.longitude.toFixed(6);
-      const acc = Math.round(p.coords.accuracy);
-      panel(`<p class="info-p">Posizione trovata (precisione ~${acc} m).</p>
-        <div class="r-btns" style="margin-top:12px">
-          <a class="b-map" href="https://www.google.com/maps/search/?api=1&query=${ll}" target="_blank" rel="noopener">🗺️ Vedi dove sono</a>
-          ${s && s.dest ? `<a class="b-tel" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 Portami alla tappa</a>` : ''}
-        </div>`);
-    },
-    e => {
-      const why = e.code === 1
-        ? 'Permesso negato. In Chrome: lucchetto o ⓘ accanto all\'indirizzo → Autorizzazioni → Posizione → Consenti. Controlla anche che la posizione del telefono sia accesa.'
-        : e.code === 3 ? 'Il GPS non ha risposto in tempo (sei al chiuso?). Riprova all\'aperto.'
-        : 'Posizione non disponibile: controlla che la localizzazione del telefono sia attiva.';
-      panel(`<p class="info-p">${why}</p>
-        <div class="r-btns" style="margin-top:12px">
-          <button class="b-tel" style="border:0;font:inherit;font-weight:800;padding:11px 14px;border-radius:10px;min-height:44px" onclick="hereNow()">↻ Riprova</button>
-          <a class="b-map" href="${mapsHere}" target="_blank" rel="noopener">🗺️ Apri Maps</a>
-        </div>`);
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 30000 });
-}
-/* "Portami qui": percorso dalla posizione reale all'arrivo della tappa (Maps usa la posizione attuale se manca l'origine) */
-
-/* Giro a piedi sul posto: sequenza di punti dentro il luogo della tappa */
-function loopLink(g) {
-  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(g.from) +
-    '&destination=' + encodeURIComponent(g.to) +
-    (g.via && g.via.length ? '&waypoints=' + encodeURIComponent(g.via.join('|')) : '') + '&travelmode=walking';
-}
-/* Link a un PUNTO di interesse (marker sulla mappa), non a un percorso */
-function poiLink(q) {
-  return 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(q);
-}
-
-
-
-function renderDayStrip() {
-  const strip = document.getElementById('daystrip');
-  strip.innerHTML = DAYS.map((d, i) =>
-    `<button class="${i === dayIdx ? 'on' : ''}" onclick="switchDay(${i})" role="tab" aria-selected="${i === dayIdx}" aria-label="${d.date}">${d.label}</button>`
-  ).join('');
-}
-
-/* Punti di interesse della tappa: una riga = un punto fisico */
-function poiRowsFor(s, key) {
-  const pois = POIS[key] || [];
-  const onsite = s.orig && s.dest && s.orig === s.dest;
-  const short = x => (x || '').split(',')[0];
-  const hasPoi = q => pois.some(p => p.q === q);
-  return [
-    s.orig && !onsite && !hasPoi(s.orig) ? { i: '🚩', n: short(s.orig), d: 'partenza della tappa', q: s.orig, k: 'start' } : null,
-    ...pois,
-    s.dest && !onsite && !hasPoi(s.dest) ? { i: '🏁', n: short(s.dest), d: 'arrivo', q: s.dest, k: 'end' } : null
-  ].filter(Boolean);
-}
-function poiListHTML(rows) {
-  return `<div class="poi-list">${rows.map(p => `<div class="poi ${p.k || ''}"><span class="pi">${p.i}</span><span class="pt"><b>${p.n}</b><small>${p.d || ''}</small></span><span class="wrap">${p.walk ? '<span class="flag">🚶 a piedi</span>' : ''}<a class="go" href="${poiLink(p.q)}" target="_blank" rel="noopener">🗺️ Apri</a></span></div>`).join('')}</div>`;
-}
-
-
-
-
-
-/* "Scopri": guida + punti di interesse + giro sul posto, tutto in un posto */
-function openScopri() {
-  const key = dayIdx + ':' + idx;
-  const s = steps[idx];
-  const g = GUIDES[key] || { intro: s.desc || '', sections: [] };
-  const rows = poiRowsFor(s, key);
-  guideOverlay.innerHTML = `
-    <div class="guide-sheet" onclick="event.stopPropagation()">
-      <div class="guide-hero">
-        <div class="gh-emoji" aria-hidden="true">${g.heroEmoji || s.emoji}</div>
-        <button class="gh-close" onclick="closeGuide()" aria-label="Chiudi">✕</button>
-      </div>
-      <div class="guide-body">
-        <div class="g-sub">${g.subtitle || s.title}</div>
-        <div class="g-title">${g.title || s.emoji + ' ' + s.title}</div>
-        <div class="g-intro">${g.intro}</div>
-        ${rows.length || s.loop ? `<div class="g-sec g-pois">
-          <div class="g-sec-t">📍 Punti di interesse</div>
-          ${s.loop ? `<a class="map-btn" style="margin-top:8px;white-space:normal;min-height:44px" href="${loopLink(s.loop)}" target="_blank" rel="noopener">🚶 ${s.loop.label}</a>` : ''}
-          ${rows.length ? poiListHTML(rows) : ''}
-        </div>` : ''}
-        ${g.sections.map(sec => `
-          <div class="g-sec">
-            <div class="g-sec-t">${sec.icon}${sec.title}</div>
-            <div class="g-sec-x">${sec.text}</div>
-          </div>`).join('')}
-        ${g.linkTo && GUIDES[g.linkTo] ? `<button class="guide-open-btn" onclick="openGuideKey('${g.linkTo}')">➕ Leggi anche: ${GUIDES[g.linkTo].subtitle}</button>` : ''}
-      </div>
-    </div>`;
-  guideOverlay.hidden = false;
-  guideOverlay.scrollTop = 0;
-}
-
-
-setInterval(tick, 30000);
-function updateClock() {
-  const c = document.getElementById('clock');
-  if (c) c.textContent = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
-}
-updateClock();
-setInterval(updateClock, 15000);
-
-
-
-
-
-
-function openGuideKey(key) {
-  const g = GUIDES[key];
-  if (!g) {
-    toast('Guida dettagliata non disponibile');
-    return;
-  }
-  const s = steps[idx] || { emoji: '', title: '' };
-  guideOverlay.innerHTML = `
-    <div class="guide-sheet" onclick="event.stopPropagation()">
-      <div class="guide-hero">
-        <div class="gh-emoji" aria-hidden="true">${g.heroEmoji || s.emoji}</div>
-        <button class="gh-close" onclick="closeGuide()" aria-label="Chiudi guida">✕</button>
-      </div>
-      <div class="guide-body">
-        <div class="g-sub">${g.subtitle || s.title}</div>
-        <div class="g-title">${g.title || s.emoji + ' ' + s.title}</div>
-        <div class="g-intro">${g.intro}</div>
-        ${g.sections.map(sec => `
-          <div class="g-sec">
-            <div class="g-sec-t">${sec.icon}${sec.title}</div>
-            <div class="g-sec-x">${sec.text}</div>
-          </div>
-        `).join('')}
-        ${g.linkTo && GUIDES[g.linkTo] ? `
-          <button class="guide-open-btn" onclick="openGuideKey('${g.linkTo}')">
-            ➕ Leggi anche: ${GUIDES[g.linkTo].subtitle}
-          </button>
-        ` : ''}
-      </div>
-    </div>`;
-  guideOverlay.hidden = false;
-}
-function closeGuide() {
-  guideOverlay.hidden = true;
-  guideOverlay.innerHTML = '';
-}
-guideOverlay.addEventListener('click', closeGuide);
-
-
-
-
-
-function openTransit() {
-  const s = steps[idx];
-  const m = s ? mapLinks(s) : null;
-  overlay.innerHTML = `
-    <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sh-top">
-        <b>🚇 Pianta dei mezzi · Lione</b>
-        <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button>
-      </div>
-      <div class="tmap-wrap">
-      <img class="tmap-img" src="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" alt="Pianta dettagliata metro e tram di Lione (mapa-metro.com)" onerror="this.style.display='none';var f=document.getElementById('tmap-fallback');if(f)f.style.display='block'">
-      <div id="tmap-fallback" style="display:none">
-      <svg viewBox="0 0 340 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mini pianta mezzi: Metro A, Metro D, funicolare F2, tram T1" style="display:block;width:100%;height:auto">
-        <rect width="340" height="360" rx="14" fill="#ffffff"/>
-        <text x="16" y="28" font-size="12.5" font-weight="900" fill="#17323b" font-family="sans-serif">🚇 Mini-rete dei vostri mezzi</text>
-        <line x1="170" y1="60" x2="170" y2="114" stroke="#008f9e" stroke-width="7" stroke-linecap="round"/>
-        <line x1="170" y1="114" x2="170" y2="182" stroke="#00843d" stroke-width="7" stroke-linecap="round"/>
-        <polyline points="80,232 170,182 258,182" fill="none" stroke="#d4002a" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        <polyline points="258,272 170,250 80,232 80,314" fill="none" stroke="#0072bc" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
-        <text x="156" y="94" text-anchor="end" font-size="12" font-weight="900" fill="#008f9e" font-family="sans-serif">F2</text>
-        <text x="156" y="154" text-anchor="end" font-size="12" font-weight="900" fill="#00843d" font-family="sans-serif">M D</text>
-        <text x="214" y="172" text-anchor="middle" font-size="12" font-weight="900" fill="#d4002a" font-family="sans-serif">M A</text>
-        <text x="130" y="226" text-anchor="middle" font-size="12" font-weight="900" fill="#0072bc" font-family="sans-serif">T1</text>
-        <circle cx="170" cy="60" r="7" fill="#ffffff" stroke="#008f9e" stroke-width="3"/>
-        <circle cx="170" cy="114" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
-        <circle cx="170" cy="182" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
-        <circle cx="258" cy="182" r="7" fill="#ffffff" stroke="#d4002a" stroke-width="3"/>
-        <circle cx="80" cy="232" r="9" fill="#ffffff" stroke="#17323b" stroke-width="3"/>
-        <circle cx="258" cy="272" r="7" fill="#ffffff" stroke="#0072bc" stroke-width="3"/>
-        <circle cx="80" cy="314" r="7" fill="#ffffff" stroke="#0072bc" stroke-width="3"/>
-        <text x="184" y="64" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Fourvière 🌃</text>
-        <text x="184" y="118" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Vieux Lyon</text>
-        <text x="184" y="204" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Bellecour</text>
-        <text x="258" y="200" text-anchor="middle" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Hôtel de Ville</text>
-        <text x="66" y="236" text-anchor="end" font-size="12" font-weight="800" fill="#17323b" font-family="sans-serif">Perrache</text>
-        <text x="66" y="251" text-anchor="end" font-size="11" font-weight="700" fill="#0e9f6e" font-family="sans-serif">🏨 il vostro hotel</text>
-        <text x="246" y="290" text-anchor="end" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Part-Dieu</text>
-        <text x="246" y="305" text-anchor="end" font-size="10.5" fill="#5b7a80" font-family="sans-serif">(Halles: bus C3)</text>
-        <text x="94" y="318" font-size="11.5" font-weight="800" fill="#17323b" font-family="sans-serif">Musée des Confluences</text>
-        <text x="170" y="346" text-anchor="middle" font-size="10" font-weight="700" fill="#5b7a80" font-family="sans-serif">🎫 Ticket 2,10 € · 1h, A/R incluso · Pass 24h 7,10 €</text>
-      </svg>
-      </div>
-      </div>
-      <div class="sbtns" style="grid-template-columns:1fr 1fr;margin-top:12px">
-        <a class="sitem" style="justify-content:center" href="https://mapa-metro.com/mapas/Lyon/lyon-metro-map-2024-2026.png" target="_blank" rel="noopener">🗺️ Apri pianta completa</a>
-        ${m ? `<a class="sitem" style="justify-content:center" href="${m.transit}" target="_blank" rel="noopener">🧭 Percorso di questa tappa</a>` : `<a class="sitem" style="justify-content:center" href="https://www.tcl.fr" target="_blank" rel="noopener">🧭 tcl.fr</a>`}
-      </div>
-      <p class="shint">📡 La pianta completa serve la rete; senza rete compare la mini-rete dei vostri mezzi. Metro A per Bellecour e Hôtel de Ville; Masséna per il Parc de la Tête d'Or.<br>🎫 Ticket <b>2,10 €</b>: 1 ora di convalide illimitate · <b>Pass 24h 7,10 €</b> (conviene venerdì)<br>⚠️ Funicolare F2: ultima corsa ~22:00, verifica manutenzioni su tcl.fr.</p>
-    </div>`;
-  overlay.hidden = false;
-}
-
-
-function closeSheet() {
-  overlay.hidden = true;
-  overlay.innerHTML = '';
-}
-overlay.addEventListener('click', closeSheet);
-
-
-
-
-
-
-document.getElementById('food').innerHTML = FOOD.map(g => `
-  <div class="list">
-    <div class="list-h">${g.h}</div>
-    ${g.items.map(r => `
-      <div class="ritem">
-        <div class="r-top">
-          <span class="r-name">${r.n}</span>
-          <span class="r-price">${r.p}</span>
-        </div>
-        <div class="r-addr">${r.a}</div>
-        <div class="r-btns">
-          ${r.tel ? `<a class="b-tel" href="tel:${r.tel}">📞 Chiama</a>` : ''}
-          <a class="b-map" href="${r.map}" target="_blank" rel="noopener">📍 Mappa</a>
-          ${r.w ? `<a class="b-web" href="${r.w}" target="_blank" rel="noopener">🌐 Sito</a>` : ''}
-        </div>
-      </div>
-    `).join('')}
-  </div>
-`).join('') + `
-  <div class="tips">
-    <div>💡 <b>Prenotate i bouchon</b> prima di partire: per 4 persone il giovedì sera è meglio non rischiare.</div>
-    <div>💧 Chiedete <b>une carafe d'eau</b>: l'acqua del rubinetto è gratuita. Il servizio è già incluso nel conto.</div>
-    <div>⏰ Molti ristoranti chiudono la cucina tra 14:00 e 19:00 (non la Brasserie Georges: servizio continuo).</div>
-    <div>🧀 <b>Halles Bocuse</b>: banchi lun–sab 7:30–19:30, dom 7:30–13:00 · ristoranti 11:30–14:30 · écailler 9:00–22:00.</div>
-  </div>`;
-
+/* Info SOS (versione precedente) */
 const INFO_HTML = `
   <div class="list">
     <div class="list-h">🚕 Mostra al tassista</div>
@@ -1686,483 +772,515 @@ const INFO_HTML = `
       <p class="info-p"><b>Pouvez-vous m'appeler un taxi ?</b> · può chiamarmi un taxi?</p>
     </div>
   </div>`;
-document.getElementById('info').innerHTML = INFO_HTML +
-  '<div class="sec-h">🚗 Viaggio in auto · andata e ritorno</div>';
-document.getElementById('info').appendChild(document.getElementById('trip'));
 
-const PAGES = {
-  nowPage: view,
-  dayPage: dayView,
-  foodPage: document.getElementById('foodPage'),
-  tripPage: document.getElementById('tripPage'),
-  infoPage: document.getElementById('infoPage')
-};
-function showPage(id) {
-  Object.entries(PAGES).forEach(([k, el]) => el.hidden = k !== id);
-  document.querySelectorAll('nav a').forEach(x => x.classList.toggle('on', x.dataset.nav === id));
-  const strip = document.getElementById('daystrip');
-  const useDay = (id === 'nowPage' || id === 'dayPage');
-  strip.style.visibility = useDay ? 'visible' : 'hidden';
-  const pad = document.getElementById('pad-fixed');
-  if (pad) pad.style.display = (id === 'nowPage') ? 'flex' : 'none';
-  if (id === 'dayPage') renderDayPage();
-  if (id === 'nowPage') render();
-  window.scrollTo({ top: 0 });
-  if (id === 'dayPage') { const c = dayView.querySelector('.step.cur'); if (c) c.scrollIntoView({ block: 'center' }); }
+/* =====================================================================
+   STATO (un solo stato, salvato con try/catch: Safari privato lancia)
+   ===================================================================== */
+const KEY = "lyonBook1", KEY_STAR = "lyonStar1", KEY_GPS = "lyonGps1";
+const mem = {};
+function load(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : (mem[k] || d); } catch (e) { return mem[k] || d; } }
+function save(k, v) { mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+function todayCh() {
+  const d = new Date(), s = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const i = CH.findIndex(c => c.iso === s); return i < 0 ? 0 : i;
 }
-document.querySelectorAll('nav a').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    showPage(a.dataset.nav);
+let S = Object.assign({ v: "guida", ch: todayCh(), pos: {}, read: null, idxMode: "az", q: "" }, load(KEY, {}));
+S.read = null; S.q = "";
+let STAR = load(KEY_STAR, {});
+let gpsOn = load(KEY_GPS, false), gpsPos = null, gpsWatch = null;
+
+function persist() { save(KEY, { v: S.v, ch: S.ch, pos: S.pos, idxMode: S.idxMode }); }
+
+/* ---- pagine del capitolo: apertura, punti, pause, fine ---- */
+function pagesOf(ci) {
+  const c = CH[ci], out = [{ t: "open" }];
+  c.parts.forEach((pt, pi) => {
+    if (pt.pause) out.push({ t: "pause", pi });
+    else pt.steps.forEach((st, si) => out.push({ t: "pt", pi, si, p: st.p, go: st.go }));
   });
-});
-
-let tx = 0, ty = 0;
-view.addEventListener('touchstart', e => {
-  tx = e.touches[0].clientX;
-  ty = e.touches[0].clientY;
-}, { passive: true });
-view.addEventListener('touchend', e => {
-  const dx = e.changedTouches[0].clientX - tx;
-  const dy = e.changedTouches[0].clientY - ty;
-  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy)) {
-    dx < 0 ? nextS() : prevS();
-  }
-}, { passive: true });
-document.addEventListener('keydown', e => {
-  if (!PAGES.nowPage.hidden) {
-    if (e.key === 'ArrowRight') nextS();
-    if (e.key === 'ArrowLeft') prevS();
-  }
-  if (e.key === 'Escape') {
-    if (!guideOverlay.hidden) closeGuide();
-    else if (!overlay.hidden) closeSheet();
-  }
-});
-
-
-/* ============================================================
-   LOGICA A BLOCCHI · Trasferimento → Percorso → Sosta
-   Navigazione libera (Indietro / Avanti): decidete voi cosa saltare.
-   L'orologio sceglie la scheda solo all'apertura, se quel giorno non vi siete ancora mossi.
-   ============================================================ */
-const toMin = t => { const [h, m] = t.split(':').map(Number); return h * 60 + m; };
-const fromMin = m => String(Math.floor(m / 60) % 24).padStart(2, '0') + ':' + String(m % 60).padStart(2, '0');
-function durMin(d) {               /* "🚕 ~12 min in taxi" → 12 · "🚗 ~4h50" → 290 */
-  const h = /(\d+)\s*h\s*(\d+)?/.exec(d); if (h) return +h[1] * 60 + (+h[2] || 0);
-  const m = /(\d+)\s*min/.exec(d); return m ? +m[1] : 0;
+  out.push({ t: "end" });
+  return out;
 }
-const fmtDur = m0 => { const mins = Math.round(m0 / 5) * 5; return mins >= 60 ? `~${Math.floor(mins / 60)} h${mins % 60 ? ' ' + String(mins % 60).padStart(2, '0') : ''}` : `~${mins} min`; };
-const shortName = x => (x || '').split(',')[0];
-const nowMin = () => { const n = new Date(); return n.getHours() * 60 + n.getMinutes(); };
-const TOLERANCE = 15;              /* minuti di ritardo prima del "FUORI ORARIO" */
-const HOTEL_TEL = '+33472777000', TAXI_TEL = '+33478268181';
-/* stazioni della funicolare: il punto "funicolare" porta alla stazione, non su per la collina a piedi */
-const FUNI_ST = {
-  "0:4": ["Funiculaire de Lyon, Cathédrale Saint-Jean-Baptiste, 69005 Lyon", "stazione F2 · si sale in funicolare", "Funicolare Vieux Lyon"],
-  "0:6": ["Funiculaire Fourvière, Place de Fourvière, 69005 Lyon", "stazione F2 · si scende in funicolare", "Funicolare Fourvière"]
-};
+const PAGES = CH.map((_, i) => pagesOf(i));
+function curPage() { const pg = PAGES[S.ch]; return Math.min(S.pos[S.ch] || 0, pg.length - 1); }
+function ptPages(ci) { return PAGES[ci].filter(x => x.t === "pt"); }
 
-let blk = 0, pt = 0;               /* scheda corrente e punto corrente dentro un percorso */
-let walkDone = false, dayEnd = false;
-const B = () => BLOCKS[dayIdx][blk];
-function blockStep(b) { return b.t === 'walk' ? b.pts[0] : b.s; }
-/* orario previsto di inizio: se la stessa tappa ha prima un trasferimento, si aggiunge il viaggio */
-function blockTime(d, bi) {
-  const b = BLOCKS[d][bi], si = blockStep(b), st = DAYS[d].steps[si];
-  let t = toMin(st.time);
-  if (b.t !== 'go' && BLOCKS[d].slice(0, bi).some(x => x.t === 'go' && x.s === si)) t += durMin(st.dur);
+/* punto "fatto" = è su una pagina prima di quella corrente */
+function doneSet(ci) {
+  const cur = ci === S.ch ? curPage() : (S.pos[ci] || 0), set = new Set();
+  PAGES[ci].forEach((x, i) => { if (x.t === "pt" && i < cur) set.add(x.p); });
+  if (PAGES[ci][cur] && PAGES[ci][cur].t === "end") ptPages(ci).forEach(x => set.add(x.p));
+  return set;
+}
+
+/* ---- ristorante scelto ---- */
+function starOf(meal) { return STAR[meal] !== undefined ? STAR[meal] : (FOOD[meal].def || null); }
+function chosen(meal) { const id = starOf(meal); return id ? FOOD[meal].items.find(r => r.id === id) : null; }
+function place(n) {
+  const p = P[n];
+  if (p.meal && FOOD[p.meal] && !FOOD[p.meal].inside) {
+    const r = chosen(p.meal);
+    if (r) return Object.assign({}, p, { name: (p.type === "cena" ? "Cena · " : "") + r.n, ll: r.ll || p.ll, addr: r.a + ", Lyon", q: r.n + ", " + r.a + ", Lyon", tel: r.tel });
+  }
+  return p;
+}
+function shortOf(n) { const p = place(n); return p.short && !(p.meal && chosen(p.meal) && p.type === "cena") ? p.short : p.name.replace(/^Cena · /, ""); }
+
+/* ---- tempi: solo stime, nessun orologio ---- */
+function fmt(m) { m = Math.round(m / 5) * 5; if (m < 60) return "~" + Math.max(m, 5) + " min"; const h = Math.floor(m / 60), r = m % 60; return "~" + h + "h" + (r ? String(r).padStart(2, "0") : ""); }
+function visitOf(ci, n) { return CH[ci].n === 3 && P[n].visit3 ? P[n].visit3 : P[n].visit; }
+function partTime(ci, pi, fromSi) {
+  const st = CH[ci].parts[pi].steps; let t = 0;
+  st.forEach((s, i) => {
+    if (i < fromSi) return;
+    if (i > fromSi) t += s.go.min;
+    if (P[s.p].type !== "cena") t += visitOf(ci, s.p);
+  });
   return t;
 }
-/* orario previsto di fine: l'inizio della scheda successiva */
-function blockEnd(d, bi) {
-  if (bi < BLOCKS[d].length - 1) return blockTime(d, bi + 1);
-  const st = DAYS[d].steps[blockStep(BLOCKS[d][bi])];
-  return blockTime(d, bi) + Math.max(durMin(st.dur), 10);
-}
-function pointTime(d, bi, pi) {
-  const b = BLOCKS[d][bi];
-  return pi === 0 ? blockTime(d, bi) : toMin(DAYS[d].steps[b.pts[pi]].time);
-}
-function walkNo(d, bi) { return BLOCKS[d].slice(0, bi + 1).filter(x => x.t === 'walk').length; }
-/* scheda dell'orologio: oggi → quella dell'ora; altri giorni → l'inizio */
-function pickPos(d) {
-  if (d !== todayIdx) return { b: 0, p: 0 };
-  const m = nowMin(); let b = 0;
-  BLOCKS[d].forEach((_, i) => { if (blockTime(d, i) <= m) b = i; });
-  let p = 0; const bb = BLOCKS[d][b];
-  if (bb.t === 'walk') bb.pts.forEach((_, i) => { if (pointTime(d, b, i) <= m) p = i; });
-  return { b, p };
-}
+function chapterTime(ci) { let t = 0; CH[ci].parts.forEach((pt, pi) => { if (!pt.pause) t += partTime(ci, pi, 0) + (pt.steps[0].go.from ? 0 : pt.steps[0].go.min); }); return t; }
 
-/* ---- posizione salvata (sopravvive a chiusura e ricarica) ---- */
-const POS_KEY = 'lyonGuidePos';
-let posMem = {};
-function readPos() { try { return JSON.parse(localStorage.getItem(POS_KEY)) || posMem; } catch (e) { return posMem; } }
-function savePos() {
-  const all = readPos(); all[dayIdx] = { b: blk, p: pt, on: new Date().toDateString() };
-  posMem = all; try { localStorage.setItem(POS_KEY, JSON.stringify(all)); } catch (e) {}
+/* ---- GPS (funziona anche senza rete) ---- */
+function hav(a, b) { const R = 6371000, r = Math.PI / 180, dLa = (b[0] - a[0]) * r, dLo = (b[1] - a[1]) * r;
+  const x = Math.sin(dLa / 2) ** 2 + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLo / 2) ** 2; return 2 * R * Math.asin(Math.sqrt(x)); }
+function fmtDist(m) { return m < 1000 ? Math.round(m / 10) * 10 + " m" : (m / 1000).toFixed(1).replace(".", ",") + " km"; }
+function startGps() {
+  if (!("geolocation" in navigator)) { toast("Il GPS non è disponibile su questo telefono"); gpsOn = false; save(KEY_GPS, false); return; }
+  if (gpsWatch !== null) return;
+  gpsWatch = navigator.geolocation.watchPosition(p => { gpsPos = [p.coords.latitude, p.coords.longitude]; refreshMaps(); },
+    e => { if (e.code === 1) { toast("Permesso posizione negato: attivalo nelle impostazioni del browser"); gpsOn = false; save(KEY_GPS, false); stopGps(); render(); } },
+    { enableHighAccuracy: true, maximumAge: 15000, timeout: 30000 });
 }
-function startPos(d) {
-  const sv = readPos()[d];
-  /* oggi: vale la posizione salvata oggi; prima del viaggio: vale l'ultima che avete guardato */
-  if (sv && BLOCKS[d][sv.b] && (d !== todayIdx || sv.on === new Date().toDateString())) {
-    const b = BLOCKS[d][sv.b];
-    return { b: sv.b, p: b.t === 'walk' ? Math.min(sv.p, b.pts.length - 1) : 0 };
+function stopGps() { if (gpsWatch !== null) navigator.geolocation.clearWatch(gpsWatch); gpsWatch = null; gpsPos = null; }
+function toggleGps() { gpsOn = !gpsOn; save(KEY_GPS, gpsOn); if (gpsOn) { startGps(); toast("📍 Cerco la tua posizione…"); } else stopGps(); render(); }
+
+/* =====================================================================
+   PIANTA SCHEMATICA (SVG disegnato qui: niente rete)
+   ===================================================================== */
+const SAONE = [[45.7790, 4.8140], [45.7740, 4.8200], [45.7700, 4.8250], [45.7672, 4.8284], [45.7640, 4.8293], [45.7612, 4.8292], [45.7590, 4.8284], [45.7565, 4.8268], [45.7530, 4.8246], [45.7480, 4.8218], [45.7420, 4.8196], [45.7360, 4.8183], [45.7322, 4.8176]];
+const RHONE = [[45.7900, 4.8530], [45.7830, 4.8480], [45.7760, 4.8445], [45.7710, 4.8420], [45.7660, 4.8403], [45.7610, 4.8392], [45.7560, 4.8385], [45.7510, 4.8366], [45.7460, 4.8333], [45.7410, 4.8285], [45.7360, 4.8228], [45.7322, 4.8176], [45.7250, 4.8160]];
+function ell(c, rx, ry, n = 24) { const out = [], k = Math.cos(c[0] * Math.PI / 180); for (let i = 0; i < n; i++) { const a = i / n * 2 * Math.PI; out.push([c[0] + Math.sin(a) * ry / 111000, c[1] + Math.cos(a) * rx / (111000 * k)]); } return out; }
+const GREENS = [
+  { p: ell([45.7618, 4.8212], 380, 300), lbl: "collina di Fourvière", at: [45.7642, 4.8200] },
+  { p: [[45.7845, 4.8465], [45.7850, 4.8555], [45.7800, 4.8610], [45.7725, 4.8600], [45.7700, 4.8505], [45.7760, 4.8462]], lbl: "Parc de la Tête d'Or", at: [45.7815, 4.8530] }
+];
+const WATERS = [{ p: ell([45.7768, 4.8540], 330, 170) }];
+
+function mapSVG(o) {
+  /* o: { pts:[n...], H, cur, next, done:Set, route:[{a:ll,b:ll,m,done}], stars:[...], seen:[...], hotel:bool, gps, click } */
+  const W = 360, H = o.H || 230, padF = 0.2;
+  const lls = o.pts.map(n => place(n).ll).concat(o.fitStars ? (o.stars || []).map(s => s.ll) : []).concat(o.extra || []);
+  let la0 = Math.min(...lls.map(x => x[0])), la1 = Math.max(...lls.map(x => x[0])), lo0 = Math.min(...lls.map(x => x[1])), lo1 = Math.max(...lls.map(x => x[1]));
+  const k = Math.cos((la0 + la1) / 2 * Math.PI / 180), minD = (o.minM || 420) / 111000;
+  let sy = Math.max(la1 - la0, minD), sx = Math.max((lo1 - lo0) * k, minD);
+  const cy = (la0 + la1) / 2, cx = (lo0 + lo1) / 2;
+  sy *= 1 + padF * 2; sx *= 1 + padF * 2;
+  if (sx / sy > W / H) sy = sx * H / W; else sx = sy * W / H;
+  const sc = W / sx;
+  const X = lo => W / 2 + (lo - cx) * k * sc, Y = la => H / 2 - (la - cy) * sc;
+  const PT = a => a.map(p => X(p[1]).toFixed(1) + "," + Y(p[0]).toFixed(1)).join(" ");
+  const inView = ll => { const x = X(ll[1]), y = Y(ll[0]); return x > 4 && x < W - 4 && y > 4 && y < H - 4; };
+  const mPerPx = 1 / sc * 111000;
+  let g = `<rect width="${W}" height="${H}" fill="#eef1e8"/>`;
+  GREENS.forEach(z => { g += `<polygon points="${PT(z.p)}" fill="#dce8cf"/>`; if (inView(z.at)) g += `<text x="${X(z.at[1])}" y="${Y(z.at[0])}" font-size="10" fill="#5f7d4b" font-style="italic" text-anchor="middle">${z.lbl}</text>`; });
+  WATERS.forEach(z => g += `<polygon points="${PT(z.p)}" fill="#c3dcea"/>`);
+  const rw = Math.max(10, Math.min(30, 110 / mPerPx));
+  g += `<polyline points="${PT(SAONE)}" fill="none" stroke="#bcd8ea" stroke-width="${rw}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  g += `<polyline points="${PT(RHONE)}" fill="none" stroke="#bcd8ea" stroke-width="${rw * 1.4}" stroke-linecap="round" stroke-linejoin="round"/>`;
+  const rl = (arr, name) => { const c = arr.find(p => inView(p) && Y(p[0]) > 24 && Y(p[0]) < H - 30); if (c) g += `<text x="${X(c[1]) + 4}" y="${Y(c[0])}" font-size="10" fill="#4f7d99" font-style="italic">${name}</text>`; };
+  rl(SAONE, "Saona"); rl(RHONE, "Rodano");
+  const col = { walk: "#e0940f", funi: "#7c3aed", metro: "#2563eb", taxi: "#64748b", car: "#64748b" };
+  (o.route || []).forEach(r => {
+    const c = r.done ? "#b7c4c4" : col[r.m], dash = r.m === "walk" ? "" : r.m === "funi" ? "2 5" : "7 5";
+    g += `<polyline points="${PT([r.a, r.b])}" fill="none" stroke="${c}" stroke-width="4" stroke-linecap="round" ${dash ? `stroke-dasharray="${dash}"` : ""}/>`;
+  });
+  (o.seen || []).forEach(s => { if (s.ll && inView(s.ll)) g += `<circle cx="${X(s.ll[1])}" cy="${Y(s.ll[0])}" r="5" fill="#fff" stroke="#9fb3b3" stroke-width="1.6" stroke-dasharray="2 2"/>`; });
+  (o.stars || []).forEach(s => {
+    if (!inView(s.ll)) return; const x = X(s.ll[1]), y = Y(s.ll[0]);
+    g += `<g aria-label="${s.n}"><circle cx="${x}" cy="${y}" r="${s.on ? 10 : 8.5}" fill="${s.on ? "#e0940f" : "#fff4dc"}" stroke="${s.on ? "#fff" : "#e0b25a"}" stroke-width="2"/><text x="${x}" y="${y + 3.6}" font-size="${s.on ? 11 : 10}" font-weight="900" fill="${s.on ? "#fff" : "#8a5a00"}" text-anchor="middle">${s.on ? "★" : s.l}</text></g>`;
+  });
+  const labels = [];
+  o.pts.forEach(n => {
+    const p = place(n), x = X(p.ll[1]), y = Y(p.ll[0]);
+    const st = n === o.cur ? "cur" : n === o.next ? "nx" : o.done && o.done.has(n) ? "done" : "";
+    const r = st === "cur" ? 14 : 11.5, fill = st === "cur" ? "#0e9f6e" : st === "nx" ? "#e0940f" : st === "done" ? "#9fb3b3" : "#17323b";
+    let m = `<g class="mk" ${o.click ? `onclick="goPoint(${n})"` : ""} role="img" aria-label="Punto ${n}: ${p.name.replace(/"/g, "")}">`;
+    if (st === "cur") m += `<circle cx="${x}" cy="${y}" r="${r + 7}" fill="#0e9f6e" opacity=".22"/>`;
+    m += `<circle cx="${x}" cy="${y}" r="${r + 2.5}" fill="#fff"/><circle cx="${x}" cy="${y}" r="${r}" fill="${fill}"/>`;
+    m += `<text x="${x}" y="${y + 4.2}" font-size="${st === "cur" ? 13 : 11.5}" font-weight="900" fill="#fff" text-anchor="middle">${n}</text></g>`;
+    g += m; labels.push({ x, y, r, t: shortOf(n), st });
+  });
+  if (o.labels !== false) {
+    /* etichette senza sovrapposizioni: prova destra, sinistra, sopra, sotto; la pagina corrente ha la precedenza */
+    const boxes = labels.map(l => ({ x0: l.x - l.r - 2, x1: l.x + l.r + 2, y0: l.y - l.r - 2, y1: l.y + l.r + 2 }));
+    const hit = (b, list) => list.some(c => b.x0 < c.x1 && b.x1 > c.x0 && b.y0 < c.y1 && b.y1 > c.y0);
+    const order = labels.map((l, i) => i).sort((a, b) => (labels[b].st === "cur") - (labels[a].st === "cur") || (labels[b].st === "nx") - (labels[a].st === "nx"));
+    const placed = [];
+    order.forEach(i => {
+      const l = labels[i], w = l.t.length * 6.3 + 4, h = 13;
+      const cands = [
+        { x: l.x + l.r + 5, y: l.y + 4, a: "start", b: { x0: l.x + l.r + 3, x1: l.x + l.r + 5 + w, y0: l.y - 7, y1: l.y + 6 } },
+        { x: l.x - l.r - 5, y: l.y + 4, a: "end", b: { x0: l.x - l.r - 5 - w, x1: l.x - l.r - 3, y0: l.y - 7, y1: l.y + 6 } },
+        { x: l.x, y: l.y - l.r - 6, a: "middle", b: { x0: l.x - w / 2, x1: l.x + w / 2, y0: l.y - l.r - 6 - h + 3, y1: l.y - l.r - 4 } },
+        { x: l.x, y: l.y + l.r + 14, a: "middle", b: { x0: l.x - w / 2, x1: l.x + w / 2, y0: l.y + l.r + 3, y1: l.y + l.r + 16 } }];
+      const others = boxes.filter((_, j) => j !== i).concat(placed);
+      const ok = cands.find(c => c.b.x0 > 2 && c.b.x1 < W - 2 && c.b.y0 > 2 && c.b.y1 < H - 2 && !hit(c.b, others));
+      if (!ok) return;
+      placed.push(ok.b);
+      g += `<text x="${ok.x}" y="${ok.y}" font-size="11" font-weight="800" fill="${l.st === "done" ? "#7d8f8f" : "#17323b"}" text-anchor="${ok.a}" paint-order="stroke" stroke="#eef1e8" stroke-width="3.5">${l.t}</text>`;
+    });
   }
-  return pickPos(d);
-}
-function syncIdx() { const b = B(); idx = b.t === 'walk' ? b.pts[pt] : b.s; }
-function setPos(p) { blk = p.b; pt = p.p; walkDone = false; dayEnd = false; syncIdx(); }
-
-/* ---- mezzi ---- */
-const MODES = {
-  taxi:  { i: '🚕', verb: 'Prendi il taxi',  maps: 'driving' },
-  metro: { i: '🚇', verb: 'Vai con i mezzi', maps: 'transit' },
-  walk:  { i: '🚶', verb: 'Vai a piedi',     maps: 'walking' },
-  car:   { i: '🚗', verb: 'Vai in auto',     maps: 'driving' }
-};
-function routeFromHere(s, mode) {   /* origine omessa = Maps parte dalla posizione attuale */
-  let u = 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(s.dest) + '&travelmode=' + mode;
-  if (mode === 'walking' && s.via && s.via.length) u += '&waypoints=' + encodeURIComponent(s.via.join('|'));
-  return u;
-}
-function takeMeLink(s) { return routeFromHere(s, DAYS[dayIdx].car || /🚗/.test(s.dur) ? 'driving' : 'walking'); }
-/* VISTA D'INSIEME del percorso su Maps: tutti i punti in ordine (A, B, C…) con il tracciato a piedi.
-   Serve a vedere il giro, non a navigare: dove c'è la funicolare Maps disegna la salita a piedi. */
-function overviewLink(b) {
-  const d = dayIdx;
-  if (b.loop) return loopLink(DAYS[d].steps[b.pts[0]].loop);
-  const seq = [];
-  b.pts.forEach((si, k) => { const s = DAYS[d].steps[si]; if (k > 0 && s.via) seq.push(...s.via); seq.push(s.dest); });
-  const uniq = seq.filter((q, i) => seq.indexOf(q) === i);
-  const first = uniq[0], last = uniq[uniq.length - 1], wp = uniq.slice(1, -1).slice(0, 9);
-  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(first) + '&destination=' + encodeURIComponent(last) +
-    (wp.length ? '&waypoints=' + encodeURIComponent(wp.join('|')) : '') + '&travelmode=walking';
-}
-/* tutto il percorso su Maps, solo se è tutto a piedi (la funicolare spezzerebbe il tracciato) */
-function walkRouteLink(b) {
-  if (b.loop) return loopLink(DAYS[dayIdx].steps[b.pts[0]].loop);
-  const st = b.pts.map(i => DAYS[dayIdx].steps[i]);
-  if (st.some((s, k) => k > 0 && !/🚶|sul posto/.test(s.dur))) return null;
-  const wp = [];
-  st.forEach((s, k) => { if (k > 0 && s.via) wp.push(...s.via); if (k > 0 && k < st.length - 1) wp.push(s.dest); });
-  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(st[0].dest) +
-    '&destination=' + encodeURIComponent(st[st.length - 1].dest) +
-    (wp.length ? '&waypoints=' + encodeURIComponent(wp.slice(0, 9).join('|')) : '') + '&travelmode=walking';
-}
-
-/* ---- tempo: previsto, fuori orario, chiusure ---- */
-function lateBanner() {
-  const d = dayIdx; if (d !== todayIdx || dayEnd) return '';
-  const end = blockEnd(d, blk), now = nowMin();
-  if (now <= end + TOLERANCE) return '';
-  return `<div class="late-b" role="alert">⛔ FUORI ORARIO
-    <small>previsto fino alle ${fromMin(end)} · ora sono le ${fromMin(now)}</small>
-    <button onclick="toClock()">↻ Vai alla scheda di adesso</button></div>`;
-}
-function toClock() { setPos(pickPos(dayIdx)); savePos(); render(); toast('▶ Scheda dell\'orario attuale'); }
-function closesHTML(key) {
-  const c = CLOSES[key]; if (!c) return '';
-  if (dayIdx !== todayIdx) return `<div class="cd">🕐 ${c[1]} alle <b>${c[0]}</b></div>`;
-  const left = toMin(c[0]) - nowMin();
-  if (left < 0) return `<div class="cd late">⛔ ${c[1]} alle ${c[0]}: è già passato</div>`;
-  if (left <= 90) return `<div class="cd soon">⏳ ${c[1]} tra <b>${left} min</b> (${c[0]})</div>`;
-  return `<div class="cd">🕐 ${c[1]} alle <b>${c[0]}</b></div>`;
-}
-/* scheda tecnica del percorso + aiuto alla decisione */
-function walkSheet(b) {
-  const d = dayIdx, start = blockTime(d, blk), end = blockEnd(d, blk);
-  let decide = '';
-  if (d === todayIdx) {
-    const remaining = end - pointTime(d, blk, pt);
-    const finish = Math.max(nowMin(), pointTime(d, blk, pt)) + remaining;
-    const nb = BLOCKS[d][blk + 1];
-    const over = finish > end + TOLERANCE;
-    decide = `<div class="ws-dec ${over ? 'over' : ''}">${over ? '⚠️ ' : ''}Se proseguite da qui: fine verso le <b>${fromMin(finish)}</b>${nb ? ` · poi ${blockIcon(nb)} ${blockTitle(nb)} previsto alle ${fromMin(blockTime(d, blk + 1))}` : ''}</div>`;
+  if (o.hotel) {
+    if (inView(HOTEL.ll)) { const x = X(HOTEL.ll[1]), y = Y(HOTEL.ll[0]); g += `<rect x="${x - 11}" y="${y - 11}" width="22" height="22" rx="6" fill="#17323b"/><text x="${x}" y="${y + 5}" font-size="13" text-anchor="middle">🏨</text>`; }
+    else { const d = hav(HOTEL.ll, [cy, cx]); g += `<g><rect x="${W - 132}" y="${H - 30}" width="124" height="22" rx="7" fill="#17323b"/><text x="${W - 70}" y="${H - 15}" font-size="10.5" font-weight="800" fill="#fff" text-anchor="middle">🏨 Hotel a ${fmtDist(d)}</text></g>`; }
   }
-  return `<div class="wsheet">${pt === 0 && b.sub ? `<div class="ws-sub">${b.sub}</div>` : ''}
-    <div class="ws-row">🕐 ${fromMin(start)} → ${fromMin(end)} · ⏱️ ${fmtDur(end - start)} · 📏 ${b.km} km · ⛰️ ${b.fatica}</div>${decide}
-    <a class="btn-2" href="${overviewLink(b)}" target="_blank" rel="noopener">🗺️ Vista d'insieme</a>
-    ${MYMAP_URL ? `<a class="btn-2" href="${MYMAP_URL}" target="_blank" rel="noopener">🧭 La cartina del viaggio</a>` : ''}
-    ${b.note ? `<div class="ws-note">${b.note}</div>` : ''}</div>`;
-}
-function phaseLabel() {
-  if (dayEnd) return 'fine giornata';
-  const d = dayIdx, b = B();
-  if (b.t === 'walk' && !walkDone) return `punto previsto alle ${fromMin(pointTime(d, blk, pt))}`;
-  return `previsto ${fromMin(blockTime(d, blk))} → ${fromMin(blockEnd(d, blk))}`;
-}
-
-/* ---- etichette ---- */
-function blockIcon(b) {
-  if (b.t === 'go') return MODES[b.rec].i;
-  if (b.t === 'walk') return '🚶';
-  return DAYS[dayIdx].steps[b.s].emoji;
-}
-function blockTitle(b, d = dayIdx) {
-  if (b.t === 'go') return 'Verso ' + shortName(DAYS[d].steps[b.s].dest);
-  if (b.t === 'walk') return `Percorso ${walkNo(d, BLOCKS[d].indexOf(b))} · ${b.name}`;
-  return b.name;
-}
-const TYPE_LABEL = { go: 'Trasferimento', walk: 'Percorso guidato', stop: 'Sosta' };
-
-function filoHTML() {   /* il filo della giornata: un pallino per scheda, i percorsi numerati */
-  return `<div class="filo" role="list" aria-label="Il filo della giornata">${BLOCKS[dayIdx].map((b, i) =>
-    `<button class="fchip ${i === blk && !dayEnd ? 'on' : ''} ${i < blk || dayEnd ? 'past' : ''} t-${b.t}" onclick="jumpBlock(${i})" role="listitem" aria-label="${TYPE_LABEL[b.t]}: ${blockTitle(b)}">${blockIcon(b)}${b.t === 'walk' ? `<span class="fno">${walkNo(dayIdx, i)}</span>` : ''}</button>`
-  ).join('<span class="fline"></span>')}</div>`;
-}
-function nextLabel() {
-  const d = dayIdx, b = B();
-  if (b.t === 'walk' && pt < b.pts.length - 1) {
-    const s = DAYS[d].steps[b.pts[pt + 1]];
-    return `${fromMin(pointTime(d, blk, pt + 1))} · ${s.emoji} ${(b.ptNames || {})[b.pts[pt + 1]] || s.title}`;
+  let gtxt = "";
+  if (gpsOn) {
+    if (gpsPos && inView(gpsPos)) g += `<circle cx="${X(gpsPos[1])}" cy="${Y(gpsPos[0])}" r="16" fill="#2563eb" opacity=".16"/><circle cx="${X(gpsPos[1])}" cy="${Y(gpsPos[0])}" r="7" fill="#2563eb" stroke="#fff" stroke-width="2.5"/>`;
+    if (!gpsPos) gtxt = "cerco la posizione…";
+    else if (o.cur) gtxt = (inView(gpsPos) ? "tu" : "tu sei fuori pianta") + " · " + fmtDist(hav(gpsPos, place(o.cur).ll)) + " dal " + o.cur;
+    else gtxt = inView(gpsPos) ? "tu sei qui" : "tu sei fuori pianta";
   }
-  const nb = BLOCKS[d][blk + 1];
-  return nb ? `${fromMin(blockTime(d, blk + 1))} · ${blockIcon(nb)} ${TYPE_LABEL[nb.t]}: ${blockTitle(nb)}` : '';
-}
-function foodHTML(g) {
-  const grp = FOOD[g]; if (!grp) return '';
-  return `<div class="g-pois"><div class="poi-list">${grp.items.map(r => `
-    <div class="poi"><span class="pi">🍽️</span><span class="pt"><b>${r.n} · ${r.p}</b><small>${r.a}</small></span>
-    <span class="wrap">${r.tel ? `<a class="go" href="tel:${r.tel}">📞</a>` : ''}<a class="go" href="${r.map}" target="_blank" rel="noopener">🗺️</a></span></div>`).join('')}</div></div>`;
-}
-/* cartello da mostrare al tassista: la destinazione scritta grande */
-function showTaxiCard(q) {
-  const parts = q.split(',').map(x => x.trim());
-  overlay.innerHTML = `
-    <div class="sheet" onclick="event.stopPropagation()">
-      <div class="sh-top"><b>🪧 Mostra al tassista</b>
-        <button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
-      <div class="taxi-card">${parts.join('<br>')}<small>S'il vous plaît · Merci !</small></div>
-      <div class="r-btns"><a class="b-tel" href="tel:${TAXI_TEL}">📞 Taxi Lyonnais</a><a class="b-tel" href="tel:+33472104106">📞 Allo Taxi</a></div>
-    </div>`;
-  overlay.hidden = false;
+  return { svg: `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Pianta schematica, nord in alto">${g}</svg>`, gtxt };
 }
 
-/* ======================= RENDER ======================= */
+/* pianta di una pagina: punti della parte, tracciato con fatti/da fare */
+function mapOpts(ci, pi, curN, H) {
+  const c = CH[ci], part = c.parts[pi], done = doneSet(ci);
+  const pts = part.steps.map(s => s.p), route = [];
+  part.steps.forEach((s, i) => { if (i > 0) route.push({ a: place(part.steps[i - 1].p).ll, b: place(s.p).ll, m: s.go.m, done: done.has(s.p) && done.has(part.steps[i - 1].p) || (curN && s.p === curN && false) }); });
+  const idx = curN ? pts.indexOf(curN) : -1;
+  route.forEach((r, i) => { if (idx >= 0) r.done = i + 1 <= idx; });
+  const meal = pts.map(n => P[n].meal).find(m => m && FOOD[m] && !FOOD[m].inside);
+  const stars = meal ? FOOD[meal].items.filter(r => r.ll).map((r, i) => ({ ll: r.ll, l: String.fromCharCode(65 + i), n: r.n, on: starOf(meal) === r.id })).filter(s => !s.on) : [];
+  const extra = part.steps[0].go.from === "hotel" && hav(HOTEL.ll, place(pts[0]).ll) < 1200 ? [HOTEL.ll] : [];
+  return { extra, pts, route, done, cur: curN, next: idx >= 0 && idx < pts.length - 1 ? pts[idx + 1] : null, stars, seen: SEEN.filter(s => pts.includes(s.from)), hotel: part.steps[0].go.from === "hotel" || c.n === 2 && pi === 3, H, click: true };
+}
+function chapterOpts(ci, H) {
+  const c = CH[ci], pts = [], route = [], done = doneSet(ci);
+  c.parts.forEach(pt => { if (!pt.pause) pt.steps.forEach((s, i) => { if (!pts.includes(s.p)) pts.push(s.p); if (i > 0) route.push({ a: place(pt.steps[i - 1].p).ll, b: place(s.p).ll, m: s.go.m, done: done.has(s.p) }); }); });
+  return { pts, route, done, hotel: true, H, click: true, minM: 600, seen: SEEN.filter(s => pts.includes(s.from)) };
+}
+let mapRegistry = [];
+function mapBlock(opts, full) {
+  const id = "m" + mapRegistry.length; mapRegistry.push(opts);
+  const r = mapSVG(opts);
+  return `<div class="map" id="${id}">${r.svg}</div>
+    <div class="mtools"><button class="mt ${gpsOn ? "on" : ""}" onclick="toggleGps()" aria-pressed="${gpsOn}" aria-label="Mostra dove sono sulla pianta">📍 ${gpsOn ? "GPS attivo" : "Dove sono"}</button>
+    ${full ? `<button class="mt" onclick="openBigMap(${mapRegistry.length - 1})" aria-label="Ingrandisci la pianta">⤢ Ingrandisci la pianta</button>` : ""}</div>
+    <div class="mleg">${opts.cur ? `<span><i style="background:#9fb3b3"></i>fatti</span><span><i style="background:#0e9f6e"></i>questa pagina</span><span><i style="background:#e0940f"></i>prossimo</span>` : `<span><i style="background:#17323b"></i>punti</span><span><i style="background:#e0940f;border-radius:2px;height:4px"></i>a piedi</span><span><i style="background:#7c3aed;border-radius:2px;height:4px"></i>funicolare</span><span><i style="background:#2563eb;border-radius:2px;height:4px"></i>metro</span>`}${opts.stars && opts.stars.length ? `<span>☆ ristoranti</span>` : ""}<span class="gtxt" id="${id}g">${r.gtxt}</span></div>`;
+}
+function refreshMaps() {
+  mapRegistry.forEach((o, i) => { const el = document.getElementById("m" + i); if (!el) return; const r = mapSVG(o); el.querySelector("svg").outerHTML = r.svg; const gt = document.getElementById("m" + i + "g"); if (gt) gt.textContent = r.gtxt; });
+  const big = document.getElementById("bigmap"); if (big && bigOpts) { const r = mapSVG(bigOpts); big.querySelector("svg").outerHTML = r.svg; }
+}
+let bigOpts = null;
+function openBigMap(i) {
+  bigOpts = Object.assign({}, mapRegistry[i], { H: Math.min(560, Math.round(window.innerHeight * .62)) });
+  const r = mapSVG(bigOpts);
+  const list = bigOpts.pts.map(n => `<li class="tap" onclick="closeSheet();goPoint(${n})"><span class="k ${n === bigOpts.cur ? "cur" : bigOpts.done.has(n) ? "done" : ""}">${n}</span><span><b>${place(n).name}</b></span><span class="chev">›</span></li>`).join("");
+  sheet(`<div class="sh-top"><b>🗺️ Pianta del percorso</b><button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
+    <div class="map" id="bigmap">${r.svg}</div><p class="foot" style="margin:4px 0 8px">Pianta schematica, nord in alto. Tocca un numero per aprire la sua pagina.</p>
+    <div class="card"><ul class="see">${list}</ul></div>`);
+}
+
+/* =====================================================================
+   RENDER
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const main = $("main"), pad = $("pad"), padIn = $("padIn"), overlay = $("overlay");
+
 function render() {
-  renderDayStrip();
-  renderDayPage();
-  syncIdx();
-  const d = dayIdx, b = B(), s = DAYS[d].steps[idx], key = d + ':' + idx;
-  const car = DAYS[d].car;
-  const m = mapLinks(s);
-  let body = '', primary = '', head = '';
+  mapRegistry = [];
+  document.body.classList.toggle("reading", !!S.read && S.v === "guida");
+  $("topbar").innerHTML = CH.map((c, i) => `<button class="dchip ${i === S.ch ? "on" : ""}" role="tab" aria-selected="${i === S.ch}" onclick="switchCh(${i})">${c.chip}<small>Cap. ${c.n}${curOf(i) === "end" ? " ✓" : ""}</small></button>`).join("");
+  document.querySelectorAll("nav.bnav button").forEach(b => b.classList.toggle("on", b.dataset.v === S.v));
+  let padH = "";
+  if (S.v === "guida") { const r = S.read ? renderRead() : renderGuide(); main.innerHTML = r.body; padH = r.pad; }
+  else if (S.v === "sommario") { const r = renderSommario(); main.innerHTML = r.body; padH = r.pad; }
+  else if (S.v === "indice") main.innerHTML = renderIndice();
+  else if (S.v === "mangiare") main.innerHTML = renderFood();
+  else main.innerHTML = renderSos();
+  pad.hidden = !padH; padIn.innerHTML = padH; pad.classList.toggle("paper", !!S.read && S.v === "guida");
+  main.classList.toggle("nopad", !padH);
+}
+function curOf(ci) { const pg = PAGES[ci], i = Math.min(S.pos[ci] || 0, pg.length - 1); return pg[i].t; }
 
-  if (dayEnd) {                               /* ===== FINE GIORNATA ===== */
-    const nd = DAYS[d + 1];
-    body = `
-      <div class="wdone"><div class="wd-i" style="background:#1d3b6e;color:#fff">🌙</div>
-        <div class="wd-t">Fine giornata</div><div class="wd-s">${DAYS[d].date} · ${DAYS[d].name}</div></div>
-      ${nd ? `<div class="alt-h">Domani · ${nd.date}</div>
-      <div class="opt-main"><div class="om-i">${blockIcon(BLOCKS[d + 1][0])}</div>
-        <div><div class="om-t">Si parte alle ${fromMin(blockTime(d + 1, 0))}</div>
-        <div class="om-s">${TYPE_LABEL[BLOCKS[d + 1][0].t]}: ${blockTitle(BLOCKS[d + 1][0], d + 1)}</div></div></div>`
-      : '<div class="ft">Buon rientro a casa! 👋</div>'}`;
-    primary = nd ? `<button class="pbtn go" onclick="switchDay(${d + 1})">▶ VAI A DOMANI<small>${nd.date}</small></button>` : '';
-    head = 'Fine giornata';
-  }
+/* ---------- GUIDA ---------- */
+function renderGuide() {
+  const ci = S.ch, c = CH[ci], pg = PAGES[ci], i = curPage(), x = pg[i];
+  const prev = pg[i - 1], nxt = pg[i + 1], nc = CH[ci + 1];
+  const nextBtn = nxt ? `<button class="ps" onclick="flip(1)" aria-label="Pagina successiva">${pageLabel(nxt)} ▶<small>${nextSub(nxt)}</small></button>`
+    : nc ? `<button class="ps" onclick="switchCh(${ci + 1},true)" aria-label="Capitolo successivo">Capitolo ${nc.n} ▶<small>${nc.chip} · ${nc.title}</small></button>`
+    : `<button class="ps off" aria-hidden="true">▶<small></small></button>`;
+  const navRow = `<div class="pr"><button class="ps ${prev ? "" : "off"}" onclick="flip(-1)" aria-label="Pagina precedente">◀ ${prev ? pageLabel(prev) : ""}<small>${prev ? pageSub(prev) : ""}</small></button>${nextBtn}</div>`;
+  if (x.t === "open") return pageOpen(ci, navRow);
+  if (x.t === "end") return pageEnd(ci, navRow);
+  if (x.t === "pause") return pagePause(ci, x, navRow);
+  return pagePoint(ci, x, navRow);
+}
+function pageLabel(x) { return x.t === "open" ? "Apertura" : x.t === "end" ? "Fine capitolo" : x.t === "pause" ? "🏨" : String(x.p); }
+function pageSub(x) { return x.t === "pt" ? shortOf(x.p) : x.t === "pause" ? "Riposo" : x.t === "end" ? "rientro" : "Capitolo"; }
+function nextSub(x) { return x.t === "pt" ? shortOf(x.p) + " · " + MODE[x.go.m].i + " " + x.go.min + " min" : x.t === "pause" ? "Riposo in hotel" : x.t === "end" ? (CH[S.ch].end.depart ? "partenza" : "🏨 rientro") : ""; }
 
-  else if (b.t === 'go') {                    /* ===== TRASFERIMENTO ===== */
-    const md = MODES[b.rec];
-    const alt = [
-      b.rec !== 'walk' ? `<a class="map-btn" href="${m.walk}" target="_blank" rel="noopener">🚶 A piedi</a>` : '',
-      !car && b.rec !== 'metro' ? `<a class="map-btn" href="${m.transit}" target="_blank" rel="noopener">🚇 Mezzi</a>` : '',
-      !car && b.rec !== 'taxi' ? `<a class="map-btn" href="tel:${TAXI_TEL}">🚕 Taxi</a>` : '',
-      car && b.rec !== 'car' ? `<a class="map-btn" href="${m.drive}" target="_blank" rel="noopener">🚗 Auto</a>` : ''
-    ].filter(Boolean).join('');
-    body = `
-      <div class="ft">Da <b>${shortName(s.orig)}</b> → a <b>${shortName(s.dest)}</b></div>
-      <div class="opt-main">
-        <div class="om-i">${md.i}</div>
-        <div><div class="om-t">${md.verb}</div><div class="om-s">${s.meta}</div></div>
-      </div>
-      ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
-      ${alt ? `<div class="alt-h">Oppure</div><div class="more-grid">${alt}</div>` : ''}
-      ${GUIDES[key] ? `<button class="btn-2" onclick="openScopri()">📖 Scopri · ${shortName(s.dest)}</button>` : ''}
-      <div class="btn-3-row">
-        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
-        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
-        ${b.rec === 'taxi' || !car ? `<button class="btn-3" onclick="showTaxiCard('${s.dest.replace(/'/g, "\\'")}')">🪧 Mostra al tassista</button>` : ''}
-        ${!car ? `<button class="btn-3" onclick="openTransit()">🗺️ Pianta metro</button>` : ''}
-      </div>`;
-    primary = b.rec === 'taxi'
-      ? `<a class="pbtn go" href="tel:${TAXI_TEL}">📞 CHIAMA IL TAXI<small>per ${shortName(s.dest)}</small></a>`
-      : `<a class="pbtn go" href="${routeFromHere(s, md.maps)}" target="_blank" rel="noopener">🧭 PORTAMI A · ${shortName(s.dest)}<small>${md.i} dalla tua posizione</small></a>`;
-    head = `${TYPE_LABEL.go} · ${blockTitle(b)}`;
-  }
+function pageOpen(ci, navRow) {
+  const c = CH[ci], first = ptPages(ci)[0];
+  const list = c.parts.map((pt, pi) => pt.pause
+    ? `<li><span class="i">🏨</span><span><b>${pt.name}</b> <span class="s">· ${MODE[pt.go.m].i} ${pt.go.min} min</span></span></li>`
+    : pt.steps.map((s, si) => `<li class="tap" onclick="goPoint(${s.p})"><span class="k">${s.p}</span><span><b>${place(s.p).name}</b>${P[s.p].type === "cena" ? "" : ` <span class="s">· ${fmt(P[s.p].visit)}</span>`}</span><span class="t">${MODE[s.go.m].i} ${s.go.min} min</span></li>`).join("")).join("");
+  const body = `
+    <div class="kick">Capitolo ${c.n} · ${c.date} · ${c.when}</div>
+    <div class="tt"><span class="n">${c.title}</span></div>
+    <div class="story">${c.story}</div>
+    ${mapBlock(chapterOpts(ci, 250), true)}
+    ${c.warn ? `<div class="warn">⚠️ ${c.warn}</div>` : ""}
+    <div class="card"><h4>Il percorso, punto per punto · ${fmt(chapterTime(ci))} senza i pasti (stima)</h4><ul class="see">${list}</ul></div>
+    <div class="tip">🧭 ${c.before}</div>`;
+  const pad = `<button class="pb" onclick="flip(1)">▶ INIZIA DAL PUNTO ${first.p}<small>${place(first.p).name} · ${MODE[first.go.m].i} ${first.go.txt || first.go.min + " min"}</small></button>${navRow}`;
+  return { body, pad };
+}
 
-  else if (b.t === 'walk' && walkDone) {      /* ===== FINE PERCORSO ===== */
-    const nb = BLOCKS[d][blk + 1];
-    body = `
-      <div class="wdone">
-        <div class="wd-i">✓</div>
-        <div class="wd-t">Fine del percorso</div>
-        <div class="wd-s">${blockTitle(b)}</div>
-      </div>
-      ${nb ? `<div class="alt-h">Prossimo</div>
-      <div class="opt-main">
-        <div class="om-i">${blockIcon(nb)}</div>
-        <div><div class="om-t">${TYPE_LABEL[nb.t]}: ${blockTitle(nb)}</div>
-        <div class="om-s">previsto alle ${fromMin(blockTime(d, blk + 1))}${nb.t === 'go' ? ' · ' + DAYS[d].steps[nb.s].dur : ''}</div></div>
-      </div>` : '<div class="ft">È l\'ultima scheda della giornata.</div>'}`;
-    primary = nb ? `<button class="pbtn go" onclick="nextS()">▶ VAI AL PROSSIMO<small>${blockIcon(nb)} ${blockTitle(nb)}</small></button>` : '';
-    head = `${blockTitle(b)} · fine`;
-  }
+function primaryFor(n, go) {
+  const p = place(n);
+  if (go.m === "taxi") return `<button class="pb" onclick="taxiCard('${esc(p.q)}')">🚕 TAXI PER IL ${n} · ${shortOf(n)}<small>mostra la destinazione al tassista · chiama</small></button>`;
+  const mode = MODE[go.m].maps, dest = n === 4 ? p.q : p.loop ? p.loop.from : p.q;
+  return `<a class="pb" href="${routeLink(dest, mode)}" target="_blank" rel="noopener">🧭 PORTAMI AL ${n} · ${shortOf(n)}<small>${MODE[go.m].i} ${go.txt || go.min + " min " + MODE[go.m].w} · dalla tua posizione</small></a>`;
+}
+function esc(s) { return String(s).replace(/\\/g, "\\\\").replace(/'/g, "\\'"); }
 
-  else if (b.t === 'walk') {                  /* ===== PERCORSO GUIDATO ===== */
-    const names = b.ptNames || {};
-    const ptName = i => names[b.pts[i]] || DAYS[d].steps[b.pts[i]].title;
-    const hasGo = BLOCKS[d].some(x => x.t === 'go' && x.s === idx);
-    let meta = hasGo ? (GUIDES[key] ? GUIDES[key].subtitle : '') : s.meta;
-    if (meta === ptName(pt)) meta = '';
-    const startPt = pt === 0 && names[idx];
-    body = `
-      ${walkSheet(b)}
-      <div class="pts" ${b.pts.length < 2 ? 'hidden' : ''}>${b.pts.map((si, i) => `
-        <button class="ptb ${i === pt ? 'on' : ''} ${i < pt ? 'past' : ''}" onclick="jumpPoint(${i})" aria-label="Punto ${i + 1}: ${ptName(i).replace(/"/g, '')}" title="${ptName(i).replace(/"/g, '')}">
-          <span class="pn">${i + 1}</span><span class="pl">${ptName(i)}</span></button>`).join('<span class="pline"></span>')}
-      </div>
-      <div class="cardhead"><div class="emoji" aria-hidden="true">${startPt && GUIDES[key] ? GUIDES[key].heroEmoji : s.emoji}</div><div class="title">${ptName(pt)}</div></div>
-      <div class="meta">${meta}</div>
-      ${closesHTML(key)}
-      ${s.desc && !startPt ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
-      ${s.tip && !startPt ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
-      <button class="btn-2" onclick="openScopri()">📖 Scopri questo punto</button>
-      <div class="btn-3-row">
-        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
-        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${ptName(pt)}</a>
-      </div>`;
-    const fs = FUNI_ST[key];
-    primary = b.loop
-      ? `<a class="pbtn go" href="${loopLink(s.loop)}" target="_blank" rel="noopener">▶ AVVIA IL GIRO<small>${s.loop.label.replace(/^Giro[^:]*:\s*/, '')}</small></a>`
-      : fs
-      ? `<a class="pbtn go" href="${poiLink(fs[0])}" target="_blank" rel="noopener">🧭 PORTAMI A · ${fs[2]}<small>${fs[1]}</small></a>`
-      : startPt
-      ? `<a class="pbtn go" href="${routeFromHere(s, 'walking')}" target="_blank" rel="noopener">🧭 PORTAMI A · ${ptName(pt)}<small>l'inizio del percorso</small></a>`
-      : `<a class="pbtn go" href="${routeFromHere(s, 'walking')}" target="_blank" rel="noopener">🧭 PORTAMI A · ${ptName(pt)}<small>${s.via ? 'passando dai punti intermedi' : 'a piedi dalla tua posizione'}</small></a>`;
-    head = `${blockTitle(b)}${b.pts.length > 1 ? ` · punto ${pt + 1} di ${b.pts.length}` : ''}`;
-  }
+function pagePoint(ci, x, navRow) {
+  const c = CH[ci], n = x.p, p = place(n), part = c.parts[x.pi];
+  const all = ptPages(ci), k = all.findIndex(y => y.p === n && y.pi === x.pi && y.si === x.si) + 1;
+  const left = partTime(ci, x.pi, x.si), isMeal = P[n].type === "cena";
+  const cl = p.close && p.close[c.n] ? `<span style="color:var(--red);font-weight:800">${p.closeTxt || "chiude"} alle ${p.close[c.n]}</span>` : "";
+  const gkey = c.n === 3 && P[n].g3 ? P[n].g3 : P[n].g;
+  const G = gkey && GUIDES[gkey];
+  const ese = G && G.sections.find(s => /^Se/.test(s.title));
+  let mid = "";
+  const see = c.n === 3 && P[n].see3 ? P[n].see3 : P[n].see;
+  if (P[n].meal && !(c.n === 3 && P[n].see3)) mid = foodBlock(P[n].meal, true);
+  else if (P[n].how) mid = `<div class="card"><h4>Come si fa</h4><ul class="how">${P[n].how.map(h => `<li><span>${h}</span></li>`).join("")}</ul></div>`;
+  if (see) mid += `<div class="card"><h4>${c.n === 3 && P[n].see3 ? "Da comprare" : "Qui vedrai"}${G ? " · tocca per leggere" : ""}</h4><ul class="see">${see.map(s => `<li class="${G ? "tap" : ""}" ${G ? `onclick="openRead('${gkey}',${n},'${esc(s.sec || "")}')"` : ""}><span class="i">${s.i}</span><span><b>${s.t}</b> <span class="s">· ${s.s}</span></span>${G ? `<span class="chev">›</span>` : ""}</li>`).join("")}</ul>${G ? leggiBtn(gkey, n) : ""}</div>`;
+  else if (G) mid += leggiBtn(gkey, n);
+  const body = `
+    <div class="tt"><span class="num">${n}</span><span class="n"><small>Capitolo ${c.n} · punto ${k} di ${all.length}${part.name && c.parts.length > 1 ? " · " + part.name : ""}</small>${p.name}</span></div>
+    ${mapBlock(mapOpts(ci, x.pi, n, 215), true)}
+    <div class="card" style="padding:9px 12px"><div class="bar"><i style="width:${Math.round((k - 1) / all.length * 100)}%"></i></div>
+      <div class="est">${isMeal ? `Ultimo punto di questa parte · cena ${fmt(p.visit)}` : `Per finire ${part.steps.length > 1 ? "questa parte" : "qui"}: <b>${fmt(left)}</b>`}${cl ? " · " + cl : ""}</div></div>
+    <div class="pills">${isMeal ? "" : `<span class="pill">⏱️ ${fmt(visitOf(ci, n))}</span>`}<span class="pill">💶 ${p.cost}</span>${p.hours ? `<span class="pill">🕐 ${p.hours}</span>` : ""}</div>
+    ${p.warn ? `<div class="warn">⚠️ ${p.warn}</div>` : ""}
+    ${mid}
+    ${p.tip ? `<div class="tip">💡 ${p.tip}</div>` : ""}
+    ${ese ? `<details class="ese"><summary>🎲 E se… piove, è chiuso, avete più tempo?</summary><div>${ese.text}</div></details>` : ""}
+    <div class="btn3"><a href="${poiLink(p.q)}" target="_blank" rel="noopener">📌 Il punto su Maps</a>${p.loop ? `<a href="${loopLink(p.loop)}" target="_blank" rel="noopener">🔁 Giro del parco</a>` : ""}${p.tel ? `<a href="tel:${p.tel}">📞 Chiama</a>` : ""}<button onclick="taxiCard('${esc(p.q)}')">🚕 Taxi</button></div>
+    <p class="foot">📍 ${p.addr}</p>`;
+  return { body, pad: primaryFor(n, x.go) + navRow };
+}
+function leggiBtn(g, n) {
+  const G = GUIDES[g], secs = readSecs(G), min = Math.max(1, Math.round(secs.reduce((a, s) => a + s.text.replace(/<[^>]+>/g, "").split(/\s+/).length, G.intro.split(/\s+/).length) / 180));
+  return `<button class="leggi" onclick="openRead('${g}',${n},'')"><span class="bk">📖</span><span><b>Leggi il ${n}</b><small>${secs.slice(0, 3).map(s => s.title.toLowerCase()).join(" · ")} · ~${min} min</small></span><span class="ar">›</span></button>`;
+}
+function pagePause(ci, x, navRow) {
+  const c = CH[ci], pt = c.parts[x.pi], nx = c.parts[x.pi + 1];
+  const body = `
+    <div class="tt"><span class="num hotel">🏨</span><span class="n"><small>Capitolo ${c.n} · pausa</small>${pt.name}</span></div>
+    <div class="card"><h4>Come tornare in hotel</h4><div class="est">${MODE[pt.go.m].i} <b>${pt.go.txt}</b></div>
+      <div class="btn3" style="margin-top:8px"><a href="${routeLink(HOTEL.q, "transit")}" target="_blank" rel="noopener">🚇 Mezzi</a><button onclick="taxiCard('${esc(HOTEL.q)}')">🚕 Taxi</button><a href="${routeLink(HOTEL.q, "walking")}" target="_blank" rel="noopener">🚶 A piedi</a></div></div>
+    <div class="tip">😴 ${pt.rest}</div>
+    ${nx ? `<div class="card"><h4>Si riparte</h4><div class="est">Prossimo: <b>${nx.steps[0].p} · ${place(nx.steps[0].p).name}</b> · ${MODE[nx.steps[0].go.m].i} ${nx.steps[0].go.txt}</div></div>` : ""}
+    <p class="foot">🏨 ${HOTEL.name} · ${HOTEL.addr}</p>`;
+  return { body, pad: `<a class="pb" href="${routeLink(HOTEL.q, MODE[pt.go.m].maps)}" target="_blank" rel="noopener">🧭 PORTAMI IN HOTEL<small>${MODE[pt.go.m].i} ${pt.go.txt}</small></a>` + navRow };
+}
+function pageEnd(ci, navRow) {
+  const c = CH[ci], nc = CH[ci + 1], e = c.end;
+  const nums = ptPages(ci).map(x => x.p).filter((v, i, a) => a.indexOf(v) === i);
+  let main1;
+  if (e.depart) main1 = `<div class="card"><h4>🚗 Partenza per Magenta</h4><div class="est">${e.txt}</div><div class="tip" style="margin:8px 0 0">🥪 ${e.alt}</div>
+      <div class="btn3" style="margin-top:8px"><button onclick="go('sos')">🚇 Trafori, costi e alternative</button></div></div>`;
+  else main1 = `<div class="card"><h4>🏨 Rientro in hotel</h4><div class="est">${MODE[e.home.m].i} <b>${e.home.txt}</b> · oppure ${e.home.alt}</div>
+      <div class="btn3" style="margin-top:8px"><button onclick="taxiCard('${esc(HOTEL.q)}')">🪧 Mostra al tassista</button><a href="${routeLink(HOTEL.q, "walking")}" target="_blank" rel="noopener">🚶 A piedi</a><a href="tel:${HOTEL.tel}">📞 Hotel</a></div></div>`;
+  const body = `
+    <div class="done-h"><span class="ck">✓</span><span><small>Capitolo ${c.n} · ${nums.length} punti su ${nums.length}</small><b>${c.title}</b></span></div>
+    ${mapBlock(Object.assign(chapterOpts(ci, 200), { done: new Set(nums) }), true)}
+    ${main1}
+    ${nc ? `<div class="next-cap"><h4>Domani · Capitolo ${nc.n} · ${nc.title}</h4><div class="nums">${ptPages(ci + 1).map(x => x.p).filter((v, i, a) => a.indexOf(v) === i).map(n => `<span>${n}</span>`).join("")}</div><p>${nc.before}</p></div>` : `<div class="tip">👋 Buon rientro a casa!</div>`}`;
+  let prim;
+  if (e.depart) prim = `<a class="pb" href="${routeLink("Magenta, MI, Italia", "driving")}" target="_blank" rel="noopener">🚗 PORTAMI A CASA<small>Magenta · ~445 km · ~4h50 + soste</small></a>`;
+  else if (e.home.m === "taxi") prim = `<button class="pb" onclick="taxiCard('${esc(HOTEL.q)}')">🚕 TAXI PER L'HOTEL<small>${HOTEL.name} · ${HOTEL.addr}</small></button>`;
+  else prim = `<a class="pb" href="${routeLink(HOTEL.q, MODE[e.home.m].maps)}" target="_blank" rel="noopener">🧭 PORTAMI IN HOTEL<small>${MODE[e.home.m].i} ${e.home.txt}</small></a>`;
+  return { body, pad: prim + navRow };
+}
 
-  else {                                      /* ===== SOSTA ===== */
-    const nb = BLOCKS[d][blk + 1];
-    body = `
-      <div class="cardhead"><div class="emoji" aria-hidden="true">${s.emoji}</div><div class="title">${b.name}</div></div>
-      <div class="meta">${s.meta}</div>
-      ${closesHTML(key)}
-      ${s.desc ? `<div class="guide-box"><div class="guide-text">${s.desc}</div></div>` : ''}
-      ${s.tip ? `<div class="tip ${s.warn ? 'warn' : ''}">${s.tip}</div>` : ''}
-      ${b.food !== undefined ? foodHTML(b.food) : ''}
-      <button class="btn-2" onclick="openScopri()">📖 Scopri</button>
-      <div class="btn-3-row">
-        <button class="btn-3" onclick="hereNow(event)">📍 Dove sono io</button>
-        <a class="btn-3" href="${poiLink(s.dest)}" target="_blank" rel="noopener">📌 Dov'è · ${shortName(s.dest)}</a>
-        <a class="btn-3" href="tel:${TAXI_TEL}">🚕 Taxi</a>
-      </div>`;
-    primary = b.hotel
-      ? `<a class="pbtn go" href="tel:${HOTEL_TEL}">📞 CHIAMA L'HOTEL<small>${nb ? `${b.rest ? 'ripartenza' : 'si parte'} alle ${fromMin(blockTime(d, blk + 1))}` : 'Hôtel Charlemagne'}</small></a>`
-      : s.tel && b.food === undefined
-      ? `<a class="pbtn go" href="tel:${s.tel}">📞 CHIAMA<small>${shortName(s.dest)}</small></a>`
-      : `<a class="pbtn go" href="${takeMeLink(s)}" target="_blank" rel="noopener">🧭 PORTAMI A · ${shortName(s.dest)}<small>${car || /🚗/.test(s.dur) ? 'in auto' : 'a piedi'} dalla tua posizione</small></a>`;
-    head = `${TYPE_LABEL.stop} · ${b.name}`;
-  }
-
-  const nx = dayEnd || walkDone ? '' : nextLabel();
-  view.innerHTML = `
-    <div class="kicker">${d === todayIdx ? 'Adesso' : 'Programma'} · ${DAYS[d].date}<span class="phase" id="phase"></span></div>
-    ${filoHTML()}
-    <div class="blk-h t-${b.t}">${head}</div>
-    <div class="bigcard">${lateBanner()}${body}
-      ${nx ? `<div class="nextline">Poi · ${nx}</div>` : ''}
+/* ---------- LEGGI ---------- */
+const LOGI = /^(In sintesi|Dove sei|Numeri utili|Se\.\.\.|Il percorso stasera|Prima di uscire|Prenotazioni|Pratico|Domani|Come chiamare|In auto|Riposo in hotel|Rientro|Partenza|Funicolare giù|Funicolare Saint-Jean|Halles Bocuse · ultimi|Alternative|Dopo cena)/;
+function readSecs(G) { return G.sections.filter(s => !LOGI.test(s.title)); }
+function openRead(g, n, sec) { S.read = { g, n, sec }; render(); window.scrollTo(0, 0); if (sec) setTimeout(() => { const el = document.querySelector(".hl"); if (el) el.scrollIntoView({ block: "start" }); }, 30); }
+function closeRead() { S.read = null; render(); window.scrollTo(0, 0); }
+function renderRead() {
+  const { g, n, sec } = S.read, G = GUIDES[g], secs = readSecs(G), p = place(n);
+  const id = i => "rs" + i;
+  const body = `
+    <div class="rd-h"><div class="tt"><span class="num">${n}</span><span class="n"><small>📖 Leggi</small>${p.name}</span></div>
+      <div class="chips"><button class="${sec ? "" : "on"}" onclick="jumpSec('rs-i')">In breve</button>${secs.map((s, i) => `<button class="${s.title === sec ? "on" : ""}" onclick="jumpSec('${id(i)}')">${s.title}</button>`).join("")}</div></div>
+    <div class="rd">
+      <h3 id="rs-i">In breve</h3><p class="lead2">${G.intro}</p>
+      ${secs.map((s, i) => `<div class="${s.title === sec ? "hl" : ""}"><h3 id="${id(i)}">${s.icon} ${s.title}</h3><div class="tx">${s.text}</div></div>`).join("")}
+      ${G.linkTo && GUIDES[G.linkTo] ? `<div class="tip" style="margin-top:16px">➕ Se avete più tempo: <b>${GUIDES[G.linkTo].title || GUIDES[G.linkTo].subtitle}</b> — ${GUIDES[G.linkTo].intro}</div>` : ""}
     </div>`;
+  return { body, pad: `<button class="pb dark" onclick="closeRead()">◀ TORNA ALLA PAGINA ${n}<small>${p.name} · la guida riprende da qui</small></button>` };
+}
+function jumpSec(id) { const el = $(id); if (el) el.scrollIntoView({ block: "start", behavior: "smooth" }); }
 
-  let padHTML = document.getElementById('pad-fixed');
-  if (!padHTML) { padHTML = document.createElement('div'); padHTML.id = 'pad-fixed'; padHTML.className = 'pad'; document.body.appendChild(padHTML); }
-  const atStart = blk === 0 && pt === 0 && !walkDone && !dayEnd;
-  padHTML.innerHTML = `
-    <div class="pad-inner v2">
-      ${primary ? `<div class="pad-row">${primary}</div>` : ''}
-      <div class="pad-row">
-        <button class="pbtn step ${atStart ? 'off' : ''}" onclick="prevS()" aria-label="Indietro">◀ Indietro</button>
-        <button class="pbtn step ${dayEnd ? 'off' : ''}" onclick="nextS()" aria-label="Avanti">Avanti ▶</button>
-      </div>
+/* ---------- RISTORANTI ---------- */
+function foodBlock(meal, inPage) {
+  const F = FOOD[meal], cur = starOf(meal);
+  const rows = F.items.map((r, i) => {
+    const L = F.inside ? "" : String.fromCharCode(65 + i), mine = cur === r.id;
+    const d = r.ll && F.from ? fmtDist(hav(r.ll, F.from === "hotel" ? HOTEL.ll : P[F.from].ll)) : "";
+    return `<div class="rest ${mine ? "mine" : ""}"><div class="rt">${L ? `<span class="lt">${mine ? "★" : L}</span>` : `<span class="lt">🍽</span>`}
+      <span class="rn"><b>${r.n}</b>${!F.inside ? (mine ? `<span class="bk-st ok">★ il vostro</span>` : "") : ""}<small>${r.k} · ${r.p}</small><small>📍 ${r.a}${d ? ` · ${d} ${F.fromTxt}` : ""}${r.hrs ? ` · 🕐 ${r.hrs}` : ""}</small>${r.book && !F.inside ? `<small>📅 prenotazione: ${r.book}</small>` : ""}</span></div>
+      <div class="rb">${!F.inside ? `<button class="stb ${mine ? "on" : ""}" onclick="setStar('${meal}','${r.id}')" aria-pressed="${mine}" aria-label="Segna ${r.n} come il vostro ristorante">${mine ? "★ Il nostro" : "☆ È il nostro"}</button>` : ""}
+        ${r.tel ? `<a class="tel" href="tel:${r.tel}">📞 Chiama</a>` : ""}<a href="${poiLink(r.n + ", " + (F.inside ? "Halles de Lyon Paul Bocuse, 102 Cours Lafayette" : r.a) + ", Lyon")}" target="_blank" rel="noopener">🗺️ Maps</a>${r.w ? `<a href="${r.w}" target="_blank" rel="noopener">🌐 Sito</a>` : ""}</div></div>`;
+  }).join("");
+  const head = F.inside ? "I banchi · dentro le Halles" : cur ? "Ristoranti in zona · ★ = il vostro tavolo" : "Scegliete e prenotate · toccate ☆ sul vostro";
+  return `<div class="card"><h4>${head}</h4>${rows}</div>`;
+}
+function setStar(meal, id) {
+  const was = starOf(meal);
+  STAR[meal] = was === id ? null : id; save(KEY_STAR, STAR);
+  toast(STAR[meal] ? "★ " + FOOD[meal].items.find(r => r.id === id).n + ": è il vostro tavolo" : "Stella tolta");
+  render();
+}
+
+/* ---------- SOMMARIO ---------- */
+function renderSommario() {
+  const chaps = CH.map((c, ci) => {
+    const done = doneSet(ci), pos = PAGES[ci][Math.min(S.pos[ci] || 0, PAGES[ci].length - 1)];
+    const nums = []; ptPages(ci).forEach(x => { if (!nums.includes(x.p)) nums.push(x.p); });
+    const where = pos.t === "pt" ? `📖 sei al ${pos.p}` : pos.t === "end" ? "✓ letto" : pos.t === "pause" ? "📖 pausa" : c.when;
+    return `<button class="chap ${ci === S.ch ? "on" : ""}" onclick="switchCh(${ci},true)"><span class="top"><b>${c.n} · ${c.title}</b><span>${c.chip} · ${where}</span></span>
+      <p>${c.story.replace(/<[^>]+>/g, "")}</p><span class="nums">${nums.map(n => `<span class="${pos.t === "pt" && pos.p === n && ci === S.ch ? "cur" : done.has(n) ? "done" : ""}">${n}</span>`).join("")}<em>${fmt(chapterTime(ci))} senza i pasti</em></span></button>`;
+  }).join("");
+  const book = ["gio", "venc"].map(m => { const r = chosen(m), F = FOOD[m];
+    return `<li><span class="st ${r ? "ok" : ""}">${r ? "★ scelto" : "da prenotare"}</span><span><b>${F.h}</b><br>${r ? r.n + " · " + (r.book || "") : F.items.length + " papabili in 🍽️ Mangiare"}</span></li>`; }).join("");
+  const todo = CH.map(c => c.todo.map(t => `<li><span class="st ok" style="background:#eef6f3;color:var(--ink)">${c.chip}</span><span>${t}</span></li>`).join("")).join("");
+  const body = `
+    <div class="kick">Sommario · Lione, 29–31 ottobre</div>
+    ${chaps}
+    <div class="card"><h4>Da prenotare</h4><ul class="todo">${book}</ul></div>
+    <div class="card"><h4>Da non dimenticare</h4><ul class="todo">${todo}</ul></div>
+    <button class="reset" onclick="azzera()"><span class="ic">↺</span><span><b>Azzera la lettura</b><small>Toglie segnalibro e punti fatti: la guida riparte dall'apertura del capitolo di oggi. Le stelle dei ristoranti restano.</small></span></button>
+    <p class="foot">Tempi: stime con margine, nessun orologio. Piante schematiche: per navigare usate "Portami".</p>`;
+  const pos = PAGES[S.ch][curPage()];
+  return { body, pad: `<button class="pb" onclick="go('guida')">▶ ${pos.t === "pt" ? "RIPRENDI DAL " + pos.p : pos.t === "open" ? "APRI IL CAPITOLO " + CH[S.ch].n : "RIPRENDI LA LETTURA"}<small>${pos.t === "pt" ? place(pos.p).name + " · dove eri rimasto" : CH[S.ch].title}</small></button>` };
+}
+let undoSnap = null, undoTO = null;
+function azzera() {
+  undoSnap = JSON.stringify({ ch: S.ch, pos: S.pos });
+  S.pos = {}; S.ch = todayCh(); S.read = null; S.v = "guida"; persist(); render(); window.scrollTo(0, 0);
+  toast("↺ <b>Lettura azzerata</b> · si riparte dall'apertura", "ANNULLA", () => { const u = JSON.parse(undoSnap); S.ch = u.ch; S.pos = u.pos; persist(); render(); toast("Ripristinato"); }, 7000);
+}
+
+/* ---------- INDICE ---------- */
+function renderIndice() {
+  const chOf = n => CH.filter(c => c.parts.some(p => !p.pause && p.steps.some(s => s.p === n))).map(c => c.n);
+  const rows = [];
+  Object.keys(P).map(Number).forEach(n => { const p = place(n), cs = chOf(n), G = P[n].g;
+    rows.push({ key: p.name.replace(/^(La |Le |Les |L'|Place |Cena · )/i, ""), cap: cs[0], html: `<li><button class="k" onclick="goPoint(${n})" aria-label="Apri la pagina ${n}">${n}</button><span class="nm"><b>${p.name}</b><small>${P[n].type} · cap. ${cs.join(" e ")} · ${p.addr}</small>${p.hours ? `<small>🕐 ${p.hours}</small>` : ""}</span>${G ? `<button class="ib rd" onclick="go('guida');openRead('${G}',${n},'')" aria-label="Leggi">📖</button>` : ""}<a class="ib" href="${poiLink(p.q)}" target="_blank" rel="noopener" aria-label="Il punto su Maps">🗺️</a></li>` }); });
+  SEEN.forEach(s => rows.push({ key: s.name, cap: CH.findIndex(c => c.parts.some(p => !p.pause && p.steps.some(x => x.p === s.from))) + 1, html: `<li><span class="k o">·</span><span class="nm"><b>${s.name}</b><small>${s.note}</small></span><a class="ib" href="${poiLink(s.q)}" target="_blank" rel="noopener" aria-label="Il punto su Maps">🗺️</a></li>` }));
+  Object.keys(FOOD).forEach(m => { const F = FOOD[m]; if (F.inside) return; F.items.forEach((r, i) => { if (starOf(m) === r.id) return;
+    rows.push({ key: r.n, cap: F.ch, html: `<li><span class="k st">${String.fromCharCode(65 + i)}</span><span class="nm"><b>${r.n}</b><small>☆ ristorante · ${F.h} · ${r.a}</small></span><a class="ib" href="${poiLink(r.n + ", " + r.a + ", Lyon")}" target="_blank" rel="noopener" aria-label="Il punto su Maps">🗺️</a></li>` }); }); });
+  rows.push({ key: "Hôtel Charlemagne", cap: 0, html: `<li><span class="k ht">🏨</span><span class="nm"><b>${HOTEL.name}</b><small>il vostro hotel · ${HOTEL.addr}</small></span><a class="ib" href="tel:${HOTEL.tel}" aria-label="Chiama l'hotel" style="background:#0e9f6e">📞</a><a class="ib" href="${poiLink(HOTEL.q)}" target="_blank" rel="noopener" aria-label="L'hotel su Maps">🗺️</a></li>` });
+  IDX_ROWS = rows;
+  return `<div class="kick">Indice dei luoghi</div>
+    <input class="search" id="isearch" type="search" placeholder="🔎 Cerca un luogo, una via…" value="${(S.q || "").replace(/"/g, "&quot;")}" oninput="S.q=this.value;$('ilist').innerHTML=idxList()" aria-label="Cerca un luogo">
+    <div class="seg" role="tablist"><button class="${S.idxMode === "az" ? "on" : ""}" onclick="S.idxMode='az';persist();render()">A–Z</button><button class="${S.idxMode === "cap" ? "on" : ""}" onclick="S.idxMode='cap';persist();render()">Per capitolo</button></div>
+    <div id="ilist">${idxList()}</div>
+    <p class="foot">Tocca il numero per aprire la sua pagina · 📖 per leggere · 🗺️ per il punto su Maps.<br>Cerchio tratteggiato = si vede ma non si visita · lettera = ristorante papabile.</p>`;
+}
+let IDX_ROWS = [];
+function idxList() {
+  const rows = IDX_ROWS;
+  const q = (S.q || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  const flt = rows.filter(r => !q || r.html.replace(/<[^>]+>/g, " ").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").includes(q));
+  let list;
+  if (S.idxMode === "az") list = `<div class="card" style="padding:4px 12px"><ul class="idx">${flt.sort((a, b) => a.key.localeCompare(b.key, "it")).map(r => r.html).join("") || "<li>Nessun luogo trovato</li>"}</ul></div>`;
+  else list = [0, 1, 2, 3].map(c => { const g = flt.filter(r => r.cap === c); if (!g.length) return ""; return `<div class="sec-t">${c ? "Capitolo " + c + " · " + CH[c - 1].title : "Hotel"}</div><div class="card" style="padding:4px 12px"><ul class="idx">${g.map(r => r.html).join("")}</ul></div>`; }).join("");
+  return list;
+}
+
+/* ---------- MANGIARE ---------- */
+function renderFood() {
+  const block = m => { const F = FOOD[m]; const ci = F.ch - 1;
+    let mp = "";
+    if (!F.inside) { const pi = CH[ci].parts.findIndex(p => !p.pause && p.steps.some(s => s.p === F.near));
+      const o = mapOpts(ci, pi, null, 200); o.click = false; o.fitStars = true; mp = mapBlock(o, false); }
+    return `<div class="sec-t">🍽 ${F.h} · punto ${F.near}</div>${mp}${foodBlock(m, false)}`; };
+  return `<div class="kick">Mangiare · i papabili</div>
+    <div class="tip">☆ Toccate <b>"È il nostro"</b> sul ristorante prenotato: sulla pianta diventa il punto numerato e "Portami" vi porta lì. Le lettere sono le stelline della pianta.</div>
+    ${["gio", "venp", "venc"].map(block).join("")}
+    <div class="tips">
+      <div>💧 Chiedete <b>une carafe d'eau</b>: l'acqua del rubinetto è gratuita. Il servizio è già incluso nel conto.</div>
+      <div>⏰ Molti ristoranti chiudono la cucina tra 14:00 e 19:00 (la Brasserie Georges no: servizio continuo).</div>
+      <div>🧀 <b>Halles Bocuse</b>: banchi lun–sab 7:30–19:30 · ristoranti 11:30–14:30 · écailler 9:00–22:00.</div>
     </div>`;
-  const on = view.querySelector('.fchip.on'), filo = view.querySelector('.filo');
-  if (on && filo) filo.scrollLeft = on.offsetLeft - filo.clientWidth / 2 + on.clientWidth / 2;
-  tick();
 }
 
-function tick() {   /* l'orologio non sposta più le schede: aggiorna solo le etichette */
-  const ph = document.getElementById('phase');
-  if (ph) ph.textContent = '· ' + phaseLabel();
-}
-setInterval(() => { if (!PAGES.nowPage.hidden && dayIdx === todayIdx) render(); }, 60000);  /* fuori orario e conti alla rovescia */
-
-function nextS() {
-  const b = B();
-  if (dayEnd) return;
-  if (b.t === 'walk' && !walkDone && pt < b.pts.length - 1) pt++;
-  else if (b.t === 'walk' && !walkDone) walkDone = true;
-  else if (blk < BLOCKS[dayIdx].length - 1) { blk++; pt = 0; walkDone = false; }
-  else dayEnd = true;
-  savePos(); render(); window.scrollTo({ top: 0 });
-}
-function prevS() {
-  if (dayEnd) dayEnd = false;
-  else if (walkDone) walkDone = false;
-  else if (B().t === 'walk' && pt > 0) pt--;
-  else if (blk > 0) { blk--; const b = B(); pt = b.t === 'walk' ? b.pts.length - 1 : 0; }
-  else return;
-  savePos(); render();
-}
-function jumpBlock(i) { blk = i; pt = 0; walkDone = false; dayEnd = false; savePos(); render(); }
-function jumpPoint(i) { pt = i; walkDone = false; savePos(); render(); }
-function switchDay(i) {
-  dayIdx = i; steps = DAYS[i].steps;
-  setPos(startPos(i));
-  closeSheet(); render(); window.scrollTo({ top: 0 });
-  toast(`${DAYS[i].date} · ${DAYS[i].name}`);
-}
-function goBlock(i) { blk = i; pt = 0; walkDone = false; dayEnd = false; savePos(); showPage('nowPage'); }
-
-/* ===== PROGRAMMA: la giornata come catena di schede ===== */
-function dayOverviewLink(d) {
-  const pts = []; BLOCKS[d].forEach(b => { const q = DAYS[d].steps[blockStep(b)].dest; if (pts[pts.length - 1] !== q) pts.push(q); });
-  const first = DAYS[d].steps[0].orig, last = pts.pop();
-  return 'https://www.google.com/maps/dir/?api=1&origin=' + encodeURIComponent(first) + '&destination=' + encodeURIComponent(last) +
-    (pts.length ? '&waypoints=' + encodeURIComponent(pts.filter(q => q !== first).slice(0, 9).join('|')) : '') + '&travelmode=' + (DAYS[d].car ? 'driving' : 'walking');
-}
-function renderDayPage() {
-  const d = dayIdx, day = DAYS[d];
-  dayView.innerHTML = `
-    <div class="day-h"><div class="dh-top">
-      <div><div class="dh-sub">${day.date}</div><h2>${day.name}</h2></div>
-      <span class="dh-time">${day.time}</span></div>
-      <a class="btn-2" style="background:rgba(255,255,255,.15);border-color:rgba(255,255,255,.7);color:#fff" href="${dayOverviewLink(d)}" target="_blank" rel="noopener">🗺️ La giornata sulla mappa</a>
-    </div>
-    <div class="steps">
-      ${BLOCKS[d].map((b, i) => {
-        const cur = i === blk && !dayEnd;
-        const s = day.steps[blockStep(b)];
-        const sub = b.t === 'go' ? `${MODES[b.rec].i} ${s.dur.replace(/^\S+\s/, '')} · da ${shortName(s.orig)}`
-                  : b.t === 'walk' ? b.pts.map(si => (b.ptNames || {})[si] || day.steps[si].title).join(' → ') + ` · 📏 ${b.km} km`
-                  : s.meta.replace(/<[^>]+>/g, '');
-        return `
-          <div class="step t-${b.t} ${cur ? 'cur' : ''}" onclick="goBlock(${i})" role="button" tabindex="0">
-            <div class="st-body">
-              <div class="badges"><span class="bdg">${fromMin(blockTime(d, i))} → ${fromMin(blockEnd(d, i))}</span><span class="bdg">${TYPE_LABEL[b.t]}</span></div>
-              <div class="st-tit">${blockIcon(b)} ${blockTitle(b)}</div>
-              <div class="st-sub">${sub}</div>${cur ? `<div class="st-hint">▶ mostrata in Adesso</div>` : ''}
-            </div>
-          </div>`;
-      }).join('')}
-    </div>`;
+/* ---------- SOS ---------- */
+function renderSos() {
+  return `<div class="kick">SOS · informazioni</div>
+    <div class="ritem alert"><div class="r-name">⚠️ Ottobre 2026: scioperi e manifestazioni</div>
+      <p class="info-p" style="margin-top:4px">A metà ottobre ci sono stati scioperi dei bus TCL e una manifestazione con disordini (17 ottobre: Presqu'île, Bellecour, padiglione dell'Office du tourisme incendiato). Prima di uscire controllate <b>tcl.fr</b> e state lontani dai cortei.</p>
+      <div class="r-btns"><a href="https://www.tcl.fr" target="_blank" rel="noopener">🚇 tcl.fr</a><a class="b-web" href="https://www.visiterlyon.com" target="_blank" rel="noopener">🌐 visiterlyon.com</a></div></div>
+    ${INFO_HTML}
+    <div class="sec-h">🚗 Viaggio in auto · andata e ritorno</div>
+    ${TRIP.map(g => `<div class="list"><div class="list-h">${g.label} · ${g.route}</div>${g.rows.map(r => `<div class="ritem"><div class="r-top"><span class="r-name">${r.dir === "tunnel" ? "🚇" : "⛰️"} ${r.name}</span><span class="r-price">${r.tot}</span></div><div class="r-addr">⏱️ ${r.dur} · 🛣️ ${r.km}<br>${r.det}</div><div class="r-btns"><a class="b-map" href="${r.map}" target="_blank" rel="noopener">🗺️ Percorso</a></div></div>`).join("")}</div>`).join("")}
+    <p class="foot">Lyon_Guide · funziona anche senza rete. I link a Maps, i numeri di telefono e i siti richiedono la connessione.</p>`;
 }
 
-/* posizione iniziale: quella salvata oggi, altrimenti l'orologio */
-setPos(startPos(dayIdx));
+/* =====================================================================
+   AZIONI
+   ===================================================================== */
+function go(v) { S.v = v; if (v !== "guida") S.read = null; S.focusSearch = false; persist(); render(); window.scrollTo(0, 0); }
+function flip(d) { const pg = PAGES[S.ch], i = curPage() + d; if (i < 0 || i >= pg.length) return; S.pos[S.ch] = i; S.read = null; persist(); render(); window.scrollTo(0, 0); }
+function switchCh(i, toGuide) { S.ch = i; S.read = null; if (toGuide) S.v = "guida"; if (S.v !== "guida" && S.v !== "sommario") S.v = "guida"; persist(); render(); window.scrollTo(0, 0); }
+function goPoint(n) {
+  closeSheet();
+  let ci = CH.findIndex((c, i) => i === S.ch && PAGES[i].some(x => x.p === n));
+  if (ci < 0) ci = CH.findIndex((c, i) => PAGES[i].some(x => x.p === n));
+  S.ch = ci; S.pos[ci] = PAGES[ci].findIndex(x => x.p === n); S.v = "guida"; S.read = null; persist(); render(); window.scrollTo(0, 0);
+}
+function sheet(html) { overlay.innerHTML = `<div class="sheet" onclick="event.stopPropagation()">${html}</div>`; overlay.hidden = false; }
+function closeSheet() { overlay.hidden = true; overlay.innerHTML = ""; bigOpts = null; }
+overlay.addEventListener("click", closeSheet);
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+function taxiCard(q) {
+  const parts = q.split(",").map(x => x.trim());
+  sheet(`<div class="sh-top"><b>🪧 Mostra al tassista</b><button class="sh-close" onclick="closeSheet()" aria-label="Chiudi">✕</button></div>
+    <div class="taxi-card">${parts.join("<br>")}<small>S'il vous plaît · Merci !</small></div>
+    <div class="r-btns">${TAXI.map(t => `<a href="tel:${t[1]}">📞 ${t[0]}</a>`).join("")}</div>
+    <p class="foot">1 taxi = max 4 persone · ~15–25 € in centro</p>`);
+}
+let toastTO = null, toastAct = null;
+function toast(msg, act, fn, ms) {
+  const t = $("toast"); toastAct = fn || null;
+  t.innerHTML = `<span>${msg}</span>${act ? `<button onclick="toastAct&&toastAct();hideToast()">${act}</button>` : ""}`;
+  t.classList.add("show"); clearTimeout(toastTO); toastTO = setTimeout(hideToast, ms || 2600);
+}
+function hideToast() { $("toast").classList.remove("show"); }
+document.querySelectorAll("nav.bnav button").forEach(b => b.addEventListener("click", () => go(b.dataset.v)));
 
+/* scorrimento orizzontale = sfogliare (solo nella guida, non nella lettura) */
+let tx = 0, ty = 0;
+main.addEventListener("touchstart", e => { tx = e.touches[0].clientX; ty = e.touches[0].clientY; }, { passive: true });
+main.addEventListener("touchend", e => {
+  if (S.v !== "guida" || S.read) return;
+  const dx = e.changedTouches[0].clientX - tx, dy = e.changedTouches[0].clientY - ty;
+  if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.6 && !e.target.closest(".chips,.map")) flip(dx < 0 ? 1 : -1);
+}, { passive: true });
+
+if (gpsOn) startGps();
 render();
 </script>
 </body>
